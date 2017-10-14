@@ -15,6 +15,7 @@ struct Light {
 	void enable();
 	void disable();
 	void loadDefault();
+	void dumpinfo(string);
 };
 
 #endif

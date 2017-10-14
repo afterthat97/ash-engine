@@ -17,7 +17,7 @@ struct Scene {
 	}
 	void loadFromFile(string);
 	void draw();
-	void dumpinfo();
+	void dumpinfo(string);
 };
 
 #endif

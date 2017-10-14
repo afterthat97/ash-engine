@@ -7,8 +7,8 @@ void Material::loadDefault() {
 	shininess = 0.0f; sharpness = 60.0f; density = 1.0f;
 	ambient[0] = 0.2f; ambient[1] = 0.2f; ambient[2] = 0.2f; ambient[3] = 1.0f;
 	diffuse[0] = 0.8f; diffuse[1] = 0.8f; diffuse[2] = 0.8f; diffuse[3] = 1.0f;
-	specular[0]= 1.0f; specular[1]= 1.0f; specular[2]= 1.0f; specular[3]= 1.0f;
-	emission[0]= 0.0f; emission[1]= 0.0f; emission[2]= 0.0f; emission[3]= 0.0f;
+	specular[0] = 1.0f; specular[1] = 1.0f; specular[2] = 1.0f; specular[3] = 1.0f;
+	emission[0] = 0.0f; emission[1] = 0.0f; emission[2] = 0.0f; emission[3] = 0.0f;
 }
 
 void Material::draw() {
@@ -18,7 +18,7 @@ void Material::draw() {
 	glMaterialfv(GL_FRONT, GL_EMISSION, emission);
 	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
 	for (uint32_t i = 0; i < textureIndices.size(); i++) {
-//		glActiveTexture(GL_TEXTURE0 + i);
+		//		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, textureIndices[i]);
 	}
 }

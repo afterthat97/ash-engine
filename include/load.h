@@ -3,6 +3,6 @@
 
 #include "scene.h"
 
-void loadScene(string, Scene&);
+int32_t loadScene(string, Scene&);
 
 #endif

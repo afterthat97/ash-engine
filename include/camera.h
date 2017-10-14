@@ -7,10 +7,10 @@
 struct Camera {
 	vector3f pos, dir, rot, up;
 	Camera() {
-		pos = vector3f(0, 100, 100);
-		dir = vector3f(0, -1, -1);
-		rot = vector3f(0, 0, 0);
-		up = vector3f(0, 1, -1);
+		pos = vector3f(0.0f, 100.0f, 0.0f);
+		dir = vector3f(0.0f, 0.0f, -1.0f);
+		rot = vector3f(0.0f, 0.0f, 0.0f);
+		up = vector3f(0.0f, 1.0f, 0.0f);
 	}
 	void reset();
 	void moveForward(GLfloat);

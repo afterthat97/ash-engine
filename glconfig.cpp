@@ -1,32 +1,31 @@
 #include "glconfig.h"
 
-int32_t shadeModel = GL_SMOOTH;
-int32_t polygonMode = GL_FILL;
+string shadeModelStr = "SMOOTH";
+string polygonModeStr = "FILL";
 bool enableDepthTest = true;
 bool enableLight = true;
 bool enableTexture = true;
 bool enableGridlines = true;
+bool enableCullFace = false;
 
-void toggleDepthTest() {
-	enableDepthTest = !enableDepthTest;
+void TW_CALL setShadeModel(const void *value, void *clientData) {
+	string* src = (string*) value, *des = (string*) clientData;
+	*des = *src;
+	if (*des != "SMOOTH" && *des != "FLAT") *des = "SMOOTH";
 }
 
-void toggleLighting() {
-	enableLight = !enableLight;
+void TW_CALL getShadeModel(void *value, void *clientData) {
+	string* des = (string*) value, *src = (string*) clientData;
+	TwCopyStdStringToLibrary(*des, *src);
 }
 
-void toggleTexture() {
-	enableTexture = !enableTexture;
+void TW_CALL setPolygonMode(const void *value, void *clientData) {
+	string* src = (string*) value, *des = (string*) clientData;
+	*des = *src;
+	if (*des != "FILL" && *des != "LINE") *des = "FILL";
 }
 
-void togglePolygonMode() {
-	polygonMode = (polygonMode == GL_FILL ? GL_LINE : GL_FILL);
-}
-
-void toggleShadeModel() {
-	shadeModel = (shadeModel == GL_FLAT ? GL_SMOOTH : GL_FLAT);
-}
-
-void toggleGridlines() {
-	enableGridlines = !enableGridlines;
+void TW_CALL getPolygonMode(void *value, void *clientData) {
+	string* des = (string*) value, *src = (string*) clientData;
+	TwCopyStdStringToLibrary(*des, *src);
 }

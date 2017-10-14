@@ -30,4 +30,3 @@ vector3f rotate(vector3f axis, vector3f vec, float angle) {
 	ans.z += (uz * uz * (1 - cosa) + cosa) * vec.z;
 	return ans;
 }
-
