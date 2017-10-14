@@ -1,31 +1,28 @@
 # atview
 
-An cross-platform 3D model viewer for learning purpose, based on OpenGL, Assimp, and FreeImage.
+An cross-platform 3D model viewer for learning purpose, based on OpenGL, Assimp, FreeImage, and AntTweakBar.
 
 ## Features
 
 * Supports reading 40+ 3D file formats, including FBX, DXF, Collada, Obj, X, PLY, 3DS.
 * Supports popular texture formats like PNG, BMP, JPEG, TIFF.
 * Provides multiple viewing options. You can toggle lighting, texture, the polygon mode and so on.
-* Uses "w,a,s,d" to move in the scene, just like playing CS.
+* Shows FPS, camera position, and some OpenGL configurations on bars.
+
+## Shortcomings
+
+* NOT support Linux.
+* Uses OpenGL 1.1 API, which can cause low performance.
 
 ## Screenshots
 
-Rock, lighting on, texture on, fill mode.
+On Microsoft Windows 10 Pro:
 
-![](https://img.masterliu.net/atview/rock.jpg)
+![](https://img.masterliu.net/atview/atview-win.jpg)
 
-Rock, lighting off, texture on, fill mode.
+On Apple macOS 10.13:
 
-![](https://img.masterliu.net/atview/rock-nolight.jpg)
-
-Rock, lighting on, texture off, fill mode.
-
-![](https://img.masterliu.net/atview/rock-notexture.jpg)
-
-Rock, lighting on, texture off, line mode.
-
-![](https://img.masterliu.net/atview/rock-line.jpg)
+![](https://img.masterliu.net/atview/atview-macos.jpg)
 
 ## How to use
 
@@ -37,6 +34,8 @@ atview rock/rock.obj
 
 ## Build
 
-For macOS, type `make` to build this project.
+You don't need to download any third-party libraries. I have put them together with the source code.
 
-For Windows, just ignore the makefile and use Visual Studio to build it. Remember to put all the `*.dll` in the same directory with the `.exe`.
+For macOS, clone this repository and type `make` to build.
+
+For Windows, just download the VS2017 project from the "release" page and build it. All `*.dll` and `*.lib` are included.
