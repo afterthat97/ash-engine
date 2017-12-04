@@ -8,7 +8,7 @@
 
 typedef void(*func) ();
 pair<double, double> lastPointerPos;
-pair<int32_t, int32_t> windowSize = { 1920, 1080 };
+pair<int32_t, int32_t> windowSize = { 1024, 576 };
 pair<int32_t, int32_t> windowFrameBufferSize;
 int32_t scaleRatio;
 Camera camera;
