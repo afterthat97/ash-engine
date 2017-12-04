@@ -25,7 +25,7 @@ void Camera::moveForward(float steps = 1.0f) {
 }
 
 void Camera::moveRight(float steps = 1.0f) {
-	pos = pos + cross(dir, up) * steps;
+	pos = pos + glm::cross(dir, up) * steps;
 }
 
 void Camera::moveUp(float steps = 1.0f) {
@@ -38,7 +38,7 @@ void Camera::turnLeft(float angle = 0.04f) {
 }
 
 void Camera::lookUp(float angle = 0.04f) {
-	vec3 t = cross(dir, up);
+	vec3 t = glm::cross(dir, up);
 	dir = rotate(t, dir, angle);
 	up = rotate(t, up, angle);
 }

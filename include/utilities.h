@@ -2,6 +2,7 @@
 #define UTILITIES_H
 
 #include <iostream>
+#include <fstream>
 #include <cstdio>
 #include <stdint.h>
 #include <cstring>
@@ -42,9 +43,20 @@ using std::vector;
 using std::string;
 using std::to_string;
 using std::pair;
+using std::ifstream;
+using std::ofstream;
 using std::cout;
 using std::cerr;
 using std::endl;
-using namespace glm;
+
+using glm::vec2;
+using glm::vec3;
+using glm::vec4;
+using glm::mat2;
+using glm::mat3;
+using glm::mat4;
+
+void throwError(string type, string name, string msg = "no error message");
+void reportInfo(string);
 
 #endif

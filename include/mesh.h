@@ -5,19 +5,24 @@
 #include "face.h"
 #include "material.h"
 
-struct Mesh {
+class Mesh {
+public:
 	string name;
 	float xMax, xMin, yMax, yMin, zMax, zMin;
-	vector<vec3> vertices;
-	vector<vec3> normals;
-	vector<vec3> texCoords;
-	vector<Face> faces;
+	uint32_t VAO, VBO, UBO, EBO;
+	vector<float> vertices;
+	vector<float> normals;
+	vector<float> texCoords;
+	vector<uint32_t> indices;
 	vector<Material> materials;
 	Mesh() {
+		VAO = VBO = UBO = EBO = 0;
 		xMax = yMax = zMax = -FLT_MAX;
 		xMin = yMin = zMin = FLT_MAX;
 	}
-	void draw();
+	~Mesh();
+	void init();
+	void render();
 	void dumpinfo(string);
 };
 

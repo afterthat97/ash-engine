@@ -11,14 +11,9 @@ void Material::loadDefault() {
 	emission[0] = 0.0f; emission[1] = 0.0f; emission[2] = 0.0f; emission[3] = 0.0f;
 }
 
-void Material::draw() {
-	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-	glMaterialfv(GL_FRONT, GL_EMISSION, emission);
-	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+void Material::bind() {
 	for (uint32_t i = 0; i < textureIndices.size(); i++) {
-		//		glActiveTexture(GL_TEXTURE0 + i);
+		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, textureIndices[i]);
 	}
 }

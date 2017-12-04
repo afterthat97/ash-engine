@@ -13,7 +13,8 @@ struct Model {
 		xMax = yMax = zMax = -FLT_MAX;
 		xMin = yMin = zMin = FLT_MAX;
 	}
-	void draw();
+	void init();
+	void render();
 	void dumpinfo(string);
 };
 

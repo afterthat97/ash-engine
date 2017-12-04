@@ -1,32 +1,48 @@
 #include "mesh.h"
 
-void Mesh::draw() {
-	glColor3f(1.0f, 1.0f, 1.0f);
+Mesh::~Mesh() {
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &UBO);
+	glDeleteBuffers(1, &EBO);
+}
+
+void Mesh::init() {
+	if (indices.size() == 0) return;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &UBO);
+	glGenBuffers(1, &EBO);
+	glBindVertexArray(VAO);
+	
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+	
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, UBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * texCoords.size(), &texCoords[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+	
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(float) * indices.size(), &indices[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void Mesh::render() {
 	for (uint32_t i = 0; i < materials.size(); i++)
-		materials[i].draw();
-	for (uint32_t i = 0; i < faces.size(); i++) {
-		glBegin(GL_POLYGON);
-		for (uint32_t j = 0; j < faces[i].indices.size(); j++) {
-			uint32_t idx = faces[i].indices[j];
-			if (normals.size() > 0)
-				glNormal3f(normals[idx].x, normals[idx].y, normals[idx].z);
-			if (texCoords.size() > 0)
-				glTexCoord2f(texCoords[idx].x, texCoords[idx].y);
-			else
-				glColor3f(0.5f, 0.5f, 0.5f);
-			if (vertices.size() > 0)
-				glVertex3f(vertices[idx].x, vertices[idx].y, vertices[idx].z);
-		}
-		glEnd();
-	}
+		materials[i].bind();
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
 void Mesh::dumpinfo(string tab) {
 	printf("%sMesh %s:\n", tab.c_str(), name.c_str());
-	printf("%s  Vertices: %lu\n", tab.c_str(), vertices.size());
-	printf("%s  Normals: %lu\n", tab.c_str(), normals.size());
-	printf("%s  Texture Coords: %lu\n", tab.c_str(), texCoords.size());
-	printf("%s  Faces: %lu\n", tab.c_str(), faces.size());
+	printf("%s  Vertices: %lu\n", tab.c_str(), vertices.size() / 3);
+	printf("%s  Triangles: %lu\n", tab.c_str(), indices.size() / 3);
 	for (uint32_t i = 0; i < materials.size(); i++)
 		materials[i].dumpinfo(tab + "  ");
 }

@@ -1,10 +1,17 @@
 #include "model.h"
 
-void Model::draw() {
+void Model::init() {
 	for (uint32_t i = 0; i < meshes.size(); i++)
-		meshes[i].draw();
+		meshes[i].init();
 	for (uint32_t i = 0; i < children.size(); i++)
-		children[i].draw();
+		children[i].init();
+}
+
+void Model::render() {
+	for (uint32_t i = 0; i < meshes.size(); i++)
+		meshes[i].render();
+	for (uint32_t i = 0; i < children.size(); i++)
+		children[i].render();
 }
 
 void Model::dumpinfo(string tab) {

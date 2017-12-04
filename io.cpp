@@ -17,7 +17,9 @@ void loadMesh(const aiMesh* aiMeshPtr, Mesh& newMesh, Scene& newScene) {
 	newMesh.name = aiMeshPtr->mName.C_Str();
 	for (uint32_t i = 0; i < aiMeshPtr->mNumVertices; i++) {
 		if (aiMeshPtr->HasPositions()) {
-			newMesh.vertices.push_back(toVec3f(aiMeshPtr->mVertices[i]));
+			newMesh.vertices.push_back(aiMeshPtr->mVertices[i].x);
+			newMesh.vertices.push_back(aiMeshPtr->mVertices[i].y);
+			newMesh.vertices.push_back(aiMeshPtr->mVertices[i].z);
 			newMesh.xMax = fmax(newMesh.xMax, aiMeshPtr->mVertices[i].x);
 			newMesh.xMin = fmin(newMesh.xMin, aiMeshPtr->mVertices[i].x);
 			newMesh.yMax = fmax(newMesh.yMax, aiMeshPtr->mVertices[i].y);
@@ -25,16 +27,19 @@ void loadMesh(const aiMesh* aiMeshPtr, Mesh& newMesh, Scene& newScene) {
 			newMesh.zMax = fmax(newMesh.zMax, aiMeshPtr->mVertices[i].z);
 			newMesh.zMin = fmin(newMesh.zMin, aiMeshPtr->mVertices[i].z);
 		}
-		if (aiMeshPtr->HasNormals())
-			newMesh.normals.push_back(toVec3f(aiMeshPtr->mNormals[i]));
-		if (aiMeshPtr->HasTextureCoords(0))
-			newMesh.texCoords.push_back(toVec3f(aiMeshPtr->mTextureCoords[0][i]));
+		if (aiMeshPtr->HasNormals()) {
+			newMesh.normals.push_back(aiMeshPtr->mNormals[i].x);
+			newMesh.normals.push_back(aiMeshPtr->mNormals[i].y);
+			newMesh.normals.push_back(aiMeshPtr->mNormals[i].z);
+		}
+		if (aiMeshPtr->HasTextureCoords(0)) {
+			newMesh.texCoords.push_back(aiMeshPtr->mTextureCoords[0][i].x);
+			newMesh.texCoords.push_back(aiMeshPtr->mTextureCoords[0][i].y);
+		}
 	}
-	for (uint32_t i = 0; i < aiMeshPtr->mNumFaces; i++) {
-		Face newFace;
-		loadFace(aiMeshPtr->mFaces[i], newFace);
-		newMesh.faces.push_back(newFace);
-	}
+	for (uint32_t i = 0; i < aiMeshPtr->mNumFaces; i++)
+		for (uint32_t j = 0; j < 3; j++)
+			newMesh.indices.push_back(aiMeshPtr->mFaces[i].mIndices[j]);
 	newMesh.materials.push_back(newScene.materials[aiMeshPtr->mMaterialIndex]);
 }
 
@@ -68,7 +73,6 @@ void loadColor(const aiColor4D& col, float* arr) {
 	arr[0] = col.r; arr[1] = col.g; arr[2] = col.b; arr[3] = col.a;
 }
 
-uint32_t texture_id = 1;
 uint32_t loadTexture(string dir, const char* filename) {
 	FreeImage_Initialise(0);
 	if (filename[0] == '/') filename = filename + 1;
@@ -81,14 +85,23 @@ uint32_t loadTexture(string dir, const char* filename) {
 	bitmap = FreeImage_ConvertTo32Bits(bitmap);
 	uint8_t *textureArr = (uint8_t*) FreeImage_GetBits(bitmap);
 	int32_t width = FreeImage_GetWidth(bitmap), height = FreeImage_GetHeight(bitmap);
+	uint32_t texture_id = 0;
+	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, textureArr);
-	gluBuild2DMipmaps(GL_TEXTURE_2D, 4, width, height, GL_BGRA, GL_UNSIGNED_BYTE, textureArr);
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// create texture and generate mipmaps
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, textureArr);
+	glGenerateMipmap(GL_TEXTURE_2D);
 	printf("Texture file %s loaded. (Width = %d, Height = %d)\n", dir.c_str(), width, height);
 	textureArr = NULL;
 	FreeImage_Unload(bitmap);
 	FreeImage_DeInitialise();
-	return texture_id++;
+	return texture_id;
 }
 
 void loadMaterial(const aiMaterial* aiMaterialPtr, Material& newMaterial, string dir) {

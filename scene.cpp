@@ -5,9 +5,14 @@ void Scene::loadFromFile(string filename) {
 	loadScene(filename, *this);
 }
 
-void Scene::draw() {
+void Scene::init() {
 	for (uint32_t i = 0; i < models.size(); i++)
-		models[i].draw();
+		models[i].init();
+}
+
+void Scene::render() {
+	for (uint32_t i = 0; i < models.size(); i++)
+		models[i].render();
 }
 
 void Scene::dumpinfo(string tab) {

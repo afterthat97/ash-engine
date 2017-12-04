@@ -1,10 +1,11 @@
+#include "AntTweakBar.h"
 #include "utilities.h"
 #include "scene.h"
 #include "camera.h"
 #include "light.h"
 #include "glconfig.h"
 #include "io.h"
-#include <AntTweakBar.h>
+#include "shader.h"
 
 typedef void(*func) ();
 pair<double, double> lastPointerPos;
@@ -16,6 +17,7 @@ GLFWwindow* window;
 vector<Light> lights;
 vector<Scene> scenes;
 vector<func> menuOptions;
+Shader shader;
 int32_t fps = 60, canMove = 1, canChangeViewport = 0;
 
 void windowSizeCallback(GLFWwindow* window, int32_t width, int32_t height) {
@@ -24,9 +26,6 @@ void windowSizeCallback(GLFWwindow* window, int32_t width, int32_t height) {
 	scaleRatio = windowFrameBufferSize.first / windowSize.first;
 	TwWindowSize(windowFrameBufferSize.first, windowFrameBufferSize.second);
 	glViewport(0, 0, windowFrameBufferSize.first, windowFrameBufferSize.second);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45.0f, 1.0f * windowSize.first / windowSize.second, 1.0f, 100000.0f);
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
@@ -116,6 +115,7 @@ void charCallback(GLFWwindow* window, uint32_t key) {
 }
 
 void drawGridlines(GLfloat length, GLfloat width, GLfloat inc) {
+	return;
 	length /= 2; width /= 2;
 	// Draw grid lines
 	GLfloat posx = floor(camera.pos.x / inc) * inc;
@@ -133,7 +133,9 @@ void drawGridlines(GLfloat length, GLfloat width, GLfloat inc) {
 	}
 }
 
-void display() {
+void render() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	// Move camera by keyboard
 	if (canMove) {
 		GLfloat speed = 1.0f;
@@ -158,26 +160,21 @@ void display() {
 	}
 
 	// Apply camera viewport
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(camera.pos.x, camera.pos.y, camera.pos.z,
-		camera.pos.x + camera.dir.x,
-		camera.pos.y + camera.dir.y,
-		camera.pos.z + camera.dir.z,
-		camera.up.x, camera.up.y, camera.up.z);
-
+	mat4 projection = glm::perspective(glm::radians(45.0f), (float)windowSize.first / (float)windowSize.second, 0.1f, 10000.0f);
+	mat4 view = glm::lookAt(camera.pos, camera.pos + camera.dir, camera.up);
+	shader.setMat4("projection", projection);
+    shader.setMat4("view", view);
+	
 	// Draw all scenes
-	if (shadeModelStr == "FLAT") glShadeModel(GL_FLAT);
-	else glShadeModel(GL_SMOOTH);
-	if (polygonModeStr == "LINE") glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glShadeModel(shadeModelStr == "FLAT" ? GL_FLAT : GL_SMOOTH);
+	glPolygonMode(GL_FRONT_AND_BACK, (polygonModeStr == "LINE" ? GL_LINE : GL_FILL));
 	if (enableGridlines) drawGridlines(10000.0f, 10000.0f, 100.0f);
 	if (enableTexture) glEnable(GL_TEXTURE_2D);
 	if (enableLight) glEnable(GL_LIGHTING);
 	if (enableCullFace) glEnable(GL_CULL_FACE);
 	if (enableDepthTest) glEnable(GL_DEPTH_TEST);
 	for (uint32_t i = 0; i < scenes.size(); i++)
-		scenes[i].draw();
+		scenes[i].render();
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_CULL_FACE);
@@ -191,20 +188,40 @@ void display() {
 
 int main(int argc, char **argv) {
 #ifdef __APPLE__
-	CGSetLocalEventsSuppressionInterval(0.0);
+	CGEventSourceRef evsrc = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+	CGEventSourceSetLocalEventsSuppressionInterval(evsrc, 0.0);
 #endif
 	if (!glfwInit()) return -1;
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	window = glfwCreateWindow(windowSize.first, windowSize.second, "atView", NULL, NULL);
 	if (!window) { glfwTerminate(); return -1; }
 	glfwGetFramebufferSize(window, &windowFrameBufferSize.first, &windowFrameBufferSize.second);
 	scaleRatio = windowFrameBufferSize.first / windowSize.first;
 	glfwMakeContextCurrent(window);
 
+	glewExperimental = true; // Needed for core profile
+	glewInit();
+
+	try {
+		shader.loadFromFile("shader/vertexShader.glsl", "shader/fragmentShader.glsl");
+	} catch (const string msg) {
+		cerr << msg << endl;
+		exit(-1);
+	}
+	
+	shader.use();
+	shader.setInt("texture0", 0);
+
 	// Load scene from file
 	for (int i = 1; i < argc; i++) try {
 		scenes.push_back(Scene(argv[i]));
-	} catch (const char* msg) {
+		scenes[scenes.size() - 1].init();
+	} catch (const string msg) {
 		cerr << msg << endl;
 	}
 
@@ -213,10 +230,6 @@ int main(int argc, char **argv) {
 		camera.pos = vec3((scenes[0].xMax + scenes[0].xMin) / 2,
 			(scenes[0].yMax + scenes[0].yMin) / 2,
 			(scenes[0].zMax - scenes[0].zMin) / 2 + scenes[0].zMax);
-		//Add lights
-		Light light0(fabs(scenes[0].xMax) * 4, fabs(scenes[0].yMax) * 4, fabs(scenes[0].zMax) * 2, 0.0f, 0);
-		lights.push_back(light0);
-		lights[0].enable();
 	}
 
 	// Dump info to console
@@ -227,7 +240,7 @@ int main(int argc, char **argv) {
 	putchar('\n');
 
 	// Add tweak bars
-	TwInit(TW_OPENGL, NULL);
+	TwInit(TW_OPENGL_CORE, NULL);
 	TwDefine("GLOBAL fontsize=3");
 	TwWindowSize(windowFrameBufferSize.first, windowFrameBufferSize.second);
 	TwBar * InfoBar = TwNewBar("Info");
@@ -263,9 +276,6 @@ int main(int argc, char **argv) {
 
 	// Set Camera viewport
 	glViewport(0, 0, windowFrameBufferSize.first, windowFrameBufferSize.second);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45.0f, 1.0f * windowSize.first / windowSize.second, 1.0f, 100000.0f);
 
 	// Start loop
 	double lastTime = glfwGetTime();
@@ -275,11 +285,11 @@ int main(int argc, char **argv) {
 		if (cntTime - lastTime >= 1.0f) {
 			fps = totframes; totframes = 0; lastTime += 1.0f;
 		}
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		display();
+		render();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
 	TwTerminate();
 	glfwTerminate();
 	return 0;
