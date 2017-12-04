@@ -20,11 +20,11 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include <unistd.h>
 #else
+#include <Windows.h>
 #include <GL/glew.h>
 #include <GL/GL.h>
 #include <GL/GLU.h>
 #include <GLFW/glfw3.h>
-#include <Windows.h>
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")
 #pragma comment(lib, "User32.lib")
