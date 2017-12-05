@@ -24,13 +24,11 @@
 #include <Windows.h>
 #include <GL/glew.h>
 #include <GL/GL.h>
-#include <GL/GLU.h>
 #include <GLFW/glfw3.h>
 #pragma comment(lib, "opengl32.lib")
-#pragma comment(lib, "glu32.lib")
 #pragma comment(lib, "User32.lib")
 #pragma comment(lib, "glfw3dll.lib")
-#pragma comment(lib, "glew32s.lib")
+#pragma comment(lib, "glew32.lib")
 #pragma comment(lib, "assimp.lib")
 #pragma comment(lib, "FreeImage.lib")
 #pragma comment(lib, "AntTweakBar.lib")
