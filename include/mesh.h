@@ -2,14 +2,14 @@
 #define MESH_H
 
 #include "utilities.h"
-#include "face.h"
 #include "material.h"
+#include "shader.h"
 
 class Mesh {
 public:
 	string name;
 	float xMax, xMin, yMax, yMin, zMax, zMin;
-	uint32_t VAO, VBO, UBO, EBO;
+	uint32_t VAO, VBO, NBO, UBO, EBO;
 	vector<float> vertices;
 	vector<float> normals;
 	vector<float> texCoords;
@@ -22,7 +22,7 @@ public:
 	}
 	~Mesh();
 	void init();
-	void render();
+	void render(Shader&);
 	void dumpinfo(string);
 };
 

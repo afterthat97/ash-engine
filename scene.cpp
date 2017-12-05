@@ -1,18 +1,13 @@
 #include "scene.h"
-#include "io.h"
-
-void Scene::loadFromFile(string filename) {
-	loadScene(filename, *this);
-}
 
 void Scene::init() {
 	for (uint32_t i = 0; i < models.size(); i++)
 		models[i].init();
 }
 
-void Scene::render() {
+void Scene::render(Shader& shader) {
 	for (uint32_t i = 0; i < models.size(); i++)
-		models[i].render();
+		models[i].render(shader);
 }
 
 void Scene::dumpinfo(string tab) {
