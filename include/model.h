@@ -1,6 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include "shader.h"
 #include "mesh.h"
 #include "utilities.h"
 
@@ -14,7 +15,7 @@ struct Model {
 		xMin = yMin = zMin = FLT_MAX;
 	}
 	void init();
-	void render();
+	void render(Shader&);
 	void dumpinfo(string);
 };
 

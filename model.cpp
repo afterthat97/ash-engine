@@ -7,11 +7,11 @@ void Model::init() {
 		children[i].init();
 }
 
-void Model::render() {
+void Model::render(Shader& shader) {
 	for (uint32_t i = 0; i < meshes.size(); i++)
-		meshes[i].render();
+		meshes[i].render(shader);
 	for (uint32_t i = 0; i < children.size(); i++)
-		children[i].render();
+		children[i].render(shader);
 }
 
 void Model::dumpinfo(string tab) {

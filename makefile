@@ -13,7 +13,7 @@ atview : ${OBJS}
 	cp ${LIB}*.dylib bin/
 
 run : atview
-	bin/atview
+	bin/atview ~/Documents/model/chair/chair.obj
 
 .cpp.o :
 	${CC} -c ${CFLAGS} $<

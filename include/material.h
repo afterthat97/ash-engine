@@ -2,6 +2,7 @@
 #define MATERIAL_H
 
 #include "utilities.h"
+#include "shader.h"
 
 struct Material {
 	string name;
@@ -29,7 +30,7 @@ struct Material {
 	// specifies the sharpness of the reflections from the local reflection map, range from 0 to 1000. The default is 60.  A high value results in a clear reflection of objects in the reflection map.
 	float density;
 	// specifies the optical density for the surface, range from 0.001 to 10. A value of 1.0 means that light does not bend as it passes through an object. Increasing the optical_density increases the amount of bending.
-	float ambient[4], diffuse[4], specular[4], transparent[4], emission[4];
+	vec3 ambient, diffuse, specular, transparent, emission;
 	//specifies the ambient reflectivity using RGB values
 	//specifies the diffuse reflectivity using RGB values
 	//specifies the specular reflectivity using RGB values
@@ -37,7 +38,7 @@ struct Material {
 	vector<uint32_t> textureIndices;
 	Material() { loadDefault(); }
 	void loadDefault();
-	void bind();
+	void bind(Shader&);
 	void dumpinfo(string);
 };
 

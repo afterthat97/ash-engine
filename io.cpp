@@ -8,11 +8,6 @@ vec3 toVec3f(const aiVector3D vec) {
 	return vec3(vec.x, vec.y, vec.z);
 }
 
-void loadFace(const aiFace aiFacePtr, Face& newFace) {
-	for (uint32_t i = 0; i < aiFacePtr.mNumIndices; i++)
-		newFace.indices.push_back(aiFacePtr.mIndices[i]);
-}
-
 void loadMesh(const aiMesh* aiMeshPtr, Mesh& newMesh, Scene& newScene) {
 	newMesh.name = aiMeshPtr->mName.C_Str();
 	for (uint32_t i = 0; i < aiMeshPtr->mNumVertices; i++) {
@@ -69,8 +64,8 @@ void loadModel(const aiNode* aiNodePtr, const aiScene* aiScenePtr, Model& newMod
 	}
 }
 
-void loadColor(const aiColor4D& col, float* arr) {
-	arr[0] = col.r; arr[1] = col.g; arr[2] = col.b; arr[3] = col.a;
+void loadColor(const aiColor4D& col, vec3& arr) {
+	arr = vec3(col.r, col.g, col.b);
 }
 
 uint32_t loadTexture(string dir, const char* filename) {
@@ -120,17 +115,18 @@ void loadMaterial(const aiMaterial* aiMaterialPtr, Material& newMaterial, string
 		loadColor(color, newMaterial.transparent);
 	if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_SHININESS, value))
 		newMaterial.shininess = value;
+	if (newMaterial.shininess < 1e-2) newMaterial.shininess = 32.0f;
 	/*	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_AMBIENT); i++)
 			if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_AMBIENT, i, &aiStr))
 				newMaterial.textureIndices.push_back(loadTexture(aiStr.C_Str()));
-	*/	for (uint32_t i = 0; i < aiMaterialPtr->GetTextureCount(aiTextureType_DIFFUSE); i++)
-	if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_DIFFUSE, i, &aiStr)) {
-		try {
-			newMaterial.textureIndices.push_back(loadTexture(dir, aiStr.C_Str()));
-		} catch (const char* msg) {
-			cerr << msg << endl;
-		}
-	}
+	*/
+	for (uint32_t i = 0; i < aiMaterialPtr->GetTextureCount(aiTextureType_DIFFUSE); i++)
+		if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_DIFFUSE, i, &aiStr))
+			try {
+				newMaterial.textureIndices.push_back(loadTexture(dir, aiStr.C_Str()));
+			} catch (const char* msg) {
+				cerr << msg << endl;
+			}
 	/*	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_EMISSIVE); i++)
 			if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_EMISSIVE, i, &aiStr))
 				newMaterial.textureIndices.push_back(loadTexture(aiStr.C_Str()));

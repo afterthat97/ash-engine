@@ -14,10 +14,10 @@ pair<int32_t, int32_t> windowFrameBufferSize;
 int32_t scaleRatio;
 Camera camera;
 GLFWwindow* window;
-vector<Light> lights;
+Light light0;
 vector<Scene> scenes;
 vector<func> menuOptions;
-Shader shader;
+Shader meshShader, lightShader;
 int32_t fps = 60, canMove = 1, canChangeViewport = 0;
 
 void windowSizeCallback(GLFWwindow* window, int32_t width, int32_t height) {
@@ -162,8 +162,19 @@ void render() {
 	// Apply camera viewport
 	mat4 projection = glm::perspective(glm::radians(45.0f), (float)windowSize.first / (float)windowSize.second, 0.1f, 10000.0f);
 	mat4 view = glm::lookAt(camera.pos, camera.pos + camera.dir, camera.up);
-	shader.setMat4("projection", projection);
-    shader.setMat4("view", view);
+
+	meshShader.use();
+	meshShader.setMat4("PVM", projection * view);
+	meshShader.setVec3("viewPos", camera.pos);
+	meshShader.setVec3("light.position", light0.pos);
+	meshShader.setVec3("light.ambient", light0.ambient);
+	meshShader.setVec3("light.diffuse", light0.diffuse);
+	meshShader.setVec3("light.specular", light0.specular);
+
+	lightShader.use();
+	mat4 model(1.0f);
+	model = translate(model, light0.pos);
+	lightShader.setMat4("PVM", projection * view * model);
 	
 	// Draw all scenes
 	glShadeModel(shadeModelStr == "FLAT" ? GL_FLAT : GL_SMOOTH);
@@ -174,7 +185,9 @@ void render() {
 	if (enableCullFace) glEnable(GL_CULL_FACE);
 	if (enableDepthTest) glEnable(GL_DEPTH_TEST);
 	for (uint32_t i = 0; i < scenes.size(); i++)
-		scenes[i].render();
+		scenes[i].render(meshShader);
+	light0.render(lightShader);
+	
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_CULL_FACE);
@@ -208,18 +221,18 @@ int main(int argc, char **argv) {
 	glewInit();
 
 	try {
-		shader.loadFromFile("shader/vertexShader.glsl", "shader/fragmentShader.glsl");
+		meshShader.loadFromFile("shader/mesh.vert", "shader/mesh.frag");
+		lightShader.loadFromFile("shader/light.vert", "shader/light.frag");
 	} catch (const string msg) {
 		cerr << msg << endl;
 		exit(-1);
 	}
 	
-	shader.use();
-	shader.setInt("texture0", 0);
-
 	// Load scene from file
 	for (int i = 1; i < argc; i++) try {
-		scenes.push_back(Scene(argv[i]));
+		Scene newScene;
+		loadScene(string(argv[i]), newScene);
+		scenes.push_back(newScene);
 		scenes[scenes.size() - 1].init();
 	} catch (const string msg) {
 		cerr << msg << endl;
@@ -230,13 +243,13 @@ int main(int argc, char **argv) {
 		camera.pos = vec3((scenes[0].xMax + scenes[0].xMin) / 2,
 			(scenes[0].yMax + scenes[0].yMin) / 2,
 			(scenes[0].zMax - scenes[0].zMin) / 2 + scenes[0].zMax);
+		light0.pos = vec3(scenes[0].xMax, scenes[0].yMax, scenes[0].zMax);
+		light0.init();
 	}
 
 	// Dump info to console
 	putchar('\n');
 	for (uint32_t i = 0; i < scenes.size(); i++) scenes[i].dumpinfo("");
-	putchar('\n');
-	for (uint32_t i = 0; i < lights.size(); i++) lights[i].dumpinfo("");
 	putchar('\n');
 
 	// Add tweak bars
@@ -276,7 +289,7 @@ int main(int argc, char **argv) {
 
 	// Set Camera viewport
 	glViewport(0, 0, windowFrameBufferSize.first, windowFrameBufferSize.second);
-
+	
 	// Start loop
 	double lastTime = glfwGetTime();
 	for (int32_t totframes = 0;; totframes++) {
