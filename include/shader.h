@@ -7,11 +7,15 @@ class Shader {
 private:
 	GLuint programID;
 public:
-	Shader() { programID = 0; }
+	Shader() {
+		programID = 0;
+	}
 	Shader(string vertexShaderPath, string fragmentShaderPath) {
 		loadFromFile(vertexShaderPath, fragmentShaderPath);
 	}
-	~Shader() { glDeleteProgram(programID); }
+	~Shader() {
+		glDeleteProgram(programID);
+	}
 	void use();
 	void setBool(const string &name, bool value);
     void setInt(const string &name, int value);

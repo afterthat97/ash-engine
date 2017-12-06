@@ -11,7 +11,11 @@ private:
 	vector<uint32_t> indices;
 public:
 	vec3 pos, ambient, diffuse, specular;
-	Light();
+	Light() {
+		VAO = VBO = EBO = 0;
+		loadDefaultColor();
+	}
+	void loadDefaultColor();
 	void init();
 	void render(Shader&);
 };

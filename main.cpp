@@ -148,6 +148,7 @@ void render() {
 	mat4 projection = glm::perspective(glm::radians(45.0f), (float)windowSize.first / (float)windowSize.second, 0.1f, 10000.0f);
 	mat4 view = glm::lookAt(camera.pos, camera.pos + camera.dir, camera.up);
 
+	// Set shader for meshes (models)
 	meshShader.use();
 	meshShader.setMat4("PVM", projection * view);
 	meshShader.setVec3("viewPos", camera.pos);
@@ -156,15 +157,17 @@ void render() {
 	meshShader.setVec3("light.diffuse", light0.diffuse);
 	meshShader.setVec3("light.specular", light0.specular);
 
+	// Set shader for light
 	lightShader.use();
 	mat4 model(1.0f);
 	model = translate(model, light0.pos);
 	lightShader.setMat4("PVM", projection * view * model);
 
+	// Set shader for signed distance field
 	sdfShader.use();
 	sdfShader.setMat4("PVM", projection * view);
 	
-	// Draw all scenes
+	// OpenGL configurations
 	glShadeModel(shadeModelStr == "FLAT" ? GL_FLAT : GL_SMOOTH);
 	glPolygonMode(GL_FRONT_AND_BACK, (polygonModeStr == "LINE" ? GL_LINE : GL_FILL));
 	if (enableGridlines) drawGridlines(10000.0f, 10000.0f, 100.0f);
@@ -173,10 +176,13 @@ void render() {
 	if (enableCullFace) glEnable(GL_CULL_FACE);
 	if (enableDepthTest) glEnable(GL_DEPTH_TEST);
 
+	// Render scenes
 	for (uint32_t i = 0; i < scenes.size(); i++) {
-		//scenes[i].render(meshShader);
-		scenes[i].renderSDF(sdfShader);
+		scenes[i].render(meshShader);
+	//	scenes[i].renderSDF(sdfShader);
 	}
+
+	// Render light
 	light0.render(lightShader);
 	
 	glDisable(GL_TEXTURE_2D);
@@ -195,7 +201,10 @@ int main(int argc, char **argv) {
 	CGEventSourceRef evsrc = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
 	CGEventSourceSetLocalEventsSuppressionInterval(evsrc, 0.0);
 #endif
-	if (!glfwInit()) return -1;
+	if (!glfwInit()) {
+		cerr << "FATAL: Failed to initialize GLFW.\n";
+		exit(1);
+	}
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 #ifdef __APPLE__
@@ -203,14 +212,24 @@ int main(int argc, char **argv) {
 #endif
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	window = glfwCreateWindow(windowSize.first, windowSize.second, "atView", NULL, NULL);
-	if (!window) { glfwTerminate(); return -1; }
+	if (window == NULL) {
+		cerr << "FATAL: Failed to open GLFW window.\n";
+		glfwTerminate();
+		exit(2);
+	}
+
+	// Optimized for Retina display
 	glfwGetFramebufferSize(window, &windowFrameBufferSize.first, &windowFrameBufferSize.second);
 	scaleRatio = windowFrameBufferSize.first / windowSize.first;
 	glfwMakeContextCurrent(window);
 
 	glewExperimental = true; // Needed for core profile
-	glewInit();
-
+	if (glewInit() != GLEW_OK) {
+		cerr << "FATAL: Failed to initialize GLEW.\n";	
+		exit(3);
+	}
+	
+	// Load shaders from file
 	try {
 #ifdef __APPLE__
 		meshShader.loadFromFile("shader/mesh.vert", "shader/mesh.frag");
@@ -223,17 +242,15 @@ int main(int argc, char **argv) {
 #endif
 	} catch (const string msg) {
 		cerr << msg << endl;
-		exit(-1);
+		exit(4);
 	}
 	
-	// Load scene from file
-	for (int i = 1; i < argc; i++) try {
+	// Load scenes from file
+	for (int i = 1; i < argc; i++)
+	try {
 		Scene newScene;
 		loadScene(string(argv[i]), newScene);
 		scenes.push_back(newScene);
-		//scenes[scenes.size() - 1].computeSDF(100);
-		scenes[scenes.size() - 1].models[0].meshes[0].sdf.vertices = scenes[scenes.size() - 1].models[0].meshes[0].pointSampling(500);
-		cout << scenes[scenes.size() - 1].models[0].meshes[0].sdf.vertices.size() << endl;
 		scenes[scenes.size() - 1].initBO();
 	} catch (const string msg) {
 		cerr << msg << endl;
@@ -244,6 +261,7 @@ int main(int argc, char **argv) {
 		camera.pos = vec3((scenes[0].xMax + scenes[0].xMin) / 2,
 			(scenes[0].yMax + scenes[0].yMin) / 2,
 			(scenes[0].zMax - scenes[0].zMin) / 2 + scenes[0].zMax);
+		//Set light position
 		light0.pos = vec3(scenes[0].xMax, scenes[0].yMax, scenes[0].zMax);
 		light0.init();
 	}

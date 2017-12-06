@@ -45,6 +45,8 @@ using std::map;
 using std::string;
 using std::to_string;
 using std::pair;
+using std::min;
+using std::max;
 using std::ifstream;
 using std::ofstream;
 using std::cout;

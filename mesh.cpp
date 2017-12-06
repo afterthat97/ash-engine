@@ -1,6 +1,7 @@
 #include "mesh.h"
 
 Mesh::~Mesh() {
+	// Clean
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &NBO);
@@ -9,15 +10,17 @@ Mesh::~Mesh() {
 }
 
 void Mesh::initBO() {
-	if (indices.size() == 0) return;
+	// Generate object ID
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &NBO);
 	glGenBuffers(1, &UBO);
 	glGenBuffers(1, &EBO);
-
+	
+	// Bind vertex array object
 	glBindVertexArray(VAO);
 	
+	// Bind vertex buffer object
 	if (vertices.size() > 0) {
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
@@ -25,13 +28,15 @@ void Mesh::initBO() {
 		glEnableVertexAttribArray(0);
 	}
 	
+	// Bind normal buffer object
 	if (normals.size() > 0) {
 		glBindBuffer(GL_ARRAY_BUFFER, NBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * normals.size(), &normals[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		glEnableVertexAttribArray(1);
 	}
-
+	
+	// Bind UV buffer object
 	if (texCoords.size() > 0) {
 		glBindBuffer(GL_ARRAY_BUFFER, UBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * texCoords.size(), &texCoords[0], GL_STATIC_DRAW);
@@ -39,11 +44,17 @@ void Mesh::initBO() {
 		glEnableVertexAttribArray(2);
 	}
 	
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * indices.size(), &indices[0], GL_STATIC_DRAW);
-
+	// Bind element buffer object
+	if (indices.size() > 0) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * indices.size(), &indices[0], GL_STATIC_DRAW);
+	}
+	
+	// Unbind
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	
+	// Initialize SDF's buffer object
 	sdf.initBO();
 }
 
@@ -57,6 +68,7 @@ vector<float> Mesh::pointSampling(uint32_t pointNum) {
 	newMesh.vertices = vertices;
 	newMesh.indices = indices;
 
+	// Compute the minimal triangle's area
 	float minTriangleArea = FLT_MAX;
 	for (uint32_t i = 0; i < indices.size();) {
 		vec3 A = vec3(vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]); i++;
@@ -65,8 +77,12 @@ vector<float> Mesh::pointSampling(uint32_t pointNum) {
 		vec3 AB = B - A, AC = C - A;
 		minTriangleArea = fmin(minTriangleArea, glm::length(glm::cross(AB, AC)) / 2);
 	}
+
+	// Split large triangles info small triangles
 	for (uint32_t i = 0; i < newMesh.indices.size();) {
 		uint32_t j = i + 1, k = i + 2;
+	
+		// Triangle ABC
 		vec3 A = vec3(newMesh.vertices[newMesh.indices[i] * 3],
 			newMesh.vertices[newMesh.indices[i] * 3 + 1],
 			newMesh.vertices[newMesh.indices[i] * 3 + 2]);
@@ -76,9 +92,12 @@ vector<float> Mesh::pointSampling(uint32_t pointNum) {
 		vec3 C = vec3(newMesh.vertices[newMesh.indices[k] * 3],
 			newMesh.vertices[newMesh.indices[k] * 3 + 1],
 			newMesh.vertices[newMesh.indices[k] * 3 + 2]);
+		
+		// Compute the area of triangle
 		vec3 AB = B - A, AC = C - A, BC = C - B;
 		float area = glm::length(glm::cross(AB, AC)) / 2;
-		if (area > 2.0f * minTriangleArea) { // split
+		if (area > 2.0f * minTriangleArea) {
+			// Select the midpoint of the longest edge, and split the triangle into two pieces
 			if (glm::length(AB) > glm::length(AC) && glm::length(AB) > glm::length(BC)) {
 				// AB has max length
 				vec3 M = (A + B) * vec3(0.5, 0.5, 0.5);
@@ -113,19 +132,22 @@ vector<float> Mesh::pointSampling(uint32_t pointNum) {
 				newMesh.indices.push_back(Mid);
 				newMesh.indices[k] = Mid;
 			}
-		} else {
-			i += 3;
-		}
+		} else i += 3;
 	}
 
+	// Random point sampling
 	srand(2017);
 	uint32_t totVertices = newMesh.vertices.size() / 3;
 	uint32_t *exist = new uint32_t[totVertices];
 	vector<float> pointSample;
+
+	// Sample too many points
 	if (pointNum > totVertices / 2) {
 		pointNum = totVertices / 2;
-		reportWarning("Too many sample points, only " + to_string(pointNum) + " points will be sampled.");
+		reportWarning("Too many sample points. Only " + to_string(pointNum) + " points will be sampled.");
 	}
+
+	// Sampling
 	for (uint32_t i = 0, vid; i < pointNum; i++) {
 		while (exist[vid = rand() % totVertices] == 1);
 		exist[vid] = 1;
@@ -133,13 +155,19 @@ vector<float> Mesh::pointSampling(uint32_t pointNum) {
 		pointSample.push_back(newMesh.vertices[vid * 3 + 1]);
 		pointSample.push_back(newMesh.vertices[vid * 3 + 2]);
 	}
+	delete[] exist;
 	return pointSample;
 }
 
 void Mesh::render(Shader& shader) {
+	// Use shader
 	shader.use();
+
+	// Bind material
 	for (uint32_t i = 0; i < materials.size(); i++)
 		materials[i].bind(shader);
+	
+	// Render object
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

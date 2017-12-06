@@ -4,14 +4,17 @@
 void Material::loadDefault() {
 	name = "";
 	textureIndices.clear();
-	shininess = 32.0f; sharpness = 60.0f; density = 1.0f;
 	ambient = vec3(0.2f, 0.2f, 0.2f);
 	diffuse = vec3(0.8f, 0.8f, 0.8f);
 	specular = vec3(0.1f, 0.1f, 0.1f);
 	emission = vec3(0.0f, 0.0f, 0.0f);
+	shininess = 32.0f;
+	sharpness = 60.0f;
+	density = 1.0f;
 }
 
 void Material::bind(Shader& shader) {
+	// Use and set shader
 	shader.use();
 	shader.setInt("texture0", 0);
 	shader.setVec3("material.ambient", ambient);
