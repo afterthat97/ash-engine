@@ -2,21 +2,24 @@
 #define SDF_H
 
 #include "utilities.h"
+#include "shader.h"
 
 class SDF {
 private:
-	uint32_t VAO, VBO;
+	uint32_t VAO, VBO, CBO, nx, ny, nz;
+	float ***distance, delta;
+	vec3 ***gradient;
 public:
-	SDF(const vector<float> vertices, float delta) {
-		VAO = VBO = 0;
-		compute(vertices, delta);
-	}
 	SDF() {
 		VAO = VBO = 0;
+		distance = NULL;
 	}
 	~SDF();
-	void compute(const vector<float>, float);
-	void render();
+	vector<float> vertices, colors;
+	void computeDistanceField(const vector<float>&, uint32_t);
+	void computeGradientVector();
+	void initBO();
+	void render(Shader&);
 };
 
 #endif

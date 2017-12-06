@@ -15,8 +15,10 @@ struct Scene {
 		xMax = yMax = zMax = -FLT_MAX;
 		xMin = yMin = zMin = FLT_MAX;
 	}
-	void init();
+	void initBO();
+	void computeSDF(uint32_t);
 	void render(Shader&);
+	void renderSDF(Shader&);
 	void dumpinfo(string);
 };
 

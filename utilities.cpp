@@ -7,3 +7,7 @@ void throwError(string type, string name, string msg) {
 void reportInfo(string msg) {
 	cout << "INFO: " << msg << endl;
 }
+
+void reportWarning(string msg) {
+	cout << "Warning: " << msg << endl;
+}

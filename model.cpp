@@ -1,10 +1,17 @@
 #include "model.h"
 
-void Model::init() {
+void Model::initBO() {
 	for (uint32_t i = 0; i < meshes.size(); i++)
-		meshes[i].init();
+		meshes[i].initBO();
 	for (uint32_t i = 0; i < children.size(); i++)
-		children[i].init();
+		children[i].initBO();
+}
+
+void Model::computeSDF(uint32_t sample) {
+	for (uint32_t i = 0; i < meshes.size(); i++)
+		meshes[i].computeSDF(sample);
+	for (uint32_t i = 0; i < children.size(); i++)
+		children[i].computeSDF(sample);
 }
 
 void Model::render(Shader& shader) {
@@ -12,6 +19,13 @@ void Model::render(Shader& shader) {
 		meshes[i].render(shader);
 	for (uint32_t i = 0; i < children.size(); i++)
 		children[i].render(shader);
+}
+
+void Model::renderSDF(Shader& shader) {
+	for (uint32_t i = 0; i < meshes.size(); i++)
+		meshes[i].renderSDF(shader);
+	for (uint32_t i = 0; i < children.size(); i++)
+		children[i].renderSDF(shader);
 }
 
 void Model::dumpinfo(string tab) {

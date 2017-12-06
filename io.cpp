@@ -72,7 +72,7 @@ uint32_t loadTexture(string dir, const char* filename) {
 	FreeImage_Initialise(0);
 	if (filename[0] == '/') filename = filename + 1;
 	dir = dir + filename;
-	printf("Loading texture file %s...\n", dir.c_str());
+	reportInfo("Loading texture file " + dir + "...");
 	FREE_IMAGE_FORMAT fifmt = FreeImage_GetFileType(dir.c_str(), 0);
 	FIBITMAP *bitmap = FreeImage_Load(fifmt, dir.c_str(), 0);
 	if (bitmap == NULL)
@@ -92,7 +92,7 @@ uint32_t loadTexture(string dir, const char* filename) {
 	// create texture and generate mipmaps
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, textureArr);
 	glGenerateMipmap(GL_TEXTURE_2D);
-	printf("Texture file %s loaded. (Width = %d, Height = %d)\n", dir.c_str(), width, height);
+	reportInfo("Texture file " + dir + " loaded. (" + to_string(width) + " * " + to_string(height) + ")");
 	textureArr = NULL;
 	FreeImage_Unload(bitmap);
 	FreeImage_DeInitialise();

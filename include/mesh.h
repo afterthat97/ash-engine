@@ -4,10 +4,12 @@
 #include "utilities.h"
 #include "material.h"
 #include "shader.h"
+#include "sdf.h"
 
 class Mesh {
 public:
 	string name;
+	SDF sdf;
 	float xMax, xMin, yMax, yMin, zMax, zMin;
 	uint32_t VAO, VBO, NBO, UBO, EBO;
 	vector<float> vertices;
@@ -21,8 +23,11 @@ public:
 		xMin = yMin = zMin = FLT_MAX;
 	}
 	~Mesh();
-	void init();
+	void initBO();
+	void computeSDF(uint32_t);
+	vector<float> pointSampling(uint32_t);
 	void render(Shader&);
+	void renderSDF(Shader&);
 	void dumpinfo(string);
 };
 

@@ -8,6 +8,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <map>
 #include <cmath>
 #include <cfloat>
 
@@ -37,7 +38,10 @@
 #define fmin(x, y) ((x) < (y) ? (x) : (y))
 #define fmax(x, y) ((x) > (y) ? (x) : (y))
 
+const int32_t inf = 0x3f3f3f3f;
+
 using std::vector;
+using std::map;
 using std::string;
 using std::to_string;
 using std::pair;
@@ -56,5 +60,35 @@ using glm::mat4;
 
 void throwError(string type, string name, string msg = "no error message");
 void reportInfo(string);
+void reportWarning(string);
+
+template <typename T>
+void allocArray3D(T *** &arr, uint32_t x, uint32_t y, uint32_t z) {
+	arr = new T**[x];
+	for (uint32_t i = 0; i < x; i++) {
+		arr[i] = new T*[y];
+		for (uint32_t j = 0; j < y; j++)
+			arr[i][j] = new T[z];
+	}
+}
+
+template <typename T>
+void fillArray3D(T *** &arr, uint32_t x, uint32_t y, uint32_t z, T val) {
+	for (uint32_t i = 0; i < x; i++)
+		for (uint32_t j = 0; j < y; j++)
+			for (uint32_t k = 0; k < z; k++)
+				arr[i][j][k] = val;
+}
+
+template <typename T>
+void freeArray3D(T *** &arr, uint32_t x, uint32_t y, uint32_t z) {
+	for (uint32_t i = 0; i < x; i++) {
+		for (uint32_t j = 0; j < y; j++)
+			delete[] arr[i][j];
+		delete[] arr[i];
+	}
+	delete[] arr;
+	arr = NULL;
+}
 
 #endif

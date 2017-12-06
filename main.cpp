@@ -17,7 +17,7 @@ GLFWwindow* window;
 Light light0;
 vector<Scene> scenes;
 vector<func> menuOptions;
-Shader meshShader, lightShader;
+Shader meshShader, lightShader, sdfShader;
 int32_t fps = 60, canMove = 1, canChangeViewport = 0;
 
 void windowSizeCallback(GLFWwindow* window, int32_t width, int32_t height) {
@@ -116,21 +116,6 @@ void charCallback(GLFWwindow* window, uint32_t key) {
 
 void drawGridlines(GLfloat length, GLfloat width, GLfloat inc) {
 	return;
-	length /= 2; width /= 2;
-	// Draw grid lines
-	GLfloat posx = floor(camera.pos.x / inc) * inc;
-	GLfloat posz = floor(camera.pos.z / inc) * inc;
-	glColor3f(0.2f, 0.2f, 0.2f);
-	for (GLfloat x = -length; x <= length; x += inc) {
-		glBegin(GL_LINES);
-		glVertex3f(x + posx, 0.0f, posz - width);
-		glVertex3f(x + posx, 0.0f, posz + width);
-		glEnd();
-		glBegin(GL_LINES);
-		glVertex3f(posx - length, 0.0f, x + posz);
-		glVertex3f(posx + length, 0.0f, x + posz);
-		glEnd();
-	}
 }
 
 void render() {
@@ -175,6 +160,9 @@ void render() {
 	mat4 model(1.0f);
 	model = translate(model, light0.pos);
 	lightShader.setMat4("PVM", projection * view * model);
+
+	sdfShader.use();
+	sdfShader.setMat4("PVM", projection * view);
 	
 	// Draw all scenes
 	glShadeModel(shadeModelStr == "FLAT" ? GL_FLAT : GL_SMOOTH);
@@ -184,8 +172,11 @@ void render() {
 	if (enableLight) glEnable(GL_LIGHTING);
 	if (enableCullFace) glEnable(GL_CULL_FACE);
 	if (enableDepthTest) glEnable(GL_DEPTH_TEST);
-	for (uint32_t i = 0; i < scenes.size(); i++)
-		scenes[i].render(meshShader);
+
+	for (uint32_t i = 0; i < scenes.size(); i++) {
+		//scenes[i].render(meshShader);
+		scenes[i].renderSDF(sdfShader);
+	}
 	light0.render(lightShader);
 	
 	glDisable(GL_TEXTURE_2D);
@@ -221,8 +212,15 @@ int main(int argc, char **argv) {
 	glewInit();
 
 	try {
+#ifdef __APPLE__
 		meshShader.loadFromFile("shader/mesh.vert", "shader/mesh.frag");
 		lightShader.loadFromFile("shader/light.vert", "shader/light.frag");
+		sdfShader.loadFromFile("shader/sdf.vert", "shader/sdf.frag");
+#else
+		meshShader.loadFromFile("../src/shader/mesh.vert", "../src/shader/mesh.frag");
+		lightShader.loadFromFile("../src/shader/light.vert", "../src/shader/light.frag");
+		sdfShader.loadFromFile("../src/shader/sdf.vert", "../src/shader/sdf.frag");
+#endif
 	} catch (const string msg) {
 		cerr << msg << endl;
 		exit(-1);
@@ -233,7 +231,10 @@ int main(int argc, char **argv) {
 		Scene newScene;
 		loadScene(string(argv[i]), newScene);
 		scenes.push_back(newScene);
-		scenes[scenes.size() - 1].init();
+		//scenes[scenes.size() - 1].computeSDF(100);
+		scenes[scenes.size() - 1].models[0].meshes[0].sdf.vertices = scenes[scenes.size() - 1].models[0].meshes[0].pointSampling(500);
+		cout << scenes[scenes.size() - 1].models[0].meshes[0].sdf.vertices.size() << endl;
+		scenes[scenes.size() - 1].initBO();
 	} catch (const string msg) {
 		cerr << msg << endl;
 	}
