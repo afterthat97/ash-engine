@@ -31,8 +31,8 @@ const uint32_t light_indices[36] = {
 void Light::loadDefaultColor() {
 	// Load default light color
 	ambient = vec3(0.2f, 0.2f, 0.2f);
-	diffuse = vec3(0.8f, 0.8f, 0.8f);
-	specular = vec3(0.5f, 0.5f, 0.5f);
+	diffuse = vec3(1.0f, 1.0f, 1.0f);
+	specular = vec3(1.0f, 1.0f, 1.0f);
 }
 
 void Light::init() {

@@ -34,12 +34,10 @@ void main() {
 	vec3 ambient, diffuse, specular;
 
 	// ambient
-	if (material.hasAmbientMap == 0 && material.hasDiffuseMap == 0)
+	if (material.hasDiffuseMap == 0)
 		ambient = light.ambient * material.ambientRGB; 
-	else if (material.hasAmbientMap == 0)
-		ambient = light.ambient * vec3(texture(material.diffuseMap, objectTexCoord));
 	else
-	    ambient = light.ambient * vec3(texture(material.ambientMap, objectTexCoord));
+		ambient = light.ambient * vec3(texture(material.diffuseMap, objectTexCoord));
   	
     // diffuse 
     vec3 norm = normalize(objectNormal);
@@ -61,5 +59,4 @@ void main() {
 
     vec3 result = ambient + diffuse + specular;
     color = vec4(result, 1.0);
-	color = texture(material.diffuseMap, objectTexCoord);
 }

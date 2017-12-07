@@ -117,15 +117,17 @@ void loadMaterial(const aiMaterial* aiMaterialPtr, Material& newMaterial, string
 		newMaterial.shininess = value;
 	if (newMaterial.shininess < 1e-2) newMaterial.shininess = 32.0f;
 
-	// Ambient map
-/*	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_AMBIENT); i++)
+	// Ambient map (current not supported)
+	/*
+	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_AMBIENT); i++)
 		if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_AMBIENT, i, &aiStr))
 			try {
 				newMaterial.ambientMap = loadTexture(dir, aiStr.C_Str());
 			} catch (const string msg) {
 				cerr << msg << endl;
 			}
-*/
+	*/
+	
 	// Diffuse map
 	for (uint32_t i = 0; i < aiMaterialPtr->GetTextureCount(aiTextureType_DIFFUSE); i++)
 		if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_DIFFUSE, i, &aiStr))
@@ -145,7 +147,7 @@ void loadMaterial(const aiMaterial* aiMaterialPtr, Material& newMaterial, string
 				cerr << msg << endl;
 			}
 	*/
-/*
+
 	// Specular map
 	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_SPECULAR); i++)
 		if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_SPECULAR, i, &aiStr))
@@ -154,7 +156,6 @@ void loadMaterial(const aiMaterial* aiMaterialPtr, Material& newMaterial, string
 			} catch (const char* msg) {
 				cerr << msg << endl;
 			}
-*/
 }
 
 int32_t loadScene(string filename, Scene& newScene) {
