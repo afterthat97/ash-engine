@@ -19,6 +19,8 @@ vector<func> menuOptions;
 Shader meshShader, lightShader, sdfShader;
 int32_t fps = 60, canMove = 1, canChangeViewport = 0;
 
+SDF sdf;
+
 void windowSizeCallback(GLFWwindow* window, int32_t width, int32_t height) {
 	windowSize = { width, height };
 	glfwGetFramebufferSize(window, &windowFrameBufferSize.first, &windowFrameBufferSize.second);
@@ -123,8 +125,8 @@ void render() {
 	// Move camera by keyboard
 	if (canMove) {
 		GLfloat speed = 1.0f;
-		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) speed = 10.0f;
-		if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) speed = 10.0f;
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) speed = 5.0f;
+		if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) speed = 5.0f;
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.moveForward(speed);
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.moveForward(-speed);
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera.moveRight(-speed);
@@ -181,6 +183,7 @@ void render() {
 	//	scenes[i].renderSDF(sdfShader);
 	}
 
+	sdf.render(sdfShader);
 	// Render light
 	light0.render(lightShader);
 	
@@ -243,15 +246,17 @@ int main(int argc, char **argv) {
 		cerr << msg << endl;
 		exit(4);
 	}
-	
+
 	// Load scenes from file
 	for (int i = 1; i < argc; i++)
 	try {
-		Scene newScene;
+		sdf.loadFromFile(argv[i]);
+		sdf.initBO();
+/*		Scene newScene;
 		loadScene(string(argv[i]), newScene);
 		scenes.push_back(newScene);
 		scenes[scenes.size() - 1].initBO();
-	} catch (const string msg) {
+*/	} catch (const string msg) {
 		cerr << msg << endl;
 	}
 

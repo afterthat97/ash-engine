@@ -52,6 +52,7 @@ using std::ofstream;
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::swap;
 
 using glm::vec2;
 using glm::vec3;

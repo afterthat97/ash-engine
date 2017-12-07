@@ -6,11 +6,42 @@ SDF::~SDF() {
 	glDeleteBuffers(1, &VBO);
 }
 
+void SDF::loadFromFile(const string& filename) {
+	if (distance != NULL) freeArray3D(distance, nx, ny, nz);
+
+	// Open SDF file
+	ifstream fin(filename);
+	if (!fin.is_open())
+		throwError("load", filename, "Could not open file");
+	string head; fin >> head;
+	if (head != "SDF")
+		throwError("load", filename, "File type not match");
+	fin >> nx >> ny >> nz;
+	swap(nx, nz);
+	fin >> minv.x >> minv.y >> minv.z;
+	fin >> delta;
+	maxv.x = minv.x + delta * (nx - 1);
+	maxv.y = minv.y + delta * (ny - 1);
+	maxv.z = minv.z + delta * (nz - 1);
+	len = maxv - minv;
+	
+	// Load 3D SDF from file
+	allocArray3D(distance, nx, ny, nz);
+	for (uint32_t i = 0; i < nx; i++)
+		for (uint32_t j = 0; j < ny; j++)
+			for (uint32_t k = 0; k < nz; k++) {
+				fin >> distance[i][j][k];
+				if (distance[i][j][k] < 0 || distance[i][j][k] > 1.0f)
+					distance[i][j][k] = FLT_MAX;
+			}
+	reportInfo("SDF file " + filename + " loaded.");
+}
+
 void SDF::computeDistanceField(const vector<float>& meshVertices, uint32_t sample) {
 	if (distance != NULL) freeArray3D(distance, nx, ny, nz);
 
 	// Get boundry
-	vec3 minv(FLT_MAX), maxv(-FLT_MAX), len;
+	minv = vec3(FLT_MAX); maxv = vec3(-FLT_MAX);
 	for (uint32_t i = 0; i < meshVertices.size(); i += 3) {
 		minv.x = fmin(meshVertices[i + 0], minv.x);
 		maxv.x = fmax(meshVertices[i + 0], maxv.x);
@@ -29,9 +60,9 @@ void SDF::computeDistanceField(const vector<float>& meshVertices, uint32_t sampl
 
 	// Size of grid
 	delta = maxlen / sample;
-	nx = (uint32_t)(len.x / delta);
-	ny = (uint32_t)(len.y / delta);
-	nz = (uint32_t)(len.z / delta);
+	nx = (uint32_t) (len.x / delta);
+	ny = (uint32_t) (len.y / delta);
+	nz = (uint32_t) (len.z / delta);
 
 	// Map the mesh into distance field
 	allocArray3D(distance, nx, ny, nz);
@@ -76,18 +107,11 @@ void SDF::computeDistanceField(const vector<float>& meshVertices, uint32_t sampl
 				for (uint32_t t = 0; t < nx; t++)
 					distance[i][j][k] = min(distance[i][j][k], (float) tmp2[t][j][k] + (t - i) * (t - i));
 
-	// Prepare for rendering
+	// Square
 	for (uint32_t i = 0; i < nx; i++)
 		for (uint32_t j = 0; j < ny; j++)
-			for (uint32_t k = 0; k < nz; k++) {
-				if (distance[i][j][k] < 20) {
-					vertices.push_back(i * delta + minv.x); // X
-					vertices.push_back(j * delta + minv.y); // Y
-					vertices.push_back(k * delta + minv.z); // Z
-					colors.push_back(1.0f / (distance[i][j][k] + 1)); // A
-				}
+			for (uint32_t k = 0; k < nz; k++)
 				distance[i][j][k] = sqrt(distance[i][j][k]);
-			}
 
 	// Clean
 	freeArray3D(tmp1, nx, ny, nz);
@@ -116,6 +140,16 @@ void SDF::computeGradientVector() {
 }
 
 void SDF::initBO() {
+	// Prepare for rendering
+	for (uint32_t i = 0; i < nx; i++)
+		for (uint32_t j = 0; j < ny; j++)
+			for (uint32_t k = 0; k < nz; k++)
+				if (distance[i][j][k] < 20) {
+					vertices.push_back(i * delta + minv.x); // X
+					vertices.push_back(j * delta + minv.y); // Y
+					vertices.push_back(k * delta + minv.z); // Z
+					colors.push_back(1.0f / (distance[i][j][k] + 1)); // A
+				}
 	// Generate object ID
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);

@@ -11,10 +11,14 @@ void Shader::loadFromFile(string vertexShaderPath, string fragmentShaderPath) {
 	// Read the Vertex Shader code from the file
 	string vertexShaderCode, fragmentShaderCode;
 	ifstream fin1(vertexShaderPath), fin2(fragmentShaderPath);
-	if (!fin1.is_open()) throwError("load", vertexShaderPath, "Could not open file");
-	if (!fin2.is_open()) throwError("load", fragmentShaderPath, "Could not open file");
-	for (string line; getline(fin1, line); vertexShaderCode += "\n" + line);
-	for (string line; getline(fin2, line); fragmentShaderCode += "\n" + line);
+	if (!fin1.is_open())
+		throwError("load", vertexShaderPath, "Could not open file");
+	if (!fin2.is_open())
+		throwError("load", fragmentShaderPath, "Could not open file");
+	for (string line; getline(fin1, line);)
+		vertexShaderCode += "\n" + line;
+	for (string line; getline(fin2, line);)
+		fragmentShaderCode += "\n" + line;
 	fin1.close(); fin2.close();
 	
 	// Compile Vertex Shader
