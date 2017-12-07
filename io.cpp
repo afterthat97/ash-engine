@@ -87,7 +87,7 @@ uint32_t loadTexture(string dir, const char* filename) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// create texture and generate mipmaps
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, textureArr);
@@ -118,14 +118,14 @@ void loadMaterial(const aiMaterial* aiMaterialPtr, Material& newMaterial, string
 	if (newMaterial.shininess < 1e-2) newMaterial.shininess = 32.0f;
 
 	// Ambient map
-	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_AMBIENT); i++)
+/*	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_AMBIENT); i++)
 		if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_AMBIENT, i, &aiStr))
 			try {
 				newMaterial.ambientMap = loadTexture(dir, aiStr.C_Str());
 			} catch (const string msg) {
 				cerr << msg << endl;
 			}
-
+*/
 	// Diffuse map
 	for (uint32_t i = 0; i < aiMaterialPtr->GetTextureCount(aiTextureType_DIFFUSE); i++)
 		if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_DIFFUSE, i, &aiStr))
@@ -145,7 +145,7 @@ void loadMaterial(const aiMaterial* aiMaterialPtr, Material& newMaterial, string
 				cerr << msg << endl;
 			}
 	*/
-
+/*
 	// Specular map
 	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_SPECULAR); i++)
 		if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_SPECULAR, i, &aiStr))
@@ -154,6 +154,7 @@ void loadMaterial(const aiMaterial* aiMaterialPtr, Material& newMaterial, string
 			} catch (const char* msg) {
 				cerr << msg << endl;
 			}
+*/
 }
 
 int32_t loadScene(string filename, Scene& newScene) {

@@ -61,4 +61,5 @@ void main() {
 
     vec3 result = ambient + diffuse + specular;
     color = vec4(result, 1.0);
+	color = texture(material.diffuseMap, objectTexCoord);
 }

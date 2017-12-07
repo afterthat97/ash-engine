@@ -20,25 +20,25 @@ void Material::bind(Shader& shader) {
 	shader.setInt("material.diffuseMap", diffuseMap);
 	shader.setInt("material.specularMap", specularMap);
 	shader.setFloat("material.shininess", shininess);
-	if (ambientMap != 0) {
+/*	if (ambientMap != 0) {
 		shader.setInt("material.hasAmbientMap", 1);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, ambientMap);
 	} else
 		shader.setInt("material.hasAmbientMap", 0);
-	if (diffuseMap != 0) {
+*/	if (diffuseMap != 0) {
 		shader.setInt("material.hasDiffuseMap", 1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, diffuseMap);
 	} else
 		shader.setInt("material.hasDiffuseMap", 0);
-	if (specularMap != 0) {
+/*	if (specularMap != 0) {
 		shader.setInt("material.hasSpecularMap", 1);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, specularMap);
 	} else
 		shader.setInt("material.hasSpecularMap", 0);
-}
+*/}
 
 void Material::dumpinfo(string tab) {
 //	printf("%sMaterial %s, %lu textures in total.\n",
