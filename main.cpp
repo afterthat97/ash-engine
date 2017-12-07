@@ -1,4 +1,3 @@
-#include "AntTweakBar.h"
 #include "utilities.h"
 #include "scene.h"
 #include "camera.h"

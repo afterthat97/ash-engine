@@ -107,33 +107,53 @@ void loadMaterial(const aiMaterial* aiMaterialPtr, Material& newMaterial, string
 		loadColor(color, newMaterial.ambient);
 	if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_COLOR_DIFFUSE, color))
 		loadColor(color, newMaterial.diffuse);
-	if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_COLOR_EMISSIVE, color))
-		loadColor(color, newMaterial.emission);
+//	if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_COLOR_EMISSIVE, color))
+//		loadColor(color, newMaterial.emission);
 	if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_COLOR_SPECULAR, color))
 		loadColor(color, newMaterial.specular);
-	if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_COLOR_TRANSPARENT, color))
-		loadColor(color, newMaterial.transparent);
+//	if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_COLOR_TRANSPARENT, color))
+//		loadColor(color, newMaterial.transparent);
 	if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_SHININESS, value))
 		newMaterial.shininess = value;
 	if (newMaterial.shininess < 1e-2) newMaterial.shininess = 32.0f;
-	/*	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_AMBIENT); i++)
-			if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_AMBIENT, i, &aiStr))
-				newMaterial.textureIndices.push_back(loadTexture(aiStr.C_Str()));
-	*/
+
+	// Ambient map
+	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_AMBIENT); i++)
+		if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_AMBIENT, i, &aiStr))
+			try {
+				newMaterial.ambientMap = loadTexture(dir, aiStr.C_Str());
+			} catch (const string msg) {
+				cerr << msg << endl;
+			}
+
+	// Diffuse map
 	for (uint32_t i = 0; i < aiMaterialPtr->GetTextureCount(aiTextureType_DIFFUSE); i++)
 		if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_DIFFUSE, i, &aiStr))
 			try {
-				newMaterial.textureIndices.push_back(loadTexture(dir, aiStr.C_Str()));
+				newMaterial.diffuseMap = loadTexture(dir, aiStr.C_Str());
 			} catch (const char* msg) {
 				cerr << msg << endl;
 			}
-	/*	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_EMISSIVE); i++)
-			if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_EMISSIVE, i, &aiStr))
-				newMaterial.textureIndices.push_back(loadTexture(aiStr.C_Str()));
-		for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_SPECULAR); i++)
-			if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_SPECULAR, i, &aiStr))
-				newMaterial.textureIndices.push_back(loadTexture(aiStr.C_Str()));
+	
+	// Emissive map (currently not supported)
+	/*
+	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_EMISSIVE); i++)
+		if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_EMISSIVE, i, &aiStr))
+			try {
+				newMaterial.emissiveMap = loadTexture(aiStr.C_Str());
+			} catch (const string msg) {
+				cerr << msg << endl;
+			}
 	*/
+
+	// Specular map
+	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_SPECULAR); i++)
+		if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_SPECULAR, i, &aiStr))
+			try {
+				newMaterial.specularMap = loadTexture(dir, aiStr.C_Str());
+			} catch (const char* msg) {
+				cerr << msg << endl;
+			}
 }
 
 int32_t loadScene(string filename, Scene& newScene) {

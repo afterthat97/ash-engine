@@ -2,7 +2,7 @@
 #define GLCONFIG_H
 
 #include "utilities.h"
-#include <AntTweakBar.h>
+#include <AntTweakBar/AntTweakBar.h>
 
 extern int32_t shadeModel;
 extern int32_t polygonMode;
