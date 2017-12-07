@@ -27,6 +27,9 @@ void loadMesh(const aiMesh* aiMeshPtr, Mesh& newMesh, Scene& newScene) {
 			newMesh.normals.push_back(aiMeshPtr->mNormals[i].y);
 			newMesh.normals.push_back(aiMeshPtr->mNormals[i].z);
 		}
+		newMesh.tangents.push_back(aiMeshPtr->mTangents[i].x);
+		newMesh.tangents.push_back(aiMeshPtr->mTangents[i].y);
+		newMesh.tangents.push_back(aiMeshPtr->mTangents[i].z);
 		if (aiMeshPtr->HasTextureCoords(0)) {
 			newMesh.texCoords.push_back(aiMeshPtr->mTextureCoords[0][i].x);
 			newMesh.texCoords.push_back(aiMeshPtr->mTextureCoords[0][i].y);
@@ -159,6 +162,15 @@ void loadMaterial(const aiMaterial* aiMaterialPtr, Material& newMaterial, string
 			} catch (const char* msg) {
 				cerr << msg << endl;
 			}
+
+	// Normal map
+	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_NORMALS); i++)
+		if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_NORMALS, i, &aiStr))
+			try {
+				newMaterial.normalMap = loadTexture(dir, aiStr.C_Str());
+			} catch (const char* msg) {
+				cerr << msg << endl;
+			}
 }
 
 int32_t loadScene(string filename, Scene& newScene) {
@@ -167,7 +179,7 @@ int32_t loadScene(string filename, Scene& newScene) {
 		if (filename[i] == '/' || filename[i] == '\\')
 			dir = filename.substr(0, i + 1);
 	Assimp::Importer importer;
-	const aiScene* aiScenePtr = importer.ReadFile(filename, aiProcess_Triangulate);
+	const aiScene* aiScenePtr = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 	if (aiScenePtr == NULL || aiScenePtr->mFlags == AI_SCENE_FLAGS_INCOMPLETE || aiScenePtr->mRootNode == NULL)
 		throw string(importer.GetErrorString());
 	newScene.name = aiScenePtr->mRootNode->mName.C_Str();

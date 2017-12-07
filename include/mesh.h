@@ -11,14 +11,15 @@ public:
 	string name;
 	SDF sdf;
 	float xMax, xMin, yMax, yMin, zMax, zMin;
-	uint32_t VAO, VBO, NBO, UBO, EBO;
+	uint32_t VAO, VBO, NBO, TBO, UBO, EBO;
 	vector<float> vertices;
 	vector<float> normals;
+	vector<float> tangents;
 	vector<float> texCoords;
 	vector<uint32_t> indices;
 	vector<Material> materials;
 	Mesh() {
-		VAO = VBO = UBO = EBO = 0;
+		VAO = VBO = NBO = TBO = UBO = EBO = 0;
 		xMax = yMax = zMax = -FLT_MAX;
 		xMin = yMin = zMin = FLT_MAX;
 	}

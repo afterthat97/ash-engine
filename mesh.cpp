@@ -2,17 +2,19 @@
 
 Mesh::~Mesh() {
 	// Clean
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &NBO);
-	glDeleteBuffers(1, &UBO);
-	glDeleteBuffers(1, &EBO);
+	if (VAO) glDeleteVertexArrays(1, &VAO);
+	if (VBO) glDeleteBuffers(1, &VBO);
+	if (NBO) glDeleteBuffers(1, &NBO);
+	if (TBO) glDeleteBuffers(1, &TBO);
+	if (UBO) glDeleteBuffers(1, &UBO);
+	if (EBO) glDeleteBuffers(1, &EBO);
 }
 
 void Mesh::initBO() {
 	// Generate object ID
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &TBO);
 	glGenBuffers(1, &NBO);
 	glGenBuffers(1, &UBO);
 	glGenBuffers(1, &EBO);
@@ -27,7 +29,7 @@ void Mesh::initBO() {
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		glEnableVertexAttribArray(0);
 	}
-	
+
 	// Bind normal buffer object
 	if (normals.size() > 0) {
 		glBindBuffer(GL_ARRAY_BUFFER, NBO);
@@ -36,12 +38,20 @@ void Mesh::initBO() {
 		glEnableVertexAttribArray(1);
 	}
 	
+	// Bind tangent buffer object
+	if (tangents.size() > 0) {
+		glBindBuffer(GL_ARRAY_BUFFER, TBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * tangents.size(), &tangents[0], GL_STATIC_DRAW);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		glEnableVertexAttribArray(2);
+	}
+
 	// Bind UV buffer object
 	if (texCoords.size() > 0) {
 		glBindBuffer(GL_ARRAY_BUFFER, UBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * texCoords.size(), &texCoords[0], GL_STATIC_DRAW);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		glEnableVertexAttribArray(3);
 	}
 	
 	// Bind element buffer object

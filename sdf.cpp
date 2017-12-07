@@ -2,8 +2,9 @@
 
 SDF::~SDF() {
 	// Clean
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+	if (VAO) glDeleteVertexArrays(1, &VAO);
+	if (VBO) glDeleteBuffers(1, &VBO);
+	if (CBO) glDeleteBuffers(1, &CBO);
 }
 
 void SDF::loadFromFile(const string& filename) {

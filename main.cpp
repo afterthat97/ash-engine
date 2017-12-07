@@ -257,7 +257,7 @@ int main(int argc, char **argv) {
 	} catch (const string msg) {
 		cerr << msg << endl;
 	}
-
+	
 	if (scenes.size() > 0) {
 		//Set camera position
 		camera.pos = vec3((scenes[0].xMax + scenes[0].xMin) / 2,

@@ -10,7 +10,10 @@ void Material::loadAllDefault() {
 	loadDefaultSharpness();
 }
 
-void Material::loadDefaultName() {	name = "Untitled";}
+void Material::loadDefaultName() {
+	name = "Untitled";
+}
+
 void Material::loadDefaultShininess() {
 	shininess = 32.0f;
 }
@@ -45,9 +48,11 @@ void Material::apply(Shader& shader) {
 	shader.setInt("material.ambientMap", 0);
 	shader.setInt("material.diffuseMap", 1);
 	shader.setInt("material.specularMap", 2);
+	shader.setInt("material.normalMap", 3);
 	shader.setInt("material.hasAmbientMap", ambientMap ? 1 : 0);
 	shader.setInt("material.hasDiffuseMap", diffuseMap ? 1 : 0);
 	shader.setInt("material.hasSpecularMap", specularMap ? 1 : 0);
+	shader.setInt("material.hasNormalMap", normalMap ? 1 : 0);
 }
 
 void Material::bind(Shader& shader) {
@@ -65,6 +70,10 @@ void Material::bind(Shader& shader) {
 	// Bind specular map
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, specularMap);
+
+	// Bind normal map
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, normalMap);
 }
 
 void Material::dumpinfo(string tab) {

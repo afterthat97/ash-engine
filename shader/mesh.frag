@@ -4,9 +4,11 @@ struct Material {
 	int hasAmbientMap;
 	int hasDiffuseMap;
 	int hasSpecularMap;
+	int hasNormalMap;
 	sampler2D ambientMap;
 	sampler2D diffuseMap;
 	sampler2D specularMap;
+	sampler2D normalMap;
     vec3 ambientRGB;
     vec3 diffuseRGB;
     vec3 specularRGB;
@@ -22,16 +24,23 @@ struct Light {
 
 out vec4 color;
 
-in vec3 objectNormal;
+in vec3 objectNormalRaw;
 in vec3 objectPos;
 in vec2 objectTexCoord;
-  
+in mat3 TBN; 
+
 uniform vec3 viewPos; 
 uniform Material material;
 uniform Light light;
 
 void main() {
-	vec3 ambient, diffuse, specular;
+	vec3 ambient, diffuse, specular, objectNormal = objectNormalRaw;
+
+	if (material.hasNormalMap != 0) {
+		objectNormal = texture(material.normalMap, objectTexCoord).rgb;
+		objectNormal = normalize(objectNormal * 2.0 - 1.0);
+		objectNormal = normalize(TBN * objectNormal);
+	}
 
 	// ambient
 	if (material.hasDiffuseMap == 0)

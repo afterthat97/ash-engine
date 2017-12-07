@@ -21,8 +21,8 @@
 #include <GLFW/glfw3.h>
 #include <ApplicationServices/ApplicationServices.h>
 #include <unistd.h>
-#define min(x, y) ((x) < (y) ? (x) : (y))
-#define max(x, y) ((x) > (y) ? (x) : (y))
+using std::min;
+using std::max;
 
 #else
 #include <Windows.h>

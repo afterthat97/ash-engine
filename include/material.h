@@ -36,15 +36,13 @@ struct Material {
 	//specifies the diffuse reflectivity using RGB values
 	vec3 specular;
 	//specifies the specular reflectivity using RGB values
-	uint32_t ambientMap;
-	// Ambient map
-	uint32_t diffuseMap;
-	// Diffuse map
-	uint32_t specularMap;
-	// Specular map
+	uint32_t ambientMap; // Ambient map
+	uint32_t diffuseMap; // Diffuse map
+	uint32_t specularMap; // Specular map
+	uint32_t normalMap; // Normal map
 	Material() {
 		name = "";
-		ambientMap = diffuseMap = specularMap = 0;
+		ambientMap = diffuseMap = specularMap = normalMap = 0;
 	}
 	void loadAllDefault();
 	void loadDefaultName();
