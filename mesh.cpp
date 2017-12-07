@@ -164,8 +164,10 @@ void Mesh::render(Shader& shader) {
 	shader.use();
 
 	// Bind material
-	for (uint32_t i = 0; i < materials.size(); i++)
+	for (uint32_t i = 0; i < materials.size(); i++) {
+		materials[i].apply(shader);
 		materials[i].bind(shader);
+	}
 	
 	// Render object
 	glBindVertexArray(VAO);

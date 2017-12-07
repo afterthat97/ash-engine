@@ -1,5 +1,5 @@
 #include "io.h"
-#include <FreeImage.h>
+#include <FreeImage/FreeImage.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -115,7 +115,10 @@ void loadMaterial(const aiMaterial* aiMaterialPtr, Material& newMaterial, string
 //		loadColor(color, newMaterial.transparent);
 	if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_SHININESS, value))
 		newMaterial.shininess = value;
-	if (newMaterial.shininess < 1e-2) newMaterial.shininess = 32.0f;
+	if (newMaterial.name == "")
+		newMaterial.loadDefaultName();
+	if (newMaterial.shininess < 1e-2)
+		newMaterial.loadDefaultShininess();
 
 	// Ambient map (current not supported)
 	/*

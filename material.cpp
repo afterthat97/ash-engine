@@ -1,43 +1,70 @@
 #include "material.h"
 
-void Material::loadDefault() {
-	name = "";
-	ambient = vec3(0.2f, 0.2f, 0.2f);
-	diffuse = vec3(0.8f, 0.8f, 0.8f);
-	specular = vec3(0.1f, 0.1f, 0.1f);
+void Material::loadAllDefault() {
+	loadDefaultName();
+	loadDefaultAmbientRGB();
+	loadDefaultDiffuseRGB();
+	loadDefaultSpecularRGB();
+	loadDefaultShininess();
+	loadDefaultDensity();
+	loadDefaultSharpness();
+}
+
+void Material::loadDefaultName() {	name = "Untitled";}
+void Material::loadDefaultShininess() {
 	shininess = 32.0f;
+}
+
+void Material::loadDefaultSharpness() {
 	sharpness = 60.0f;
+}
+
+void Material::loadDefaultDensity() {
 	density = 1.0f;
 }
 
-void Material::bind(Shader& shader) {
+void Material::loadDefaultAmbientRGB() {
+	ambient = vec3(0.2f, 0.2f, 0.2f);
+}
+
+void Material::loadDefaultDiffuseRGB() {
+	diffuse = vec3(0.8f, 0.8f, 0.8f);
+}
+
+void Material::loadDefaultSpecularRGB() {
+	specular = vec3(0.1f, 0.1f, 0.1f);
+}
+
+void Material::apply(Shader& shader) {
 	// Use and set shader
 	shader.use();
 	shader.setVec3("material.ambientRGB", ambient);
 	shader.setVec3("material.diffuseRGB", diffuse);
 	shader.setVec3("material.specularRGB", specular);
+	shader.setFloat("material.shininess", shininess);
 	shader.setInt("material.ambientMap", 0);
 	shader.setInt("material.diffuseMap", 1);
 	shader.setInt("material.specularMap", 2);
-	shader.setFloat("material.shininess", shininess);
-	if (ambientMap != 0) {
-		shader.setInt("material.hasAmbientMap", 1);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, ambientMap);
-	} else
-		shader.setInt("material.hasAmbientMap", 0);
-	if (diffuseMap != 0) {
-		shader.setInt("material.hasDiffuseMap", 1);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, diffuseMap);
-	} else
-		shader.setInt("material.hasDiffuseMap", 0);
-	if (specularMap != 0) {
-		shader.setInt("material.hasSpecularMap", 1);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, specularMap);
-	} else
-		shader.setInt("material.hasSpecularMap", 0);
+	shader.setInt("material.hasAmbientMap", ambientMap ? 1 : 0);
+	shader.setInt("material.hasDiffuseMap", diffuseMap ? 1 : 0);
+	shader.setInt("material.hasSpecularMap", specularMap ? 1 : 0);
+}
+
+void Material::bind(Shader& shader) {
+	// Use and set shader
+	shader.use();
+
+	// Bind ambient map
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, ambientMap);
+
+	// Bind diffuse map
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, diffuseMap);
+
+	// Bind specular map
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, specularMap);
 }
 
 void Material::dumpinfo(string tab) {

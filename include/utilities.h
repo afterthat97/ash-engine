@@ -21,6 +21,9 @@
 #include <GLFW/glfw3.h>
 #include <ApplicationServices/ApplicationServices.h>
 #include <unistd.h>
+#define min(x, y) ((x) < (y) ? (x) : (y))
+#define max(x, y) ((x) > (y) ? (x) : (y))
+
 #else
 #include <Windows.h>
 #include <GL/glew.h>
@@ -45,8 +48,6 @@ using std::map;
 using std::string;
 using std::to_string;
 using std::pair;
-using std::min;
-using std::max;
 using std::ifstream;
 using std::ofstream;
 using std::cout;

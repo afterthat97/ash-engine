@@ -46,7 +46,15 @@ struct Material {
 		name = "";
 		ambientMap = diffuseMap = specularMap = 0;
 	}
-	void loadDefault();
+	void loadAllDefault();
+	void loadDefaultName();
+	void loadDefaultShininess();
+	void loadDefaultSharpness();
+	void loadDefaultDensity();
+	void loadDefaultAmbientRGB();
+	void loadDefaultDiffuseRGB();
+	void loadDefaultSpecularRGB();
+	void apply(Shader&);
 	void bind(Shader&);
 	void dumpinfo(string);
 };

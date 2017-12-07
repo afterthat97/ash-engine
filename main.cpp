@@ -246,7 +246,7 @@ int main(int argc, char **argv) {
 	}
 
 	// Load scenes from file
-	for (int i = 1; i < argc; i++)
+	for (int i = 1; i < argc; i++) 
 	try {
 /*		sdf.loadFromFile(argv[i]);
 		sdf.initBO();
@@ -264,7 +264,7 @@ int main(int argc, char **argv) {
 			(scenes[0].yMax + scenes[0].yMin) / 2,
 			(scenes[0].zMax - scenes[0].zMin) / 2 + scenes[0].zMax);
 		//Set light position
-		light0.pos = vec3(scenes[0].xMax, scenes[0].yMax, scenes[0].zMax);
+		light0.pos = vec3(scenes[0].xMax + 10, scenes[0].yMax + 10, scenes[0].zMax + 10);
 		light0.init();
 	}
 
