@@ -19,8 +19,6 @@ vector<func> menuOptions;
 Shader meshShader, lightShader, sdfShader;
 int32_t fps = 60, canMove = 1, canChangeViewport = 0;
 
-SDF sdf;
-
 void windowSizeCallback(GLFWwindow* window, int32_t width, int32_t height) {
 	windowSize = { width, height };
 	glfwGetFramebufferSize(window, &windowFrameBufferSize.first, &windowFrameBufferSize.second);
@@ -121,6 +119,7 @@ void drawGridlines(GLfloat length, GLfloat width, GLfloat inc) {
 
 void render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.5, 0.5, 0.5, 1.0);
 	
 	// Move camera by keyboard
 	if (canMove) {
@@ -183,7 +182,6 @@ void render() {
 	//	scenes[i].renderSDF(sdfShader);
 	}
 
-	sdf.render(sdfShader);
 	// Render light
 	light0.render(lightShader);
 	
@@ -250,13 +248,13 @@ int main(int argc, char **argv) {
 	// Load scenes from file
 	for (int i = 1; i < argc; i++)
 	try {
-		sdf.loadFromFile(argv[i]);
+/*		sdf.loadFromFile(argv[i]);
 		sdf.initBO();
-/*		Scene newScene;
+*/		Scene newScene;
 		loadScene(string(argv[i]), newScene);
 		scenes.push_back(newScene);
 		scenes[scenes.size() - 1].initBO();
-*/	} catch (const string msg) {
+	} catch (const string msg) {
 		cerr << msg << endl;
 	}
 

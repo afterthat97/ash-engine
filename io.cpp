@@ -164,7 +164,7 @@ int32_t loadScene(string filename, Scene& newScene) {
 	Assimp::Importer importer;
 	const aiScene* aiScenePtr = importer.ReadFile(filename, aiProcess_Triangulate);
 	if (aiScenePtr == NULL || aiScenePtr->mFlags == AI_SCENE_FLAGS_INCOMPLETE || aiScenePtr->mRootNode == NULL)
-		throw importer.GetErrorString();
+		throw string(importer.GetErrorString());
 	newScene.name = aiScenePtr->mRootNode->mName.C_Str();
 	for (uint32_t i = 0; i < aiScenePtr->mNumMaterials; i++) {
 		Material newMaterial;
