@@ -21,3 +21,6 @@ run : atview
 clean :
 	rm -rf ${OBJS} bin/
 	mkdir bin
+
+countline :
+	@echo "Total code lines: `ls *include/*.h *.cpp shader/* | xargs cat | wc -l`"
