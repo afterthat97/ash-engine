@@ -12,6 +12,6 @@ out vec4 color;
 uniform Light light;
 
 void main() {
-    vec3 result = light.ambient + light.diffuse + light.specular;
+    vec3 result = light.diffuse;
     color = vec4(result, 1.0);
-} 
+}
