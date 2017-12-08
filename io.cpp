@@ -164,8 +164,8 @@ void loadMaterial(const aiMaterial* aiMaterialPtr, Material& newMaterial, string
 			}
 
 	// Normal map
-	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_NORMALS); i++)
-		if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_NORMALS, i, &aiStr))
+	for (uint32_t i = 0; i < aiMaterialPtr -> GetTextureCount(aiTextureType_HEIGHT); i++)
+		if (AI_SUCCESS == aiMaterialPtr -> GetTexture(aiTextureType_HEIGHT, i, &aiStr))
 			try {
 				newMaterial.normalMap = loadTexture(dir, aiStr.C_Str());
 			} catch (const char* msg) {

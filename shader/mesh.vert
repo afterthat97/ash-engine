@@ -18,7 +18,8 @@ void main() {
 
 	vec3 T = normalize(aTangent);
 	vec3 N = normalize(aNormal);
-	vec3 B = normalize(cross(N, T));
+	T = normalize(T - dot(T, N) * N);
+	vec3 B = normalize(cross(T, N));
 	TBN = mat3(T, B, N);
 
 	gl_Position = PVM * vec4(aPos, 1.0f);
