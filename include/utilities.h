@@ -39,9 +39,6 @@ using std::max;
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#define fmin(x, y) ((x) < (y) ? (x) : (y))
-#define fmax(x, y) ((x) > (y) ? (x) : (y))
-
 const int32_t inf = 0x3f3f3f3f;
 
 using std::vector;
