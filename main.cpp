@@ -325,11 +325,10 @@ int main(int argc, char **argv) {
 	TwBar * Config = TwNewBar("Config");
 	TwSetParam(Config, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
 	TwSetParam(Config, NULL, "position", TW_PARAM_CSTRING, 1, "5 295");
-	TwSetParam(Config, NULL, "size", TW_PARAM_CSTRING, 1, "200 180");
+	TwSetParam(Config, NULL, "size", TW_PARAM_CSTRING, 1, "200 170");
 	TwAddVarRW(Config, "Lighting", TW_TYPE_BOOLCPP, &enableLight, "");
 	TwAddVarRW(Config, "Texture", TW_TYPE_BOOLCPP, &enableTexture, "");
 	TwAddVarRW(Config, "DepthTest", TW_TYPE_BOOLCPP, &enableDepthTest, "");
-	TwAddVarRW(Config, "Gridlines", TW_TYPE_BOOLCPP, &enableGridlines, "");
 	TwAddVarRW(Config, "CullFace", TW_TYPE_BOOLCPP, &enableCullFace, "");
 	TwAddVarRW(Config, "MultiSample", TW_TYPE_BOOLCPP, &enableMultiSample, "");
 	TwAddVarCB(Config, "ShadeModel", TW_TYPE_STDSTRING, setShadeModel, getShadeModel, &shadeModelStr, NULL);
