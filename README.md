@@ -6,31 +6,25 @@ An cross-platform 3D model viewer for learning purpose, based on OpenGL, Assimp,
 
 * Supports reading 40+ 3D file formats, including FBX, DXF, Collada, Obj, X, PLY, 3DS.
 * Supports popular texture formats like PNG, BMP, JPEG, TIFF.
-* Provides multiple viewing options. You can toggle lighting, texture, the polygon mode and so on.
-* Shows FPS, camera position, and some OpenGL configurations on bars.
+* Supports diffuse map, specular map and normal map.
+* Provides some viewing options. You can toggle lighting, texture, MSAA and so on.
+* Both light color and light position can be adjusted on bars.
 * Press `<F10>` to take screenshots. (BMP only)
-
-## Shortcomings
-
-* DO NOT support Linux.
-* Uses OpenGL 1.1 API, which can cause low performance.
 
 ## Screenshots
 
-On Microsoft Windows 10 Pro:
+![](https://img.masterliu.net/atview/rock.png)
 
-![](https://img.masterliu.net/atview/atview-win.jpg)
+![](https://img.masterliu.net/atview/chair.png)
 
-On Apple macOS 10.13:
-
-![](https://img.masterliu.net/atview/atview-macos.jpg)
+![](https://img.masterliu.net/atview/nanosuit.png)
 
 ## How to use
 
-Only command-line interface is supported currently. Pass the path of model as arguments, for example:
+Only command-line interface is supported currently. Pass the filepath of model as arguments, for example:
 
 ```
-atview rock/rock.obj
+atview /path-to-models/rock.obj
 ```
 
 ## Build
