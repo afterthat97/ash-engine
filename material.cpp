@@ -46,9 +46,14 @@ void Material::bind(Shader& shader) {
 	shader.setVec3("material.diffuseRGB", diffuse);
 	shader.setVec3("material.specularRGB", specular);
 	shader.setFloat("material.shininess", shininess);
-	// Bind ambient map
-	for (uint32_t i = 0; i < textures.size(); i++)
-		textures[i].bind(shader);
+	shader.setInt("material.hasAmbientMap", 0);
+	shader.setInt("material.hasDiffuseMap", 0);
+	shader.setInt("material.hasSpecularMap", 0);
+	shader.setInt("material.hasNormalMap", 0);
+	// Bind texture
+	if (enableTexture)
+		for (uint32_t i = 0; i < textures.size(); i++)
+			textures[i].bind(shader);
 }
 
 void Material::dumpinfo(string tab) {

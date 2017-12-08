@@ -6,14 +6,14 @@
 #include "shader.h"
 
 pair<double, double> lastPointerPos;
-pair<int32_t, int32_t> windowSize = { 1024, 576 };
-pair<int32_t, int32_t> windowFrameBufferSize;
+pair<int32_t, int32_t> windowSize = { 1024, 576 }, windowFrameBufferSize;
 int32_t scaleRatio, fps = 60, canMove = 1, canChangeViewport = 0;
 Camera camera;
 Light light0;
 vector<Scene> scenes;
 Shader meshShader, lightShader, sdfShader;
 uint32_t image_id = 0;
+float moveSpeed = 1.0f;
 
 void windowSizeCallback(GLFWwindow* window, int32_t width, int32_t height) {
 	windowSize = { width, height };
@@ -59,7 +59,7 @@ void cursorPosCallback(GLFWwindow * window, double xpos, double ypos) {
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffse) {
-	camera.moveForward((GLfloat) yoffse * 10.0f);
+	camera.moveForward((float) yoffse * 10.0f);
 }
 
 void keyCallback(GLFWwindow* window, int32_t key, int32_t scancode, int32_t action, int32_t mods) {
@@ -67,6 +67,7 @@ void keyCallback(GLFWwindow* window, int32_t key, int32_t scancode, int32_t acti
 	int k = 0;
 	switch (key) {
 		case GLFW_KEY_F10: {
+			// Capture screen pixels and save screenshot
 			uint8_t* pixels = new uint8_t[3 * windowFrameBufferSize.first * windowFrameBufferSize.second];
 			glReadPixels(
 				0,
@@ -130,25 +131,21 @@ void charCallback(GLFWwindow* window, uint32_t key) {
 	canMove = !TwKeyPressed(key, TW_KMOD_NONE);
 }
 
-void drawGridlines(GLfloat length, GLfloat width, GLfloat inc) {
-	return;
-}
-
 void render(GLFWwindow* window) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.5, 0.5, 0.5, 1.0);
+	glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
 	
 	// Move camera by keyboard
 	if (canMove) {
-		GLfloat speed = 1.0f;
-		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) speed = 5.0f;
-		if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) speed = 5.0f;
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.moveForward(speed);
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.moveForward(-speed);
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera.moveRight(-speed);
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.moveRight(speed);
-		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) camera.moveUp(-speed);
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) camera.moveUp(speed);
+		float shift = 1.0f;
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) shift = 5.0f;
+		if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) shift = 5.0f;
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.moveForward(shift * moveSpeed);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.moveForward(-shift * moveSpeed);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera.moveRight(-shift * moveSpeed);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.moveRight(shift * moveSpeed);
+		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) camera.moveUp(-shift * moveSpeed);
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) camera.moveUp(shift * moveSpeed);
 	}
 
 	// Change camera viewport by mouse motion
@@ -174,6 +171,7 @@ void render(GLFWwindow* window) {
 	meshShader.setVec3("light.diffuse", light0.diffuse);
 	meshShader.setVec3("light.specular", light0.specular);
 	meshShader.setInt("light.enable", enableLight);
+
 	// Set shader for light
 	lightShader.use();
 	mat4 model(1.0f);
@@ -187,24 +185,17 @@ void render(GLFWwindow* window) {
 	// OpenGL configurations
 	glShadeModel(shadeModelStr == "FLAT" ? GL_FLAT : GL_SMOOTH);
 	glPolygonMode(GL_FRONT_AND_BACK, (polygonModeStr == "LINE" ? GL_LINE : GL_FILL));
-	if (enableGridlines) drawGridlines(10000.0f, 10000.0f, 100.0f);
-	if (enableTexture) glEnable(GL_TEXTURE_2D);
-
 	if (enableCullFace) glEnable(GL_CULL_FACE);
 	if (enableDepthTest) glEnable(GL_DEPTH_TEST);
 	if (enableMultiSample) glEnable(GL_MULTISAMPLE);
 
 	// Render scenes
-	for (uint32_t i = 0; i < scenes.size(); i++) {
+	for (uint32_t i = 0; i < scenes.size(); i++)
 		scenes[i].render(meshShader);
-	//	scenes[i].renderSDF(sdfShader);
-	}
 
 	// Render light
 	light0.render(lightShader);
 	
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_LIGHTING);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_MULTISAMPLE);
@@ -212,7 +203,6 @@ void render(GLFWwindow* window) {
 	// Draw tweak bars
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	TwDraw();
-	glFlush();
 }
 
 int main(int argc, char **argv) {
@@ -276,9 +266,7 @@ int main(int argc, char **argv) {
 	// Load scenes from file
 	for (int i = 1; i < argc; i++) 
 	try {
-/*		sdf.loadFromFile(argv[i]);
-		sdf.initBO();
-*/		Scene newScene;
+		Scene newScene;
 		newScene.LoadFromFile(argv[i]);
 		scenes.push_back(newScene);
 		scenes[scenes.size() - 1].initBO();
@@ -286,13 +274,20 @@ int main(int argc, char **argv) {
 		cerr << msg << endl;
 	}
 
-	// Set camera and light position
+	// Initialize camera, light and so on
 	if (scenes.size() > 0) {
-		light0.pos = scenes[0].maxv + scenes[0].lenv;
+		// Initialize camera
+		camera.pos = scenes[0].minv + scenes[0].lenv * vec3(0.5f, 0.5f, 0.5f);
+		camera.moveForward(-scenes[0].lenv.z * 2.0f);
+		
+		// Initialize lighting
+		float minLenv = min(scenes[0].lenv.x, min(scenes[0].lenv.y, scenes[0].lenv.z));
+		light0.pos = scenes[0].maxv + scenes[0].lenv * vec3(0.2f, 0.2f, 0.2f);
+		light0.init(minLenv / 50.0f);
+		
+		// Set moving moveSpeed
+		moveSpeed = minLenv / 50.0f;
 	}
-
-	// Initialize lighting
-	light0.init();
 
 	// Dump info to console
 	for (uint32_t i = 0; i < scenes.size(); i++)
@@ -307,8 +302,9 @@ int main(int argc, char **argv) {
 	TwBar * InfoBar = TwNewBar("Info");
 	TwSetParam(InfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
 	TwSetParam(InfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 5");
-	TwSetParam(InfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "200 115");
+	TwSetParam(InfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "200 130");
 	TwAddVarRO(InfoBar, "FPS", TW_TYPE_INT32, &fps, "");
+	TwAddVarRW(InfoBar, "MoveSpeed", TW_TYPE_FLOAT, &moveSpeed, "step=0.1");
 	TwAddVarRW(InfoBar, "Camera X", TW_TYPE_FLOAT, &camera.pos.x, "step=0.1");
 	TwAddVarRW(InfoBar, "Camera Y", TW_TYPE_FLOAT, &camera.pos.y, "step=0.1");
 	TwAddVarRW(InfoBar, "Camera Z", TW_TYPE_FLOAT, &camera.pos.z, "step=0.1");
@@ -316,11 +312,11 @@ int main(int argc, char **argv) {
 	// Show lighting info
 	TwBar * LightBar = TwNewBar("Light");
 	TwSetParam(LightBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-	TwSetParam(LightBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 130");
+	TwSetParam(LightBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 140");
 	TwSetParam(LightBar, NULL, "size", TW_PARAM_CSTRING, 1, "200 150");
-	TwAddVarRO(LightBar, "Ambient", TW_TYPE_COLOR3F, &light0.ambient.x, "");
-	TwAddVarRO(LightBar, "Diffuse", TW_TYPE_COLOR3F, &light0.diffuse.x, "");
-	TwAddVarRO(LightBar, "Specular", TW_TYPE_COLOR3F, &light0.specular.x, "");
+	TwAddVarRW(LightBar, "Ambient", TW_TYPE_COLOR3F, &light0.ambient.x, "");
+	TwAddVarRW(LightBar, "Diffuse", TW_TYPE_COLOR3F, &light0.diffuse.x, "");
+	TwAddVarRW(LightBar, "Specular", TW_TYPE_COLOR3F, &light0.specular.x, "");
 	TwAddVarRW(LightBar, "Postion X", TW_TYPE_FLOAT, &light0.pos.x, "step=0.1");
 	TwAddVarRW(LightBar, "Postion Y", TW_TYPE_FLOAT, &light0.pos.y, "step=0.1");
 	TwAddVarRW(LightBar, "Postion Z", TW_TYPE_FLOAT, &light0.pos.z, "step=0.1");
@@ -328,7 +324,7 @@ int main(int argc, char **argv) {
 	// Show OpenGL config
 	TwBar * Config = TwNewBar("Config");
 	TwSetParam(Config, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-	TwSetParam(Config, NULL, "position", TW_PARAM_CSTRING, 1, "5 290");
+	TwSetParam(Config, NULL, "position", TW_PARAM_CSTRING, 1, "5 295");
 	TwSetParam(Config, NULL, "size", TW_PARAM_CSTRING, 1, "200 180");
 	TwAddVarRW(Config, "Lighting", TW_TYPE_BOOLCPP, &enableLight, "");
 	TwAddVarRW(Config, "Texture", TW_TYPE_BOOLCPP, &enableTexture, "");

@@ -16,7 +16,7 @@ public:
 		loadDefaultColor();
 	}
 	void loadDefaultColor();
-	void init();
+	void init(float);
 	void render(Shader&);
 };
 

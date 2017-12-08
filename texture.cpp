@@ -1,5 +1,4 @@
 #include "texture.h"
-#include "FreeImage/FreeImage.h"
 #include "glconfig.h"
 
 void Texture::loadFromFile(string dir, string filename) {
@@ -12,7 +11,7 @@ void Texture::loadFromFile(string dir, string filename) {
 	FREE_IMAGE_FORMAT fifmt = FreeImage_GetFileType(dir.c_str(), 0);
 	FIBITMAP *bitmap = FreeImage_Load(fifmt, dir.c_str(), 0);
 	if (bitmap == NULL)
-		throw ("Unable to load texture from " + dir).c_str();
+		throwError("load", dir, "Could not open file");
 	bitmap = FreeImage_ConvertTo32Bits(bitmap);
 	uint8_t *textureArr = (uint8_t*)FreeImage_GetBits(bitmap);
 
@@ -44,22 +43,22 @@ void Texture::loadFromFile(string dir, string filename) {
 }
 
 void Texture::bind(Shader& shader) {
-	if (mytype == AMBIENT) {
+	if (mytype == AMBIENT) { // Ambient map
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		shader.setInt("material.ambientMap", 0);
 		shader.setInt("material.hasAmbientMap", textureID && enableTexture ? 1 : 0);
-	} else if (mytype == DIFFUSE) {
+	} else if (mytype == DIFFUSE) { // Diffuse map
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		shader.setInt("material.diffuseMap", 1);
 		shader.setInt("material.hasDiffuseMap", textureID && enableTexture ? 1 : 0);
-	} else if (mytype == SPECULAR) {
+	} else if (mytype == SPECULAR) { // Specular map
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		shader.setInt("material.specularMap", 2);
 		shader.setInt("material.hasSpecularMap", textureID && enableTexture ? 1 : 0);
-	} else if (mytype == NORMAL) {
+	} else if (mytype == NORMAL) { // Normal map
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		shader.setInt("material.normalMap", 3);

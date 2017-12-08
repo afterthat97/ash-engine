@@ -35,12 +35,12 @@ void Light::loadDefaultColor() {
 	specular = vec3(0.8f, 0.8f, 0.8f);
 }
 
-void Light::init() {
+void Light::init(float scale) {
 	// A cube light
 	vertices.clear();
 	indices.clear();
 	for (int i = 0; i < 24; i++)
-		vertices.push_back(light_vertices[i] * 10);
+		vertices.push_back(light_vertices[i] * scale);
 	for (int i = 0; i < 36; i++)
 		indices.push_back(light_indices[i] - 1);
 

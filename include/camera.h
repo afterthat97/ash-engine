@@ -6,7 +6,7 @@
 struct Camera {
 	vec3 pos, dir, rot, up;
 	Camera() {
-		pos = vec3(0.0f, 100.0f, 0.0f);
+		pos = vec3(0.0f, 0.0f, 0.0f);
 		dir = vec3(0.0f, 0.0f, -1.0f);
 		rot = vec3(0.0f, 0.0f, 0.0f);
 		up = vec3(0.0f, 1.0f, 0.0f);
