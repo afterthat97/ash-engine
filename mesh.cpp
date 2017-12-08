@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include "glconfig.h"
 
 Mesh::~Mesh() {
 	// Clean
@@ -174,10 +175,8 @@ void Mesh::render(Shader& shader) {
 	shader.use();
 
 	// Bind material
-	for (uint32_t i = 0; i < materials.size(); i++) {
-		materials[i].apply(shader);
+	for (uint32_t i = 0; i < materials.size(); i++)
 		materials[i].bind(shader);
-	}
 	
 	// Render object
 	glBindVertexArray(VAO);

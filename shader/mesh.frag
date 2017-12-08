@@ -16,6 +16,7 @@ struct Material {
 }; 
 
 struct Light {
+	int enable;
     vec3 position;
     vec3 ambient;
     vec3 diffuse;
@@ -67,5 +68,11 @@ void main() {
 		specular = spec * light.specular * vec3(texture(material.specularMap, objectTexCoord));
 
     vec3 result = ambient + diffuse + specular;
-    color = vec4(result, 1.0);
+    
+	if (light.enable == 1)
+		color = vec4(result, 1.0);
+	else if (material.hasDiffuseMap == 1)
+		color = texture(material.diffuseMap, objectTexCoord);
+	else
+		color = vec4(material.diffuseRGB, 1.0);
 }

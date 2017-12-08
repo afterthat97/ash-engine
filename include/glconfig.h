@@ -13,6 +13,7 @@ extern bool enableLight;
 extern bool enableTexture;
 extern bool enableGridlines;
 extern bool enableCullFace;
+extern bool enableMultiSample;
 
 void TW_CALL setShadeModel(const void *value, void *clientData);
 void TW_CALL setPolygonMode(const void *value, void *clientData);

@@ -8,7 +8,6 @@
 #include <cstring>
 #include <string>
 #include <vector>
-#include <map>
 #include <cmath>
 #include <cfloat>
 
@@ -17,18 +16,12 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #ifdef __APPLE__
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <ApplicationServices/ApplicationServices.h>
 #include <unistd.h>
 using std::min;
 using std::max;
-
 #else
 #include <Windows.h>
-#include <GL/glew.h>
-#include <GL/GL.h>
-#include <GLFW/glfw3.h>
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "User32.lib")
 #pragma comment(lib, "glfw3dll.lib")
@@ -38,13 +31,20 @@ using std::max;
 #pragma comment(lib, "AntTweakBar.lib")
 #endif
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <FreeImage/FreeImage.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #define fmin(x, y) ((x) < (y) ? (x) : (y))
 #define fmax(x, y) ((x) > (y) ? (x) : (y))
 
 const int32_t inf = 0x3f3f3f3f;
 
 using std::vector;
-using std::map;
 using std::string;
 using std::to_string;
 using std::pair;

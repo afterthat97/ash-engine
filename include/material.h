@@ -3,6 +3,7 @@
 
 #include "utilities.h"
 #include "shader.h"
+#include "texture.h"
 
 struct Material {
 	string name;
@@ -36,13 +37,9 @@ struct Material {
 	//specifies the diffuse reflectivity using RGB values
 	vec3 specular;
 	//specifies the specular reflectivity using RGB values
-	uint32_t ambientMap; // Ambient map
-	uint32_t diffuseMap; // Diffuse map
-	uint32_t specularMap; // Specular map
-	uint32_t normalMap; // Normal map
+	vector<Texture> textures;
 	Material() {
 		name = "";
-		ambientMap = diffuseMap = specularMap = normalMap = 0;
 	}
 	void loadAllDefault();
 	void loadDefaultName();
@@ -52,7 +49,6 @@ struct Material {
 	void loadDefaultAmbientRGB();
 	void loadDefaultDiffuseRGB();
 	void loadDefaultSpecularRGB();
-	void apply(Shader&);
 	void bind(Shader&);
 	void dumpinfo(string);
 };

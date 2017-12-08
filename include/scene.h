@@ -1,10 +1,10 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include "utilities.h"
 #include "shader.h"
 #include "model.h"
 #include "material.h"
-#include "utilities.h"
 
 struct Scene {
 	string name;
@@ -15,6 +15,7 @@ struct Scene {
 		xMax = yMax = zMax = -FLT_MAX;
 		xMin = yMin = zMin = FLT_MAX;
 	}
+	void LoadFromFile(string);
 	void initBO();
 	void computeSDF(uint32_t);
 	void render(Shader&);

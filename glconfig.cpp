@@ -7,6 +7,7 @@ bool enableLight = true;
 bool enableTexture = true;
 bool enableGridlines = true;
 bool enableCullFace = false;
+bool enableMultiSample = true;
 
 void TW_CALL setShadeModel(const void *value, void *clientData) {
 	string* src = (string*) value, *des = (string*) clientData;

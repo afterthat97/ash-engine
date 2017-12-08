@@ -18,7 +18,7 @@ public:
 	}
 	void use();
 	void setBool(const string &name, bool value);
-    void setInt(const string &name, int value);
+    void setInt(const string &name, int32_t value);
     void setFloat(const string &name, float value);
     void setVec2(const string &name, const vec2 &value);
     void setVec2(const string &name, float x, float y);
