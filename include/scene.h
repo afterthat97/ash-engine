@@ -8,12 +8,13 @@
 
 struct Scene {
 	string name;
-	float xMax, xMin, yMax, yMin, zMax, zMin;
+	vec3 minv, maxv, lenv;
 	vector<Model> models;
 	vector<Material> materials;
 	Scene() {
-		xMax = yMax = zMax = -FLT_MAX;
-		xMin = yMin = zMin = FLT_MAX;
+		minv = vec3(FLT_MAX);
+		maxv = vec3(-FLT_MAX);
+		lenv = vec3(0);
 	}
 	void LoadFromFile(string);
 	void initBO();

@@ -39,7 +39,7 @@ struct Material {
 	//specifies the specular reflectivity using RGB values
 	vector<Texture> textures;
 	Material() {
-		name = "";
+		loadAllDefault();
 	}
 	void loadAllDefault();
 	void loadDefaultName();

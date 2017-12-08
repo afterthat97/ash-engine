@@ -10,7 +10,7 @@ class Mesh {
 public:
 	string name;
 	SDF sdf;
-	float xMax, xMin, yMax, yMin, zMax, zMin;
+	vec3 minv, maxv, lenv;
 	uint32_t VAO, VBO, NBO, TBO, UBO, EBO;
 	vector<float> vertices;
 	vector<float> normals;
@@ -20,8 +20,9 @@ public:
 	vector<Material> materials;
 	Mesh() {
 		VAO = VBO = NBO = TBO = UBO = EBO = 0;
-		xMax = yMax = zMax = -FLT_MAX;
-		xMin = yMin = zMin = FLT_MAX;
+		minv = vec3(FLT_MAX);
+		maxv = vec3(-FLT_MAX);
+		lenv = vec3(0);
 	}
 	~Mesh();
 	void initBO();

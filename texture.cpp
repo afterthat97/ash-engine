@@ -6,6 +6,7 @@ void Texture::loadFromFile(string dir, string filename) {
 	FreeImage_Initialise(0);
 	if (filename[0] == '/') filename.erase(0, 1);
 	dir = dir + filename;
+	name = filename;
 
 	// Use FreeImage to load texture
 	FREE_IMAGE_FORMAT fifmt = FreeImage_GetFileType(dir.c_str(), 0);
@@ -14,7 +15,10 @@ void Texture::loadFromFile(string dir, string filename) {
 		throw ("Unable to load texture from " + dir).c_str();
 	bitmap = FreeImage_ConvertTo32Bits(bitmap);
 	uint8_t *textureArr = (uint8_t*)FreeImage_GetBits(bitmap);
-	int32_t width = FreeImage_GetWidth(bitmap), height = FreeImage_GetHeight(bitmap);
+
+	// Get resolution
+	width = FreeImage_GetWidth(bitmap);
+	height = FreeImage_GetHeight(bitmap);
 
 	// Generate texture ID
 	glGenTextures(1, &textureID);
@@ -33,12 +37,10 @@ void Texture::loadFromFile(string dir, string filename) {
 	glGenerateMipmap(GL_TEXTURE_2D);
 	
 	// Clean
-	textureArr = NULL;
 	glBindTexture(GL_TEXTURE_2D, 0);
 	FreeImage_Unload(bitmap);
 	FreeImage_DeInitialise();
 	reportInfo("Texture file " + filename + " loaded. (" + to_string(width) + " * " + to_string(height) + ")");
-	name = filename;
 }
 
 void Texture::bind(Shader& shader) {
@@ -75,5 +77,6 @@ void Texture::dumpinfo(string tab) {
 		printf("%s  Type: Specular\n", tab.c_str());
 	else if (mytype == NORMAL)
 		printf("%s  Type: Normal\n", tab.c_str());
-	printf("%s  ID: %u\n", tab.c_str(), textureID);
+	printf("%s  Texture ID: %u\n", tab.c_str(), textureID);
+	printf("%s  Resolution: %u * %u\n", tab.c_str(), width, height);
 }

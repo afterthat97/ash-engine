@@ -4,15 +4,12 @@ void loadMesh(const aiMesh* aiMeshPtr, Mesh& newMesh, Scene& newScene) {
 	newMesh.name = aiMeshPtr->mName.C_Str();
 	for (uint32_t i = 0; i < aiMeshPtr->mNumVertices; i++) {
 		if (aiMeshPtr->HasPositions()) {
-			newMesh.vertices.push_back(aiMeshPtr->mVertices[i].x);
-			newMesh.vertices.push_back(aiMeshPtr->mVertices[i].y);
-			newMesh.vertices.push_back(aiMeshPtr->mVertices[i].z);
-			newMesh.xMax = fmax(newMesh.xMax, aiMeshPtr->mVertices[i].x);
-			newMesh.xMin = fmin(newMesh.xMin, aiMeshPtr->mVertices[i].x);
-			newMesh.yMax = fmax(newMesh.yMax, aiMeshPtr->mVertices[i].y);
-			newMesh.yMin = fmin(newMesh.yMin, aiMeshPtr->mVertices[i].y);
-			newMesh.zMax = fmax(newMesh.zMax, aiMeshPtr->mVertices[i].z);
-			newMesh.zMin = fmin(newMesh.zMin, aiMeshPtr->mVertices[i].z);
+			vec3 vertex(aiMeshPtr->mVertices[i].x, aiMeshPtr->mVertices[i].y, aiMeshPtr->mVertices[i].z);
+			newMesh.vertices.push_back(vertex.x);
+			newMesh.vertices.push_back(vertex.y);
+			newMesh.vertices.push_back(vertex.z);
+			newMesh.minv = minVec3(newMesh.minv, vertex);
+			newMesh.maxv = maxVec3(newMesh.maxv, vertex);
 		}
 		if (aiMeshPtr->HasNormals()) {
 			newMesh.normals.push_back(aiMeshPtr->mNormals[i].x);
@@ -30,6 +27,7 @@ void loadMesh(const aiMesh* aiMeshPtr, Mesh& newMesh, Scene& newScene) {
 	for (uint32_t i = 0; i < aiMeshPtr->mNumFaces; i++)
 		for (uint32_t j = 0; j < 3; j++)
 			newMesh.indices.push_back(aiMeshPtr->mFaces[i].mIndices[j]);
+	newMesh.lenv = newMesh.maxv - newMesh.minv;
 	newMesh.materials.push_back(newScene.materials[aiMeshPtr->mMaterialIndex]);
 }
 
@@ -39,24 +37,17 @@ void loadModel(const aiNode* aiNodePtr, const aiScene* aiScenePtr, Model& newMod
 		Mesh newMesh;
 		loadMesh(aiScenePtr->mMeshes[aiNodePtr->mMeshes[i]], newMesh, newScene);
 		newModel.meshes.push_back(newMesh);
-		newModel.xMax = fmax(newModel.xMax, newMesh.xMax);
-		newModel.xMin = fmin(newModel.xMin, newMesh.xMin);
-		newModel.yMax = fmax(newModel.yMax, newMesh.yMax);
-		newModel.yMin = fmin(newModel.yMin, newMesh.yMin);
-		newModel.zMax = fmax(newModel.zMax, newMesh.zMax);
-		newModel.zMin = fmin(newModel.zMin, newMesh.zMin);
+		newModel.minv = minVec3(newModel.minv, newMesh.minv);
+		newModel.maxv = maxVec3(newModel.maxv, newMesh.maxv);
 	}
 	for (uint32_t i = 0; i < aiNodePtr->mNumChildren; i++) {
 		Model newChildModel;
 		loadModel(aiNodePtr->mChildren[i], aiScenePtr, newChildModel, newScene);
 		newModel.children.push_back(newChildModel);
-		newModel.xMax = fmax(newModel.xMax, newChildModel.xMax);
-		newModel.xMin = fmin(newModel.xMin, newChildModel.xMin);
-		newModel.yMax = fmax(newModel.yMax, newChildModel.yMax);
-		newModel.yMin = fmin(newModel.yMin, newChildModel.yMin);
-		newModel.zMax = fmax(newModel.zMax, newChildModel.zMax);
-		newModel.zMin = fmin(newModel.zMin, newChildModel.zMin);
+		newModel.minv = minVec3(newModel.minv, newChildModel.minv);
+		newModel.maxv = maxVec3(newModel.maxv, newChildModel.maxv);
 	}
+	newModel.lenv = newModel.maxv - newModel.minv;
 }
 
 void loadColor(const aiColor4D& col, vec3& arr) {
@@ -163,13 +154,10 @@ void Scene::LoadFromFile(string filename) {
 		Model newModel;
 		loadModel(aiScenePtr->mRootNode->mChildren[i], aiScenePtr, newModel, *this);
 		this->models.push_back(newModel);
-		this->xMax = fmax(this->xMax, newModel.xMax);
-		this->xMin = fmin(this->xMin, newModel.xMin);
-		this->yMax = fmax(this->yMax, newModel.yMax);
-		this->yMin = fmin(this->yMin, newModel.yMin);
-		this->zMax = fmax(this->zMax, newModel.zMax);
-		this->zMin = fmin(this->zMin, newModel.zMin);
+		this->minv = minVec3(this->minv, newModel.minv);
+		this->maxv = maxVec3(this->maxv, newModel.maxv);
 	}
+	this->lenv = this->maxv - this->minv;
 }
 
 void Scene::initBO() {
@@ -193,7 +181,7 @@ void Scene::renderSDF(Shader& shader) {
 }
 
 void Scene::dumpinfo(string tab) {
-	printf("\n%sScene %s, %u models and %u materials in total.\n",
+	printf("\n%sScene %s, %lu models and %lu materials in total.\n",
 		tab.c_str(), name.c_str(), models.size(), materials.size());
 	for (uint32_t i = 0; i < models.size(); i++)
 		models[i].dumpinfo(tab + "  ");

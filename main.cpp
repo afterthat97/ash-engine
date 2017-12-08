@@ -288,10 +288,7 @@ int main(int argc, char **argv) {
 
 	// Set camera and light position
 	if (scenes.size() > 0) {
-		camera.pos = vec3((scenes[0].xMax + scenes[0].xMin) / 2,
-			(scenes[0].yMax + scenes[0].yMin) / 2,
-			(scenes[0].zMax - scenes[0].zMin) / 2 + scenes[0].zMax);
-		light0.pos = vec3(scenes[0].xMax + 10, scenes[0].yMax + 10, scenes[0].zMax + 10);
+		light0.pos = scenes[0].maxv + scenes[0].lenv;
 	}
 
 	// Initialize lighting

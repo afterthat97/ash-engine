@@ -66,6 +66,9 @@ void throwError(string type, string name, string msg = "no error message");
 void reportInfo(string);
 void reportWarning(string);
 
+vec3 minVec3(const vec3&, const vec3&);
+vec3 maxVec3(const vec3&, const vec3&);
+
 template <typename T>
 void allocArray3D(T *** &arr, uint32_t x, uint32_t y, uint32_t z) {
 	arr = new T**[x];
