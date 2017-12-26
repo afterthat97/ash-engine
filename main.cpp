@@ -169,13 +169,18 @@ uniform samplerCube skybox;
 
 void main() {
     color = texture(skybox, objTexCoord);
+	float c = objTexCoord.y + 0.05;
+	c = c * 10;
+	if (c > 0.7) c = 0.7 + ((c - 0.7) / 10);
+	if (c < 0.3) c = 0.3;
+	color = vec4(c, c, c, 1.0);
 }
 )";
 
 pair<double, double> lastPointerPos;
 pair<int32_t, int32_t> windowSize = { 1024, 576 }, windowFrameBufferSize;
 int32_t scaleRatio, fps = 60, canMove = 1, canChangeViewport = 0;
-vector<string> faces { "BK.tga", "BK.tga", "DN.tga", "UP.tga", "BK.tga", "BK.tga" };
+vector<string> faces { "RT.tga", "LF.tga", "UP.tga", "DN.tga", "BK.tga", "FR.tga" };
 Skybox skybox;
 Camera camera;
 Light light0;
@@ -330,7 +335,7 @@ void render(GLFWwindow* window) {
 	}
 
 	// Apply camera viewport
-	mat4 projection = glm::perspective(glm::radians(45.0f), (float)windowSize.first / (float)windowSize.second, 0.001f, 100000.0f);
+	mat4 projection = glm::perspective(glm::radians(45.0f), (float)windowSize.first / (float)windowSize.second, 0.1f, 100000.0f);
 	mat4 view = glm::lookAt(camera.pos, camera.pos + camera.dir, camera.up);
 
 	// Set shader for skybox
@@ -362,12 +367,15 @@ void render(GLFWwindow* window) {
 	if (enableCullFace) glEnable(GL_CULL_FACE);
 	if (enableDepthTest) glEnable(GL_DEPTH_TEST);
 	if (enableMultiSample) glEnable(GL_MULTISAMPLE);
+
+	// Render skybox
+	skybox.render(skyboxShader);
+
+	// Render axis and gridlines
 	if (enableGridlines) gridlines.render(pureColorShader);
 	if (enableGlobalAxis) globalAxis.render(pureColorShader);
 
 	// Render scenes
-	// skybox.render(skyboxShader);
-
 	for (uint32_t i = 0; i < scenes.size(); i++)
 		scenes[i].render(meshShader);
 
@@ -454,8 +462,7 @@ int main(int argc, char **argv) {
 	}
 
 	// Initialize camera, light and so on
-	// skybox.loadFromFile(faces);
-	//skybox.init();
+	skybox.init();
 	if (scenes.size() > 0) {
 		float minLenv = min(scenes[0].lenv.x, min(scenes[0].lenv.y, scenes[0].lenv.z));
 		float maxLenv = max(scenes[0].lenv.x, max(scenes[0].lenv.y, scenes[0].lenv.z));
