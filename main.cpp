@@ -299,7 +299,7 @@ void render(GLFWwindow* window) {
 	}
 
 	// Apply camera viewport
-	mat4 projection = glm::perspective(glm::radians(45.0f), (float)windowSize.first / (float)windowSize.second, 0.1f, 10000.0f);
+	mat4 projection = glm::perspective(glm::radians(45.0f), (float)windowSize.first / (float)windowSize.second, 0.001f, 100000.0f);
 	mat4 view = glm::lookAt(camera.pos, camera.pos + camera.dir, camera.up);
 
 	// Set shader for meshes (models)
