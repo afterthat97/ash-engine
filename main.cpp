@@ -385,7 +385,14 @@ int main(int argc, char **argv) {
 		cerr << "FATAL: Failed to initialize GLEW.\n";	
 		exit(3);
 	}
-	
+
+	string rendererInfo = "GPU: " + (string) (char*) glGetString(GL_RENDERER);
+	reportInfo(rendererInfo);
+	string glVersionInfo = "OpenGL Version: " + (string) (char*) glGetString(GL_VERSION);
+	reportInfo(glVersionInfo);
+	string glShadingLanguageVersionInfo = "Shading Language Version: " + (string) (char*) glGetString(GL_SHADING_LANGUAGE_VERSION);
+	reportInfo(glShadingLanguageVersionInfo);
+
 	// Load shaders from file
 	try {
 		meshShader.loadFromString(meshVertexShaderCode, meshFragmentShaderCode);
@@ -443,42 +450,55 @@ int main(int argc, char **argv) {
 	TwWindowSize(windowFrameBufferSize.first, windowFrameBufferSize.second);
 
 	// Show FPS and camara info
-	TwBar * InfoBar = TwNewBar("Info");
-	TwSetParam(InfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-	TwSetParam(InfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 5");
-	TwSetParam(InfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "200 130");
-	TwAddVarRO(InfoBar, "FPS", TW_TYPE_INT32, &fps, "");
-	TwAddVarRW(InfoBar, "MoveSpeed", TW_TYPE_FLOAT, &moveSpeed, "step=0.1");
-	TwAddVarRW(InfoBar, "Camera X", TW_TYPE_FLOAT, &camera.pos.x, "step=0.1");
-	TwAddVarRW(InfoBar, "Camera Y", TW_TYPE_FLOAT, &camera.pos.y, "step=0.1");
-	TwAddVarRW(InfoBar, "Camera Z", TW_TYPE_FLOAT, &camera.pos.z, "step=0.1");
+	TwBar * viewerInfoBar = TwNewBar("Viewer Info");
+	TwSetParam(viewerInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
+	TwSetParam(viewerInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 10");
+	TwSetParam(viewerInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 170");
+	TwAddVarRO(viewerInfoBar, "FPS", TW_TYPE_INT32, &fps, "");
+	TwAddVarRO(viewerInfoBar, "Window Width", TW_TYPE_INT32, &windowFrameBufferSize.first, "");
+	TwAddVarRO(viewerInfoBar, "Window Height", TW_TYPE_INT32, &windowFrameBufferSize.second, "");
+	TwAddVarRW(viewerInfoBar, "Moving Speed", TW_TYPE_FLOAT, &moveSpeed, "step=0.1");
+	TwAddVarRW(viewerInfoBar, "Camera Position X", TW_TYPE_FLOAT, &camera.pos.x, "step=0.1");
+	TwAddVarRW(viewerInfoBar, "Camera Position Y", TW_TYPE_FLOAT, &camera.pos.y, "step=0.1");
+	TwAddVarRW(viewerInfoBar, "Camera Position Z", TW_TYPE_FLOAT, &camera.pos.z, "step=0.1");
 
 	// Show lighting info
-	TwBar * LightBar = TwNewBar("Light");
-	TwSetParam(LightBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-	TwSetParam(LightBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 140");
-	TwSetParam(LightBar, NULL, "size", TW_PARAM_CSTRING, 1, "200 150");
-	TwAddVarRW(LightBar, "Ambient", TW_TYPE_COLOR3F, &light0.ambient.x, "");
-	TwAddVarRW(LightBar, "Diffuse", TW_TYPE_COLOR3F, &light0.diffuse.x, "");
-	TwAddVarRW(LightBar, "Specular", TW_TYPE_COLOR3F, &light0.specular.x, "");
-	TwAddVarRW(LightBar, "Postion X", TW_TYPE_FLOAT, &light0.pos.x, "step=0.1");
-	TwAddVarRW(LightBar, "Postion Y", TW_TYPE_FLOAT, &light0.pos.y, "step=0.1");
-	TwAddVarRW(LightBar, "Postion Z", TW_TYPE_FLOAT, &light0.pos.z, "step=0.1");
+	TwBar * lightBar = TwNewBar("Point Light");
+	TwSetParam(lightBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
+	TwSetParam(lightBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 190");
+	TwSetParam(lightBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 150");
+	TwAddVarRW(lightBar, "Ambient Color", TW_TYPE_COLOR3F, &light0.ambient.x, "");
+	TwAddVarRW(lightBar, "Diffuse Color", TW_TYPE_COLOR3F, &light0.diffuse.x, "");
+	TwAddVarRW(lightBar, "Specular Color", TW_TYPE_COLOR3F, &light0.specular.x, "");
+	TwAddVarRW(lightBar, "Light Postion X", TW_TYPE_FLOAT, &light0.pos.x, "step=0.1");
+	TwAddVarRW(lightBar, "Light Postion Y", TW_TYPE_FLOAT, &light0.pos.y, "step=0.1");
+	TwAddVarRW(lightBar, "Light Postion Z", TW_TYPE_FLOAT, &light0.pos.z, "step=0.1");
 
 	// Show OpenGL config
-	TwBar * Config = TwNewBar("Config");
-	TwSetParam(Config, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-	TwSetParam(Config, NULL, "position", TW_PARAM_CSTRING, 1, "5 295");
-	TwSetParam(Config, NULL, "size", TW_PARAM_CSTRING, 1, "200 200");
-	TwAddVarRW(Config, "Lighting", TW_TYPE_BOOLCPP, &enableLight, "");
-	TwAddVarRW(Config, "Texture", TW_TYPE_BOOLCPP, &enableTexture, "");
-	TwAddVarRW(Config, "DepthTest", TW_TYPE_BOOLCPP, &enableDepthTest, "");
-	TwAddVarRW(Config, "CullFace", TW_TYPE_BOOLCPP, &enableCullFace, "");
-	TwAddVarRW(Config, "MSAA 4X", TW_TYPE_BOOLCPP, &enableMultiSample, "");
-	TwAddVarRW(Config, "Gridlines", TW_TYPE_BOOLCPP, &enableGridlines, "");
-	TwAddVarRW(Config, "GlobalAxis", TW_TYPE_BOOLCPP, &enableGlobalAxis, "");
-	TwAddVarCB(Config, "ShadeModel", TW_TYPE_STDSTRING, setShadeModel, getShadeModel, &shadeModelStr, NULL);
-	TwAddVarCB(Config, "PolygonMode", TW_TYPE_STDSTRING, setPolygonMode, getPolygonMode, &polygonModeStr, NULL);
+	TwBar * configBar = TwNewBar("Configuration");
+	TwSetParam(configBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
+	TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 350");
+	TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 200");
+	TwAddVarRW(configBar, "Lighting", TW_TYPE_BOOLCPP, &enableLight, "");
+	TwAddVarRW(configBar, "Texture", TW_TYPE_BOOLCPP, &enableTexture, "");
+	TwAddVarRW(configBar, "Depth Test", TW_TYPE_BOOLCPP, &enableDepthTest, "");
+	TwAddVarRW(configBar, "Cull Face", TW_TYPE_BOOLCPP, &enableCullFace, "");
+	TwAddVarRW(configBar, "MSAA 4X", TW_TYPE_BOOLCPP, &enableMultiSample, "");
+	TwAddVarRW(configBar, "Gridlines", TW_TYPE_BOOLCPP, &enableGridlines, "");
+	TwAddVarRW(configBar, "Global Axis", TW_TYPE_BOOLCPP, &enableGlobalAxis, "");
+	TwAddVarCB(configBar, "Shade Model", TW_TYPE_STDSTRING, setShadeModel, getShadeModel, &shadeModelStr, NULL);
+	TwAddVarCB(configBar, "Polygon Mode", TW_TYPE_STDSTRING, setPolygonMode, getPolygonMode, &polygonModeStr, NULL);
+
+	// Show application info
+	TwBar * appInfoBar = TwNewBar("Application Info");
+	TwSetParam(appInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
+	TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 560");
+	TwSetParam(appInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
+	TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.2.2'");
+	TwAddButton(appInfoBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());
+	TwAddButton(appInfoBar, "1.2", NULL, NULL, ("label='" + glVersionInfo + "'").c_str());
+	TwAddButton(appInfoBar, "1.3", NULL, NULL, ("label='" + glShadingLanguageVersionInfo + "'").c_str());
+
 
 	// Set callback functions
 	glfwSetWindowSizeCallback(window, windowSizeCallback);
