@@ -1,4 +1,5 @@
 #include "utilities.h"
+#include "skybox.h"
 #include "scene.h"
 #include "camera.h"
 #include "light.h"
@@ -143,15 +144,45 @@ void main() {
 }
 )";
 
+const string skyboxVertexShaderCode = R"(
+#version 330 core
+layout (location = 0) in vec3 pos;
+
+out vec3 objTexCoord;
+
+uniform mat4 projection;
+uniform mat4 view;
+
+void main() {
+    objTexCoord = pos;
+    gl_Position = projection * view * vec4(pos, 1.0);
+}
+)";
+
+const string skyboxFragmentShaderCode = R"(
+#version 330 core
+out vec4 color;
+
+in vec3 objTexCoord;
+
+uniform samplerCube skybox;
+
+void main() {
+    color = texture(skybox, objTexCoord);
+}
+)";
+
 pair<double, double> lastPointerPos;
 pair<int32_t, int32_t> windowSize = { 1024, 576 }, windowFrameBufferSize;
 int32_t scaleRatio, fps = 60, canMove = 1, canChangeViewport = 0;
+vector<string> faces { "BK.tga", "BK.tga", "DN.tga", "UP.tga", "BK.tga", "BK.tga" };
+Skybox skybox;
 Camera camera;
 Light light0;
 Axis globalAxis;
 Gridlines gridlines;
 vector<Scene> scenes;
-Shader meshShader, pureColorShader;
+Shader meshShader, pureColorShader, skyboxShader;
 uint32_t image_id = 0;
 float moveSpeed = 1.0f;
 
@@ -302,6 +333,12 @@ void render(GLFWwindow* window) {
 	mat4 projection = glm::perspective(glm::radians(45.0f), (float)windowSize.first / (float)windowSize.second, 0.001f, 100000.0f);
 	mat4 view = glm::lookAt(camera.pos, camera.pos + camera.dir, camera.up);
 
+	// Set shader for skybox
+	skyboxShader.use();
+	skyboxShader.setMat4("projection", projection);
+	skyboxShader.setMat4("view", glm::mat4(glm::mat3(view)));
+	skyboxShader.setInt("skybox", 0);
+
 	// Set shader for meshes (models)
 	meshShader.use();
 	meshShader.setMat4("projection", projection);
@@ -329,6 +366,8 @@ void render(GLFWwindow* window) {
 	if (enableGlobalAxis) globalAxis.render(pureColorShader);
 
 	// Render scenes
+	// skybox.render(skyboxShader);
+
 	for (uint32_t i = 0; i < scenes.size(); i++)
 		scenes[i].render(meshShader);
 
@@ -397,6 +436,7 @@ int main(int argc, char **argv) {
 	try {
 		meshShader.loadFromString(meshVertexShaderCode, meshFragmentShaderCode);
 		pureColorShader.loadFromString(pureColorVertexShaderCode, pureColorFragmentShaderCode);
+		skyboxShader.loadFromString(skyboxVertexShaderCode, skyboxFragmentShaderCode);
 	} catch (const string msg) {
 		cerr << msg << endl;
 		exit(4);
@@ -414,6 +454,8 @@ int main(int argc, char **argv) {
 	}
 
 	// Initialize camera, light and so on
+	// skybox.loadFromFile(faces);
+	//skybox.init();
 	if (scenes.size() > 0) {
 		float minLenv = min(scenes[0].lenv.x, min(scenes[0].lenv.y, scenes[0].lenv.z));
 		float maxLenv = max(scenes[0].lenv.x, max(scenes[0].lenv.y, scenes[0].lenv.z));

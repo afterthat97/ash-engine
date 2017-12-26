@@ -1,7 +1,7 @@
 INCLUDE = include/
 LIB = lib/
 BIN = bin/
-SRCS = scene.cpp light.cpp model.cpp mesh.cpp material.cpp texture.cpp camera.cpp shader.cpp axis.cpp gridlines.cpp glconfig.cpp utilities.cpp extmath.cpp main.cpp
+SRCS = scene.cpp light.cpp skybox.cpp model.cpp mesh.cpp material.cpp texture.cpp camera.cpp shader.cpp axis.cpp gridlines.cpp glconfig.cpp utilities.cpp extmath.cpp main.cpp
 OBJS = ${SRCS:.cpp=.o}
 CFLAGS = -O2 -std=c++11 -Wall -I${INCLUDE}
 CC = g++
