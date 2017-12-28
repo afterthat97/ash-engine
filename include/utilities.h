@@ -17,24 +17,32 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #ifdef __APPLE__
-#include <ApplicationServices/ApplicationServices.h>
-#include <unistd.h>
-using std::min;
-using std::max;
+	#include "TargetConditionals.h"
+    #ifdef TARGET_OS_OSX
+		#include <ApplicationServices/ApplicationServices.h>
+		#include <unistd.h>
+		using std::min;
+		using std::max;
+	#else
+		#error "platform not supported"
+	#endif
+#elif _WIN64
+	#error "only win32 is supported"
+#elif _WIN32
+	#include <Windows.h>
+	#pragma comment(lib, "opengl32.lib")
+	#pragma comment(lib, "User32.lib")
+	#pragma comment(lib, "glfw3dll.lib")
+	#pragma comment(lib, "glew32.lib")
+	#pragma comment(lib, "assimp.lib")
+	#pragma comment(lib, "FreeImage.lib")
+	#pragma comment(lib, "AntTweakBar.lib")
 #else
-#include <Windows.h>
-#pragma comment(lib, "opengl32.lib")
-#pragma comment(lib, "User32.lib")
-#pragma comment(lib, "glfw3dll.lib")
-#pragma comment(lib, "glew32.lib")
-#pragma comment(lib, "assimp.lib")
-#pragma comment(lib, "FreeImage.lib")
-#pragma comment(lib, "AntTweakBar.lib")
+	#error "platform not supported"
 #endif
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
 #include <FreeImage/FreeImage.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

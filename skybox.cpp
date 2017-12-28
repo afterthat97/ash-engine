@@ -37,8 +37,10 @@ void Skybox::loadFromFile(vector<string> filenames) {
 		// Use FreeImage to load texture
 		FREE_IMAGE_FORMAT fifmt = FreeImage_GetFileType(filenames[i].c_str(), 0);
 		FIBITMAP *bitmap = FreeImage_Load(fifmt, filenames[i].c_str(), 0);
-		if (bitmap == NULL)
+		if (bitmap == NULL) {
+			textureID = 0;
 			throwError("load", filenames[i], "Could not open file");
+		}
 		bitmap = FreeImage_ConvertTo32Bits(bitmap);
 		uint8_t *textureArr = (uint8_t*) FreeImage_GetBits(bitmap);
 
@@ -97,9 +99,14 @@ void Skybox::init() {
 void Skybox::render(Shader& shader) {
 	glDepthMask(GL_FALSE);
 	shader.use();
+	if (textureID != 0) {
+		shader.setInt("hasCubeMap", 1);
+		shader.setInt("cubeMap", 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+	} else
+		shader.setInt("hasCubeMap", 0);
 	glBindVertexArray(VAO);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glDepthMask(GL_TRUE);

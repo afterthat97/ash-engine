@@ -10,7 +10,6 @@ extern string polygonModeStr;
 extern bool enableDepthTest;
 extern bool enableLight;
 extern bool enableTexture;
-extern bool enableCullFace;
 extern bool enableMultiSample;
 extern bool enableGridlines;
 extern bool enableGlobalAxis;

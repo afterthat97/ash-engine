@@ -5,7 +5,6 @@ string polygonModeStr = "FILL";
 bool enableDepthTest = true;
 bool enableLight = true;
 bool enableTexture = true;
-bool enableCullFace = false;
 bool enableMultiSample = true;
 bool enableGridlines = true;
 bool enableGlobalAxis = true;

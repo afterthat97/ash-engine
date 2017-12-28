@@ -158,8 +158,8 @@ void Scene::LoadFromFile(string filename) {
 	Assimp::Importer importer;
 	const aiScene* aiScenePtr = importer.ReadFile( filename,
 		aiProcess_Triangulate |
-		aiProcess_CalcTangentSpace);
-//		aiProcess_GenSmoothNormals);
+		aiProcess_CalcTangentSpace |
+		aiProcess_GenSmoothNormals);
 	if (aiScenePtr == NULL ||
 		aiScenePtr->mFlags == AI_SCENE_FLAGS_INCOMPLETE ||
 		aiScenePtr->mRootNode == NULL)
