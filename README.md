@@ -7,13 +7,13 @@ An cross-platform 3D model viewer for learning purpose, based on OpenGL, Assimp,
 * Supports reading 40+ 3D file formats, including FBX, DXF, Collada, Obj, X, PLY, 3DS.
 * Supports popular texture formats like PNG, BMP, JPEG, TIFF.
 * Supports diffuse map, specular map and normal map.
-* Provides some viewing options. You can toggle lighting, texture, MSAA and so on.
+* Supports custom skybox texture.
 * Both light color and light position can be adjusted on bars.
 * Press `<F10>` to take screenshots. (BMP only)
 
 ## Screenshots
 
-![](screenshots/rock.png)
+![](screenshots/gun.png)
 
 ![](screenshots/chair.png)
 
