@@ -354,6 +354,7 @@ int main(int argc, char **argv) {
 	localAxis = new Axis(dynamicsWorld);
 	gridlines = new Gridlines();
 	lights.push_back(new Light(vec3(1.0), dynamicsWorld));
+	lights[0]->setPosition(vec3(100.0));
 	localAxis->hide();
 
 	// Initialize skybox
@@ -385,20 +386,10 @@ int main(int argc, char **argv) {
 	TwAddVarRW(viewerInfoBar, "Camera Position Y", TW_TYPE_FLOAT, &camera.pos.y, "step=0.1");
 	TwAddVarRW(viewerInfoBar, "Camera Position Z", TW_TYPE_FLOAT, &camera.pos.z, "step=0.1");
 
-	// Show lighting info
-	TwBar * lightBar = TwNewBar("Point Light");
-	TwSetParam(lightBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-	TwSetParam(lightBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 150");
-	TwSetParam(lightBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 150");
-	/*TwAddVarRW(lightBar, "Color", TW_TYPE_COLOR3F, &light0.color.x, "");
-	TwAddVarRO(lightBar, "Light Postion X", TW_TYPE_FLOAT, &light0.pos.x, "step=0.1");
-	TwAddVarRO(lightBar, "Light Postion Y", TW_TYPE_FLOAT, &light0.pos.y, "step=0.1");
-	TwAddVarRO(lightBar, "Light Postion Z", TW_TYPE_FLOAT, &light0.pos.z, "step=0.1");*/
-
 	// Show OpenGL config
 	TwBar * configBar = TwNewBar("Configuration");
 	TwSetParam(configBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-	TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 310");
+	TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 150");
 	TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 150");
 	TwAddVarRW(configBar, "Lighting", TW_TYPE_BOOLCPP, &enableLight, "");
 	TwAddVarRW(configBar, "Texture", TW_TYPE_BOOLCPP, &enableTexture, "");
@@ -410,7 +401,7 @@ int main(int argc, char **argv) {
 	// Show application info
 	TwBar * appInfoBar = TwNewBar("Application Info");
 	TwSetParam(appInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-	TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 470");
+	TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 310");
 	TwSetParam(appInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
 	TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.3.1'");
 	TwAddButton(appInfoBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());
