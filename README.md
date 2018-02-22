@@ -11,9 +11,7 @@ A cross-platform 3D model viewer for learning purpose, based on OpenGL, Bullet, 
 
 ## Screenshots
 
-![](screenshots/screenshot0.png)
-
-![](screenshots/screenshot1.png)
+![](screenshots/screenshot.png)
 
 ## Usage
 
