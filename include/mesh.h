@@ -48,6 +48,7 @@ public:
 	vec3 getPosition();
 	void setParent(void*);
 	void* getParent();
+	vec3 getSize();
 };
 
 #endif

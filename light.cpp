@@ -1,9 +1,5 @@
 #include "light.h"
 
-// Looks like a cube
-
-const float light_size = 10.0f;
-
 Light::Light(vec3 _color, btDiscreteDynamicsWorld *_dynamicsWorld): Mesh() {
 	color = _color;
 	dynamicsWorld = _dynamicsWorld;
@@ -11,12 +7,12 @@ Light::Light(vec3 _color, btDiscreteDynamicsWorld *_dynamicsWorld): Mesh() {
 	for (uint32_t i = 0; i < cube_vertices.size() / 3; i++) {
 		vec3 pos(cube_vertices[i * 3 + 0], cube_vertices[i * 3 + 1], cube_vertices[i * 3 + 2]);
 		Vertex vertex;
-		vertex.position = pos * light_size;
+		vertex.position = pos * vec3(10.0);
 		vertices.push_back(vertex);
 	}
 	minv = vec3(0.0);
-	maxv = vec3(light_size);
-	lenv = vec3(light_size);
+	maxv = vec3(10.0);
+	lenv = vec3(10.0);
 	for (int i = 0; i < cube_indices.size(); i++)
 		indices.push_back(cube_indices[i] - 1);
 

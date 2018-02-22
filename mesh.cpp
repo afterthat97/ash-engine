@@ -28,6 +28,7 @@ Mesh::Mesh(vector<Vertex>& _vertices,
 	indices = _indices;
 	material = _material;
 	dynamicsWorld = _dynamicsWorld;
+	pos = vec3(0.0);
 	rot = quat(vec3(0.0));
 	visible = true;
 	selected = false;
@@ -43,9 +44,11 @@ Mesh::Mesh(vector<Vertex>& _vertices,
 	}
 	lenv = maxv - minv;
 
-	pos = minv;
-	for (uint32_t i = 0; i < vertices.size(); i++)
-		vertices[i].position -= minv;
+	if (name.substr(0, 11) != "ATVIEW_AXIS") {
+		pos = minv;
+		for (uint32_t i = 0; i < vertices.size(); i++)
+			vertices[i].position -= minv;
+	}
 	model = translate(mat4(1.0), pos) * glm::toMat4(rot);
 
 	initBufferObject();
@@ -231,6 +234,10 @@ void Mesh::setParent(void * _parent) {
 
 void* Mesh::getParent() {
 	return parent;
+}
+
+vec3 Mesh::getSize() {
+	return lenv;
 }
 
 void Mesh::dumpinfo(string tab) {

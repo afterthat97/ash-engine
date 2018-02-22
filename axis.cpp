@@ -8,17 +8,19 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
 	vector<Vertex> verticesRotX, verticesRotY, verticesRotZ;
 	vector<uint32_t> indicesTrans, indicesRot;
 
+	// Materials for axis X, Y, and Z
 	Material *materialX = new Material();
 	Material *materialY = new Material();
-	Material* materialZ = new Material();
+	Material *materialZ = new Material();
 
 	materialX->diffuse = vec4(0.9, 0.2, 0.2, 1.0);
 	materialY->diffuse = vec4(0.2, 0.9, 0.2, 1.0);
 	materialZ->diffuse = vec4(0.2, 0.2, 0.9, 1.0);
 
+	// Generate vertex and index array for translation axes
 	for (uint32_t i = 0; i < arrow_vertices.size() / 3; i++) {
 		vec4 pos(arrow_vertices[i * 3 + 0], arrow_vertices[i * 3 + 1], arrow_vertices[i * 3 + 2], 1.0);
-		pos.x = pos.x * 1.5;
+		pos.x = pos.x * 1.5 + 1;
 		Vertex vertex;
 		vertex.position = vec3(pos);
 		verticesTransX.push_back(vertex);
@@ -30,9 +32,10 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
 	for (uint32_t i = 0; i < arrow_indices.size(); i++)
 		indicesTrans.push_back(arrow_indices[i] - 1);
 
+	// Generate vertex and index array for rotation axes
 	for (uint32_t i = 0; i < torus_vertices.size() / 3; i++) {
 		vec4 pos(torus_vertices[i * 3 + 0], torus_vertices[i * 3 + 1], torus_vertices[i * 3 + 2], 1.0);
-		pos = pos * 3.0;
+		pos = pos * 3.0; pos.x += 1; pos.y += 1;
 		Vertex vertex;
 		vertex.position = vec3(pos);
 		verticesRotZ.push_back(vertex);
@@ -44,6 +47,7 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
 	for (uint32_t i = 0; i < torus_indices.size(); i++)
 		indicesRot.push_back(torus_indices[i] - 1);
 
+	// Construct translation axes and rotation axes
 	transX = new Mesh(verticesTransX, indicesTrans, materialX, dynamicsWorld, "ATVIEW_AXIS_transX");
 	transY = new Mesh(verticesTransY, indicesTrans, materialY, dynamicsWorld, "ATVIEW_AXIS_transY");
 	transZ = new Mesh(verticesTransZ, indicesTrans, materialZ, dynamicsWorld, "ATVIEW_AXIS_transZ");

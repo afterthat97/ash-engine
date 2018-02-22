@@ -10,7 +10,6 @@ private:
 	vec3 pos;
 	Mesh *transX, *transY, *transZ;
 	Mesh *rotX, *rotY, *rotZ;
-	Mesh *scaleX, *scaleY, *scaleZ;
 public:
 	Axis(btDiscreteDynamicsWorld*);
 	void show();

@@ -115,28 +115,9 @@ void cursorPosCallback(GLFWwindow*, double xpos, double ypos) {
 
 void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int32_t mods) {
 	if (action != GLFW_PRESS) return;
+
 	int k = 0;
 	switch (key) {
-		case GLFW_KEY_F10:       window.screenshot();  break;
-		case GLFW_KEY_C:
-			if (mods == GLFW_MOD_CONTROL && selectedMesh != NULL) {
-				copyedMesh = selectedMesh;
-				reportInfo("Mesh " + selectedMesh->name + " copyed");
-			}
-			break;
-		case GLFW_KEY_V:
-			if (mods == GLFW_MOD_CONTROL && copyedMesh != NULL) {
-				if (copyedMesh->name == "ATVIEW_LIGHT") {
-					lights.push_back(new Light(*(Light*)copyedMesh));
-				} else {
-					Mesh *newMesh = new Mesh(*copyedMesh);
-					Model* parentModel = ((Model*) copyedMesh->getParent());
-					if (parentModel == NULL) return;
-					parentModel->addMesh(newMesh);
-					reportInfo("Mesh " + selectedMesh->name + " pasted");
-				}
-			}
-			break;
 		case GLFW_KEY_ESCAPE:    k = TW_KEY_ESCAPE;    break;
 		case GLFW_KEY_UP:        k = TW_KEY_UP;        break;
 		case GLFW_KEY_DOWN:      k = TW_KEY_DOWN;      break;
@@ -153,12 +134,68 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
 		case GLFW_KEY_END:       k = TW_KEY_END;       break;
 		case GLFW_KEY_KP_ENTER:  k = TW_KEY_RETURN;    break;
 	}
-	if (k > 0) TwKeyPressed(k, TW_KMOD_NONE);
+
+	if (k > 0 && TwKeyPressed(k, TW_KMOD_NONE)) return;
+
+	switch (key) {
+		case GLFW_KEY_F10:
+			window.screenshot();
+			break;
+		case GLFW_KEY_C:
+			if (mods == GLFW_MOD_CONTROL && selectedMesh != NULL) {
+				copyedMesh = selectedMesh;
+				reportInfo(selectedMesh->name + " copyed");
+			}
+			break;
+		case GLFW_KEY_V:
+			if (mods == GLFW_MOD_CONTROL && copyedMesh != NULL) {
+				if (copyedMesh->name == "ATVIEW_LIGHT") {
+					if (lights.size() >= 16) {
+						reportWarning("You have reached the maximum number of lights, new lights will not be created.");
+						return;
+					}
+					Light* newLight = new Light(* (Light*) copyedMesh);
+					newLight->addTranslation(vec3(newLight->getSize().x * 1.5, 0, 0));
+					lights.push_back(newLight);
+					if (selectedMesh != NULL)
+						selectedMesh->deselect();
+					copyedMesh = selectedMesh = newLight;
+					selectedMesh->select();
+					localAxis->setPosition(newLight->getPosition());
+				} else {
+					Model* parentModel = ((Model*) copyedMesh->getParent());
+					Mesh *newMesh = new Mesh(*copyedMesh);
+					newMesh->addTranslation(vec3(newMesh->getSize().x * 1.5, 0, 0));
+					parentModel->addMesh(newMesh);
+					if (selectedMesh != NULL)
+						selectedMesh->deselect();
+					copyedMesh = selectedMesh = newMesh;
+					selectedMesh->select();
+					localAxis->setPosition(newMesh->getPosition());
+				}
+				reportInfo(selectedMesh->name + " pasted");
+			}
+			break;
+		case GLFW_KEY_BACKSPACE:
+			if (selectedMesh != NULL && selectedMesh->name == "ATVIEW_LIGHT") {
+					for (uint32_t i = 0; i < lights.size(); i++)
+						if (lights[i] == selectedMesh)
+							lights.erase(lights.begin() + i);
+					delete (Light*) selectedMesh;
+			} else if (selectedMesh != NULL) {
+					Model* parentModel = ((Model*) selectedMesh->getParent());
+					parentModel->removeMesh(selectedMesh);
+					delete selectedMesh;
+			}
+			if (selectedMesh == copyedMesh) copyedMesh = NULL;
+			selectedMesh = NULL;
+			localAxis->hide();
+			break;
+	}
 }
 
 void charCallback(GLFWwindow*, uint32_t key) {
 	canMove = !TwKeyPressed(key, TW_KMOD_NONE);
-
 }
 
 void dropCallBack(GLFWwindow*, int count, const char** paths) {
@@ -230,9 +267,13 @@ void render() {
 	meshShader.setVec3("viewPos", camera.pos);
 	meshShader.setInt("lightNum", lights.size());
 	meshShader.setInt("enableLight", 0);
-	for (uint32_t i = 0; i < lights.size(); i++) {
+	for (uint32_t i = 0; i < 16; i++) {
 		string idx = "lights[" + to_string(i) + "].";
-		meshShader.setInt(idx + "enable", enableLight);
+		if (i >= lights.size() || lights[i] == NULL) {
+			meshShader.setInt(idx + "enable", 0);
+			continue;
+		}
+		meshShader.setInt(idx + "enable", 1);
 		meshShader.setVec3(idx + "position", lights[i]->getPosition());
 		meshShader.setVec3(idx + "color", lights[i]->getColor());
 		lights[i]->render(meshShader);

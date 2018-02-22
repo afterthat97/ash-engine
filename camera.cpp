@@ -23,7 +23,7 @@ void Camera::turnLeft(float angle = 0.04f) {
 }
 
 void Camera::lookUp(float angle = 0.04f) {
-	vec3 t = glm::cross(dir, up);
+	vec3 t = cross(dir, up);
 	dir = rotate(t, angle) * dir;
 	up = rotate(t, angle) * up;
 }

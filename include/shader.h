@@ -99,7 +99,7 @@ uniform int enableLight;
 uniform int lightNum;
 uniform vec3 viewPos;
 uniform Material material;
-uniform Light lights[10];
+uniform Light lights[16];
 uniform int selected;
 
 vec4 calcPointLight(Light light, vec3 objNormal) {
