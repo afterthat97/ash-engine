@@ -8,7 +8,6 @@ A cross-platform 3D model viewer for learning purpose, based on OpenGL, Bullet, 
 * Supports popular texture formats like PNG, BMP, JPEG, TIFF.
 * Supports diffuse map, specular map and normal map.
 * Supports custom skybox texture.
-* Supports 3D translation and rotation.
 
 ## Screenshots
 
@@ -28,12 +27,23 @@ A cross-platform 3D model viewer for learning purpose, based on OpenGL, Bullet, 
 atview /path-to-models/rock.obj
 ```
 
+### Delete
+
+1. Select a mesh or light;
+2. Press `BACKSPACE` to delete the selected item.
+
 ### Move
 
 * Press `w` and `s` to move forward or backward
 * Press `a` and `d` to move left ot right
 * Press `e` and `q` to move up or down
 * Click and hold your left mouse button and drag to change viewport
+
+### Copy & Paste
+
+1. Select a mesh or light;
+2. Press `Ctrl + C` to copy the selected item;
+3. Press `Ctrl + V` to paste it.
 
 ### Screenshots
 
