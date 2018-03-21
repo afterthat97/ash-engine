@@ -1,3 +1,4 @@
 *.o
 *.d
 .DS_Store
+bin/

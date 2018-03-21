@@ -16,14 +16,21 @@ ${BIN_DIR}/${EXE}.app : ${OBJS}
 	${CC} ${CFLAGS} ${OBJS} -o ${EXE} ${FRAMEWORKS} ${LIBS} -w
 	install_name_tool -change /usr/local/opt/assimp/lib/libassimp.4.dylib @executable_path/libassimp.dylib ${EXE}
 	install_name_tool -change /usr/local/opt/glfw/lib/libglfw.3.dylib @executable_path/libglfw.dylib ${EXE}
+	mkdir -p ${BIN_DIR}
+	mkdir -p ${BIN_DIR}/${EXE}.app
+	mkdir -p ${BIN_DIR}/${EXE}.app/Contents
+	mkdir -p ${BIN_DIR}/${EXE}.app/Contents/MacOS
+	mkdir -p ${BIN_DIR}/${EXE}.app/Contents/Resources
 	mv ${EXE} ${BIN_DIR}/${EXE}.app/Contents/MacOS/
 	cp ${LIB_DIR}/*.dylib ${BIN_DIR}/${EXE}.app/Contents/MacOS/
+	cp Info.plist ${BIN_DIR}/${EXE}.app/Contents/
+	cp icon/AppIcon.icns ${BIN_DIR}/${EXE}.app/Contents/Resources/
 
 run : ${BIN_DIR}/${EXE}.app
 	open ${BIN_DIR}/${EXE}.app
 
 clean :
-	rm -rf ${OBJS} *.d
+	rm -rf ${OBJS} *.d ${BIN_DIR}
 
 %.d : %.cpp
 	${CC} -MM ${CFLAGS} $< > $@
