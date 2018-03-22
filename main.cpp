@@ -17,9 +17,7 @@ Window window(960, 640, "masterEngine");
 Cursor cursor;
 Camera camera;
 int32_t fps = 0, canMove = 1;
-vector<string> faces { "RT.tga", "LF.tga", "UP.tga", "DN.tga", "BK.tga", "FR.tga" };
 
-Skybox *skybox;
 Axis *localAxis;
 Gridlines *gridlines;
 vector<Light*> lights;
@@ -258,7 +256,6 @@ void render() {
     glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 
     // OpenGL configurations
-    glPolygonMode(GL_FRONT_AND_BACK, (polygonModeStr == "LINE" ? GL_LINE : GL_FILL));
     if (enableFaceCulling) glEnable(GL_CULL_FACE);
 
     // Get projection and view matrix
@@ -272,6 +269,7 @@ void render() {
     meshShader.setVec3("viewPos", camera.pos);
 
     if (enableLight) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         meshShader.setInt("lightNum", (int32_t) lights.size());
         meshShader.setInt("enableLight", 0);
 		meshShader.setInt("enableAttenuation", enableAttenuation);
@@ -288,27 +286,20 @@ void render() {
         }
     }
 
-    // Render skybox
-    skyboxShader.use();
-    skyboxShader.setMat4("projection", projection);
-    skyboxShader.setMat4("view", glm::mat4(glm::mat3(view)));
-    skybox->render(skyboxShader);
-
     // Render scenes
-    meshShader.use();
+    glPolygonMode(GL_FRONT_AND_BACK, (polygonModeStr == "LINE" ? GL_LINE : GL_FILL));
     meshShader.setInt("enableLight", enableLight);
     for (uint32_t i = 0; i < scenes.size(); i++)
         scenes[i]->render(meshShader);
 
     // Render axis and gridlines
     glDisable(GL_CULL_FACE);
-    meshShader.use();
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     meshShader.setInt("enableLight", 0);
     if (enableGridlines) gridlines->render(meshShader);
     localAxis->render(meshShader, camera.pos);
 
     // Draw tweak bars
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     TwDraw();
 }
 
@@ -375,7 +366,6 @@ int main(int argc, char **argv) {
         cerr << msg << endl;
     }
 
-    skybox = new Skybox();
     localAxis = new Axis(dynamicsWorld);
     gridlines = new Gridlines();
     lights.push_back(new Light(vec3(1.0), dynamicsWorld));
@@ -386,13 +376,6 @@ int main(int argc, char **argv) {
     for (int i = 0; i < MAX_LIGHTS; i++) {
         glActiveTexture(GL_TEXTURE8 + i);
         meshShader.setInt("depthMap[" + to_string(i) + "]", 8 + i);
-    }
-
-    // Initialize skybox
-    try {
-        skybox->loadCubeMap(faces);
-    } catch (const string msg) {
-        reportInfo("Skybox textures not found, using default color.");
     }
 
     // Initialize camera
@@ -418,7 +401,7 @@ int main(int argc, char **argv) {
     TwBar * configBar = TwNewBar("Configuration");
     TwSetParam(configBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
     TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 150");
-    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 210");
+    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 220");
     TwAddVarRW(configBar, "Diffuse Map", TW_TYPE_BOOLCPP, &enableDiffuseMap, "");
     TwAddVarRW(configBar, "Specular Map", TW_TYPE_BOOLCPP, &enableSpecularMap, "");
     TwAddVarRW(configBar, "Normal Map", TW_TYPE_BOOLCPP, &enableNormalMap, "");
@@ -433,7 +416,7 @@ int main(int argc, char **argv) {
     // Show application info
     TwBar * appInfoBar = TwNewBar("Application Info");
     TwSetParam(appInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 370");
+    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 380");
     TwSetParam(appInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
     TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.0'");
     TwAddButton(appInfoBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());

@@ -28,7 +28,7 @@ Window::Window(int32_t sizeX, int32_t sizeY, const char* title) {
     glfwGetFramebufferSize(window, &frameSizeX, &frameSizeY);
     glfwMakeContextCurrent(window);
     aspectRatio = (float) frameSizeX / (float) frameSizeY;
-    scaleRatio = frameSizeX / windowSizeX;
+    scaleRatio = windowSizeX ? frameSizeX / windowSizeX : 0;
 }
 
 void Window::resize(int32_t sizeX, int32_t sizeY) {
@@ -36,6 +36,7 @@ void Window::resize(int32_t sizeX, int32_t sizeY) {
     glfwGetFramebufferSize(window, &frameSizeX, &frameSizeY);
     TwWindowSize(frameSizeX, frameSizeY);
     glViewport(0, 0, frameSizeX, frameSizeY);
+    aspectRatio = (float) frameSizeX / (float) frameSizeY;
     scaleRatio = windowSizeX ? frameSizeX / windowSizeX : 0;
 }
 

@@ -173,11 +173,11 @@ btVector3 toBtVec3(vec3& a) {
 }
 
 void reportError(string msg) {
-    cout << "ERROR: " << msg << endl;
+    cout << "ERROR:   " << msg << endl;
 }
 
 void reportInfo(string msg) {
-    cout << "INFO: " << msg << endl;
+    cout << "INFO:    " << msg << endl;
 }
 
 void reportWarning(string msg) {

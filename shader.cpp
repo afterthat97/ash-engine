@@ -150,7 +150,7 @@ void main() {
 	vec2 dispTexCoords = (material.hasParallaxMap ? ParallaxMapping(fs_in.texCoords) : fs_in.texCoords);
 	vec3 diffuseColor  = (material.hasDiffuseMap  ? texture(material.diffuseMap, dispTexCoords).rgb : material.diffuseRGB);
 	vec3 specularColor = (material.hasSpecularMap ? texture(material.specularMap, dispTexCoords).rgb : material.specularRGB);
-	vec3 normal		= (material.hasNormalMap   ? texture(material.normalMap, dispTexCoords).rgb * 2.0 - 1.0 : vec3(0.0, 0.0, 1.0));
+	vec3 normal		   = (material.hasNormalMap   ? texture(material.normalMap, dispTexCoords).rgb * 2.0 - 1.0 : vec3(0.0, 0.0, 1.0));
 	normal = fs_in.TBN * normalize(normal);
 
 	if (enableLight == 0) {

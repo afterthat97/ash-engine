@@ -40,13 +40,8 @@ public:
     //specifies the diffuse reflectivity using RGB values
     vec3 specular;
     //specifies the specular reflectivity using RGB values
-    Material() {
-        name = "Untitled Material";
-        loadAllDefault();
-    }
-    ~Material() {
-        reportInfo("Material " + name + " has been deleted successfully.");
-    }
+    Material();
+    ~Material();
     void addTexture(shared_ptr<Texture>);
     void loadAllDefault();
     void loadDefaultName();

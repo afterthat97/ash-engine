@@ -79,8 +79,7 @@ void Model::render(Shader& shader) {
 }
 
 void Model::dumpinfo(string tab) {
-	// Dump model info to console
-    printf("%sModel %s, %d meshes and %d children in total.\n", tab.c_str(), name.c_str(), (int) meshes.size(), (int) children.size());
+    printf("%sModel %s with %d meshes and %d children in total.\n", tab.c_str(), name.c_str(), (int) meshes.size(), (int) children.size());
     for (uint32_t i = 0; i < meshes.size(); i++)
         meshes[i]->dumpinfo(tab + "  ");
     for (uint32_t i = 0; i < children.size(); i++)

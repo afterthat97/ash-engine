@@ -92,8 +92,7 @@ Mesh::~Mesh() {
         dynamicsWorld->removeRigidBody(meshRigidBody);
         delete meshRigidBody;
     }
-
-    reportInfo("Mesh " + name + " has been deleted successfully.");
+    reportInfo("Mesh " + name + " has been unloaded.");
 }
 
 void Mesh::show() {

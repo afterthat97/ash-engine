@@ -76,22 +76,22 @@ void Texture::bind(Shader& shader) {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, textureID);
         shader.setInt("material.diffuseMap", 1);
-        shader.setBool("material.hasDiffuseMap", textureID && enableDiffuseMap ? 1 : 0);
+        shader.setBool("material.hasDiffuseMap", textureID && enableDiffuseMap);
     } else if (textureType == SPECULAR) { // Specular map
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, textureID);
         shader.setInt("material.specularMap", 2);
-        shader.setBool("material.hasSpecularMap", textureID && enableSpecularMap ? 1 : 0);
+        shader.setBool("material.hasSpecularMap", textureID && enableSpecularMap);
     } else if (textureType == NORMAL) { // Normal map
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, textureID);
         shader.setInt("material.normalMap", 3);
-        shader.setBool("material.hasNormalMap", textureID && enableNormalMap ? 1 : 0);
+        shader.setBool("material.hasNormalMap", textureID && enableNormalMap);
     } else if (textureType == PARALLAX) { // Parallax map
         glActiveTexture(GL_TEXTURE4);
         glBindTexture(GL_TEXTURE_2D, textureID);
         shader.setInt("material.parallaxMap", 4);
-        shader.setBool("material.hasParallaxMap", textureID && enableParallaxMap ? 1 : 0);
+        shader.setBool("material.hasParallaxMap", textureID && enableParallaxMap && polygonModeStr != "LINE");
     }
 }
 
@@ -113,8 +113,10 @@ void Texture::dumpinfo(string tab) {
 
 shared_ptr<Texture> TextureManager::loadTexture(string filePath, TextureType textureType) {
 	for (uint32_t i = 0; i < loadedTextures.size(); i++)
-		if (loadedTextures[i]->getPath() == filePath)
+		if (loadedTextures[i]->getPath() == filePath) {
+			reportInfo("Texture " + loadedTextures[i]->getPath() + "has been re-used.");
 			return loadedTextures[i];
+		}
 	shared_ptr<Texture> newTexture(new Texture(textureType));
 	newTexture->loadFromFile(filePath);
 	loadedTextures.push_back(newTexture);

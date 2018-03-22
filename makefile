@@ -27,7 +27,7 @@ ${BIN_DIR}/${EXE}.app : ${OBJS}
 	cp icon/AppIcon.icns ${BIN_DIR}/${EXE}.app/Contents/Resources/
 
 run : ${BIN_DIR}/${EXE}.app
-	open ${BIN_DIR}/${EXE}.app
+	${BIN_DIR}/${EXE}.app/Contents/MacOS/${EXE}
 
 clean :
 	rm -rf ${OBJS} *.d ${BIN_DIR}
