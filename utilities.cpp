@@ -202,6 +202,13 @@ string getFormatTime() {
         + "." + to_string(timeinfo->tm_sec);
 }
 
+string getFilePath(string dir, string filename) {
+    if (filename[0] == '/') filename.erase(0, 1);
+    for (uint32_t i = 0; i < filename.size(); i++)
+        if (filename[i] == '\\') filename[i] = '/';
+    return dir + filename;
+}
+
 vec3 minVec3(vec3 v1, vec3 v2) {
     return vec3(min(v1[0], v2[0]), min(v1[1], v2[1]), min(v1[2], v2[2]));
 }

@@ -2,6 +2,8 @@
 #include "vertex.h"
 #include "extmath.h"
 
+TextureManager textureManager;
+
 Mesh* Scene::loadMesh(const aiMesh* aiMeshPtr, btDiscreteDynamicsWorld* dynamicsWorld) {
     vector<Vertex> vertices;
     for (uint32_t i = 0; i < aiMeshPtr->mNumVertices; i++) {
@@ -82,41 +84,33 @@ shared_ptr<Material> Scene::loadMaterial(const aiMaterial* aiMaterialPtr, string
     // Diffuse map
     for (uint32_t i = 0; i < aiMaterialPtr->GetTextureCount(aiTextureType_DIFFUSE); i++)
         if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_DIFFUSE, i, &aiStr)) {
-            shared_ptr<Texture> newTexture(new Texture(DIFFUSE));
-            if (newTexture->loadFromFile(dir, aiStr.C_Str())) {
-                newMaterial->addTexture(newTexture);
-                textures.push_back(newTexture);
-            }
+			string filePath = getFilePath(dir, aiStr.C_Str());
+            shared_ptr<Texture> newTexture = textureManager.loadTexture(filePath, DIFFUSE);
+			newMaterial->addTexture(newTexture);
         }
 
     // Parallax map
     for (uint32_t i = 0; i < aiMaterialPtr->GetTextureCount(aiTextureType_DISPLACEMENT); i++)
         if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_DISPLACEMENT, i, &aiStr)) {
-            shared_ptr<Texture> newTexture(new Texture(PARALLAX));
-            if (newTexture->loadFromFile(dir, aiStr.C_Str())) {
-                newMaterial->addTexture(newTexture);
-                textures.push_back(newTexture);
-            }
+			string filePath = getFilePath(dir, aiStr.C_Str());
+            shared_ptr<Texture> newTexture = textureManager.loadTexture(filePath, PARALLAX);
+			newMaterial->addTexture(newTexture);
         }
 
     // Specular map
     for (uint32_t i = 0; i < aiMaterialPtr->GetTextureCount(aiTextureType_SPECULAR); i++)
         if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_SPECULAR, i, &aiStr)) {
-            shared_ptr<Texture> newTexture(new Texture(SPECULAR));
-            if (newTexture->loadFromFile(dir, aiStr.C_Str())) {
-                newMaterial->addTexture(newTexture);
-                textures.push_back(newTexture);
-            } 
+			string filePath = getFilePath(dir, aiStr.C_Str());
+            shared_ptr<Texture> newTexture = textureManager.loadTexture(filePath, SPECULAR);
+			newMaterial->addTexture(newTexture);
         }
 
     // Normal map
     for (uint32_t i = 0; i < aiMaterialPtr->GetTextureCount(aiTextureType_HEIGHT); i++)
         if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_HEIGHT, i, &aiStr)) {
-            shared_ptr<Texture> newTexture(new Texture(NORMAL));
-            if (newTexture->loadFromFile(dir, aiStr.C_Str())) {
-                newMaterial->addTexture(newTexture);
-                textures.push_back(newTexture);
-            }
+			string filePath = getFilePath(dir, aiStr.C_Str());
+            shared_ptr<Texture> newTexture = textureManager.loadTexture(filePath, NORMAL);
+			newMaterial->addTexture(newTexture);
         }
     return newMaterial;
 }
@@ -206,10 +200,7 @@ void Scene::recycle() {
         if (materials[i].use_count() == 1) {
             materials.erase(materials.begin() + i); --i;
         }
-    for (uint32_t i = 0; i < textures.size(); i++)
-        if (textures[i].use_count() == 1) {
-            textures.erase(textures.begin() + i); --i;
-        }
+	textureManager.recycle();
 }
 
 void Scene::dumpinfo(string tab) {

@@ -4,26 +4,32 @@
 #include "utilities.h"
 #include "shader.h"
 
-enum textureType { AMBIENT, DIFFUSE, SPECULAR, NORMAL, PARALLAX };
+enum TextureType { AMBIENT, DIFFUSE, SPECULAR, NORMAL, PARALLAX };
 
 class Texture {
 private:
+    string path;
     uint32_t textureID, width, height;
-    textureType mytype;
+	TextureType textureType;
+	void loadFromFile(string filePath);
 public:
-    string name;
-    Texture(textureType _mytype) {
-        name = "Untitled Texture";
-        mytype = _mytype;
-        width = height = 0;
-    }
-    ~Texture() {
-        glDeleteTextures(1, &textureID);
-        reportInfo("Texture " + name + " has been deleted successfully.");
-    }
-    bool loadFromFile(string, string);
+    Texture(TextureType _textureType);
+    ~Texture();
+	string getPath();
+	uint32_t getWidth();
+	uint32_t getHeight();
     void bind(Shader&);
     void dumpinfo(string);
+	friend class TextureManager;
+};
+
+class TextureManager {
+private:
+	vector<shared_ptr<Texture>> loadedTextures;
+public:
+	TextureManager() {}
+	shared_ptr<Texture> loadTexture(string filePath, TextureType textureType);
+	void recycle();
 };
 
 #endif

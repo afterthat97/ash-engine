@@ -14,7 +14,6 @@ private:
     mat4 model;
     vector<Model*> models;
     vector<shared_ptr<Material>> materials;
-    vector<shared_ptr<Texture>> textures;
     Mesh* loadMesh(
         const aiMesh* aiMeshPtr,
         btDiscreteDynamicsWorld* dynamicsWorld);

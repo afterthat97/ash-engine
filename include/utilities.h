@@ -8,6 +8,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <set>
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <cfloat>
@@ -118,12 +119,13 @@ vec3 toVec3(const aiColor4D& a);
 vec3 toVec3(btVector3& a);
 btVector3 toBtVec3(vec3& a);
 
-void reportError(string);
-void reportInfo(string);
-void reportWarning(string);
+void reportError(string msg);
+void reportInfo(string msg);
+void reportWarning(string msg);
 
 string getFormatTime();
 string getFormatDate();
+string getFilePath(string dir, string filename);
 
 vec3 minVec3(vec3, vec3);
 vec3 maxVec3(vec3, vec3);
