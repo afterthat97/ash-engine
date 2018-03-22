@@ -61,7 +61,7 @@ void Material::bind(Shader& shader) {
 }
 
 void Material::dumpinfo(string tab) {
-    printf("%sMaterial %s, %lu textures in total.\n", tab.c_str(), name.c_str(), (uint32_t) textures.size());
+    printf("%sMaterial %s, %lu textures in total.\n", tab.c_str(), name.c_str(), (unsigned long) textures.size());
     printf("%s  Ambient RGB:", tab.c_str());
     for (int32_t i = 0; i < 3; i++)
         printf(" %.2f", ambient[i]); printf("\n");
