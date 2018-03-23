@@ -21,7 +21,7 @@ uniform mat4 model;
 void main() {
 	gl_Position = projection * view * model * vec4(position, 1.0f);
 
-	vs_out.fragPos = vec3(model * vec4(position, 1.0));
+	vs_out.fragPos = vec3(model * vec4(position, 1.0f));
 	vs_out.texCoords = texCoords;
 	
 	vec3 T = normalize(mat3(model) * tangent);
@@ -78,36 +78,36 @@ uniform samplerCube depthMap[8];
 
 vec4 calcPointLight(int idx, vec3 diff, vec3 spec, vec3 normal) {
 	float distance = length(lights[idx].pos - fs_in.fragPos);
-	float attenuation = 1.0 / (1.0 + 0.0014 * distance + 0.000007 * (distance * distance));
+	float attenuation = 1.0f / (1.0f + 0.0014f * distance + 0.000007f * (distance * distance));
 	vec3 lightDir = normalize(lights[idx].pos - fs_in.fragPos);
 	vec3 viewDir = normalize(viewPos - fs_in.fragPos);
 	vec3 reflectDir = reflect(-lightDir, normal);
-	vec3 res = diff * max(dot(normal, lightDir), 0.0);
-	res += spec * pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+	vec3 res = diff * max(dot(normal, lightDir), 0.0f);
+	res += spec * pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
 	if (enableAttenuation == 1) res *= attenuation;
-	return vec4(res * lights[idx].color, 1.0);
+	return vec4(res * lights[idx].color, 1.0f);
 }
 
 vec2 ParallaxMapping(vec2 texCoords) {
 	vec3 viewDir = transpose(fs_in.TBN) * normalize(viewPos - fs_in.fragPos);
-	float minLayers = 8, maxLayers = 64, height_scale = 0.02;
-	float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
-	float layerDepth = 1.0 / numLayers;
-	float currentLayerDepth = 0.0;
+	float minLayers = 8.0f, maxLayers = 64.0f, height_scale = 0.02f;
+	float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0f, 0.0f, 1.0f), viewDir)));
+	float layerDepth = 1.0f / numLayers;
+	float currentLayerDepth = 0.0f;
 	vec2 P = viewDir.xy / viewDir.z * height_scale; 
 	vec2 deltaTexCoords = P / numLayers, currentTexCoords = texCoords;
-	float currentDepthMapValue = 1.0 - texture(material.parallaxMap, currentTexCoords).r;
+	float currentDepthMapValue = 1.0f - texture(material.parallaxMap, currentTexCoords).r;
 	while (currentLayerDepth < currentDepthMapValue) {
 		currentTexCoords -= deltaTexCoords;
-		currentDepthMapValue = 1.0 - texture(material.parallaxMap, currentTexCoords).r;  
+		currentDepthMapValue = 1.0f - texture(material.parallaxMap, currentTexCoords).r;  
 		currentLayerDepth += layerDepth;  
 	}
 	vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
 	float afterDepth  = currentDepthMapValue - currentLayerDepth;
-	float beforeDepth = 1.0 - texture(material.parallaxMap, prevTexCoords).r - currentLayerDepth + layerDepth;
+	float beforeDepth = 1.0f - texture(material.parallaxMap, prevTexCoords).r - currentLayerDepth + layerDepth;
 	float weight = afterDepth / (afterDepth - beforeDepth);
-	vec2 dispTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
-	if (dispTexCoords.y > 1.0 || dispTexCoords.y < 0 || dispTexCoords.x > 1.0 || dispTexCoords.x < 0) discard;
+	vec2 dispTexCoords = prevTexCoords * weight + currentTexCoords * (1.0f - weight);
+	if (dispTexCoords.y > 1.0f || dispTexCoords.y < 0.0f || dispTexCoords.x > 1.0f || dispTexCoords.x < 0.0f) discard;
 	return dispTexCoords;
 }
 
@@ -120,13 +120,13 @@ vec3 sampleOffsetDirections[20] = vec3[] (
 );
 
 float calcPointLightShadow(int idx, vec3 normal) {
-	if (lights[idx].hasDepthMap == false) return 0;
+	if (lights[idx].hasDepthMap == false) return 0.0f;
 	vec3 fragToLight = fs_in.fragPos - lights[idx].pos;
 	vec3 lightDir = normalize(lights[idx].pos - fs_in.fragPos);
 	float currentDepth = length(fragToLight);
-	float shadow = 0;
-	float bias = max(5 * (1.0 - dot(normal, lightDir)), 0.5);
-	float radius = 0.5;
+	float shadow = 0.0f;
+	float bias = max(5.0f * (1.0f - dot(normal, lightDir)), 0.5f);
+	float radius = 0.5f;
 	for (int i = 0; i < 20; ++i) {
 		vec3 dir = fragToLight + sampleOffsetDirections[i] * radius;
 		float closestDepth = lights[idx].farPlane;
@@ -140,29 +140,29 @@ float calcPointLightShadow(int idx, vec3 normal) {
 			case 6: closestDepth *= texture(depthMap[6], dir).r; break;
 			case 7: closestDepth *= texture(depthMap[7], dir).r; break;
 		}
-		if (currentDepth - bias > closestDepth) shadow += 1.0;
+		if (currentDepth - bias > closestDepth) shadow += 1.0f;
 	}
-	return shadow / 20.0;
+	return shadow / 20.0f;
 }
 
 void main() {
-	fragColor = vec4(1.0);
+	fragColor = vec4(1.0f);
 	vec2 dispTexCoords = (material.hasParallaxMap ? ParallaxMapping(fs_in.texCoords) : fs_in.texCoords);
 	vec3 diffuseColor  = (material.hasDiffuseMap  ? texture(material.diffuseMap, dispTexCoords).rgb : material.diffuseRGB);
 	vec3 specularColor = (material.hasSpecularMap ? texture(material.specularMap, dispTexCoords).rgb : material.specularRGB);
-	vec3 normal		   = (material.hasNormalMap   ? texture(material.normalMap, dispTexCoords).rgb * 2.0 - 1.0 : vec3(0.0, 0.0, 1.0));
+	vec3 normal		   = (material.hasNormalMap   ? texture(material.normalMap, dispTexCoords).rgb * 2.0f - 1.0f : vec3(0.0f, 0.0f, 1.0f));
 	normal = fs_in.TBN * normalize(normal);
 
 	if (enableLight == 0) {
-		fragColor = vec4(diffuseColor, 1.0);
+		fragColor = vec4(diffuseColor, 1.0f);
 	} else {
-		fragColor = vec4(diffuseColor * material.ambientRGB, 1.0);
+		fragColor = vec4(diffuseColor * material.ambientRGB, 1.0f);
 		for (int i = 0; i < lightNum; i++) {
-			float shadowStrength = (1 - calcPointLightShadow(i, normal));
+			float shadowStrength = (1.0f - calcPointLightShadow(i, normal));
 			fragColor += shadowStrength * calcPointLight(i, diffuseColor, specularColor, normal);
 		}
 	}
-	if (selected == 1) fragColor.b += 0.5;
+	if (selected == 1) fragColor.b += 0.5f;
 }
 )";
 
@@ -173,7 +173,7 @@ layout (location = 0) in vec3 aPos;
 uniform mat4 model;
 
 void main() {
-	gl_Position = model * vec4(aPos, 1.0);
+	gl_Position = model * vec4(aPos, 1.0f);
 }
 )";
 
@@ -224,7 +224,7 @@ uniform mat4 view;
 
 void main() {
 	objTexCoord = pos;
-	gl_Position = projection * view * vec4(pos, 1.0);
+	gl_Position = projection * view * vec4(pos, 1.0f);
 }
 )";
 
@@ -241,7 +241,7 @@ void main() {
 	if (hasCubeMap == 1)
 		color = texture(cubeMap, objTexCoord);
 	else
-		color = vec4(0.7, 0.7, 0.7, 1.0);
+		color = vec4(0.7f, 0.7f, 0.7f, 1.0f);
 }
 )";
 
@@ -259,15 +259,15 @@ string loadStringFromFile(string path) {
     return str;
 }
 
-void Shader::loadFromFile(string vertexShaderPath, string fragmentShaderPath, string geometryShaderPath) {
+bool Shader::loadFromFile(string vertexShaderPath, string fragmentShaderPath, string geometryShaderPath) {
     // Read the Vertex Shader code from the file
     string vertexShaderCode = loadStringFromFile(vertexShaderPath);
     string fragmentShaderCode = loadStringFromFile(fragmentShaderPath);
     string geometryShaderCode = loadStringFromFile(geometryShaderPath);
-    loadFromString(vertexShaderCode, fragmentShaderCode, geometryShaderCode);
+    return loadFromString(vertexShaderCode, fragmentShaderCode, geometryShaderCode);
 }
 
-void Shader::loadFromString(string vertexShaderCode, string fragmentShaderCode, string geometryShaderCode) {
+bool Shader::loadFromString(string vertexShaderCode, string fragmentShaderCode, string geometryShaderCode) {
     GLuint vertexShaderID, fragmentShaderID, geometryShaderID;
     GLint compileResult = 0, compileLogLength = 0;
 
@@ -291,7 +291,7 @@ void Shader::loadFromString(string vertexShaderCode, string fragmentShaderCode, 
         glGetShaderInfoLog(vertexShaderID, compileLogLength, NULL, compileLog);
         reportError("Failed to compile vertex shader: " + string(compileLog));
         delete[] compileLog;
-        return;
+        return false;
     }
     reportInfo("Vertex shader has been compiled.");
 
@@ -309,7 +309,7 @@ void Shader::loadFromString(string vertexShaderCode, string fragmentShaderCode, 
         glGetShaderInfoLog(fragmentShaderID, compileLogLength, NULL, compileLog);
         reportError("Failed to compile fragment shader: " + string(compileLog));
         delete[] compileLog;
-        return;
+        return false;
     }
     reportInfo("Fragment shader has been compiled.");
 
@@ -328,7 +328,7 @@ void Shader::loadFromString(string vertexShaderCode, string fragmentShaderCode, 
             glGetShaderInfoLog(geometryShaderID, compileLogLength, NULL, compileLog);
             reportError("Failed to compile geometry shader: " + string(compileLog));
             delete[] compileLog;
-            return;
+            return false;
         }
         reportInfo("Geometry shader has been compiled.");
     }
@@ -350,7 +350,7 @@ void Shader::loadFromString(string vertexShaderCode, string fragmentShaderCode, 
         glGetProgramInfoLog(programID, compileLogLength, NULL, compileLog);
         reportError("Failed to link program: " + string(compileLog));
         delete[] compileLog;
-        return;
+        return false;
     }
 
     // Detach shader
@@ -361,6 +361,7 @@ void Shader::loadFromString(string vertexShaderCode, string fragmentShaderCode, 
     glDeleteShader(fragmentShaderID);
     if (geometryShaderCode != "") glDeleteShader(geometryShaderID);
     reportInfo("Shader program has been linked, ID = " + to_string(programID));
+	return true;
 }
 
 void Shader::use() {

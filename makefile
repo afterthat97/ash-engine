@@ -12,7 +12,7 @@ CFLAGS = -O2 -std=c++11 -Wall -Iinclude -Iinclude/bullet
 LIBS = -L${LIB_DIR} -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath -lassimp -lfreeimage -lglfw -lanttweakbar
 FRAMEWORKS = -framework OpenGL -framework Cocoa
 
-${BIN_DIR}/${EXE}.app : ${OBJS}
+${BIN_DIR}/${EXE}.app/Contents/MacOS/${EXE} : ${OBJS}
 	${CC} ${CFLAGS} ${OBJS} -o ${EXE} ${FRAMEWORKS} ${LIBS} -w
 	install_name_tool -change /usr/local/opt/assimp/lib/libassimp.4.dylib @executable_path/libassimp.dylib ${EXE}
 	install_name_tool -change /usr/local/opt/glfw/lib/libglfw.3.dylib @executable_path/libglfw.dylib ${EXE}
@@ -26,7 +26,7 @@ ${BIN_DIR}/${EXE}.app : ${OBJS}
 	cp Info.plist ${BIN_DIR}/${EXE}.app/Contents/
 	cp icon/AppIcon.icns ${BIN_DIR}/${EXE}.app/Contents/Resources/
 
-run : ${BIN_DIR}/${EXE}.app
+run : ${BIN_DIR}/${EXE}.app/Contents/MacOS/${EXE}
 	${BIN_DIR}/${EXE}.app/Contents/MacOS/${EXE}
 
 clean :

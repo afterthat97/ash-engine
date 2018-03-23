@@ -26,8 +26,8 @@ public:
     void setMat2(const string &name, const mat2 &mat);
     void setMat3(const string &name, const mat3 &mat);
     void setMat4(const string &name, const mat4 &mat);
-    void loadFromFile(string vertexShaderPath, string fragmentShaderPath, string geometryShaderPath = "");
-    void loadFromString(string vertexShaderCode, string fragmentShaderCode, string geometryShaderCode = "");
+    bool loadFromFile(string vertexShaderPath, string fragmentShaderPath, string geometryShaderPath = "");
+    bool loadFromString(string vertexShaderCode, string fragmentShaderCode, string geometryShaderCode = "");
 };
 
 extern const string meshVertexShaderCode;

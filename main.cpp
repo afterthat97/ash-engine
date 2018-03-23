@@ -11,44 +11,65 @@
 #include "cursor.h"
 #include "window.h"
 
-#define MAX_LIGHTS 8
-
+// Create one 960 * 640 window
 Window window(960, 640, "masterEngine");
-Cursor cursor;
-Camera camera;
-int32_t fps = 0, canMove = 1;
 
+// Deal with cursor movement
+Cursor cursor;
+
+// Perspective camera
+Camera camera;
+
+// Axis for translation and rotation
 Axis *localAxis;
+
+// Gridlines in the scene
 Gridlines *gridlines;
+
+// Lights in the scene
+#define MAX_LIGHTS 8
 vector<Light*> lights;
+
+// All loaded scenes
 vector<Scene*> scenes;
 
-float moveSpeed = 1.0f;
+// Bullet dynamics
 btDiscreteDynamicsWorld* dynamicsWorld = NULL;
+
+// OpenGL Shader
 Shader meshShader, skyboxShader, depthShader;
+
+// For copy-and-paste function
 Mesh *selectedMesh, *copyedMesh;
-vec3 lastIntersection;
+
+// Mouse drag status
 enum MouseDrag { NONE, TRANSLATE_X, TRANSLATE_Y, TRANSLATE_Z, ROTATION_X, ROTATION_Y, ROTATION_Z };
+vec3 lastIntersection;
 MouseDrag dragStatus;
+
+// Deal with mouse click and hold
 double lastTime;
 
+// Other vars
+int32_t fps = 0, canMove = 1;
+float moveSpeed = 1.0f;
+
+// Callback when user stretch the window
 void windowSizeCallback(GLFWwindow*, int32_t width, int32_t height) {
     window.resize(width, height);
 }
 
+// Callback when user click the mouse
 void mouseButtonCallback(GLFWwindow*, int button, int action, int mods) {
-    cursor.update(window.getGLFWwindow());
-    int handled = 0;
-    TwMouseAction twAction = (action == GLFW_PRESS) ? TW_MOUSE_PRESSED : TW_MOUSE_RELEASED;
-    if (button == GLFW_MOUSE_BUTTON_LEFT)
-        handled = TwMouseButton(twAction, TW_MOUSE_LEFT);
-    else if (button == GLFW_MOUSE_BUTTON_RIGHT)
-        handled = TwMouseButton(twAction, TW_MOUSE_RIGHT);
-    else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
-        handled = TwMouseButton(twAction, TW_MOUSE_MIDDLE);
+	// Only handle left button actions
+	if (button != GLFW_MOUSE_BUTTON_LEFT) return;
 
-    // Not handled by AntTweakBar
-    if (handled || button != GLFW_MOUSE_BUTTON_LEFT) return;
+	// Update currnet cursor position
+    cursor.update(window.getGLFWwindow());
+
+	// If the click is handled by AntTweakBar, just ignore it
+    TwMouseAction twAction = (action == GLFW_PRESS) ? TW_MOUSE_PRESSED : TW_MOUSE_RELEASED;
+	if (TwMouseButton(twAction, TW_MOUSE_LEFT)) return;
 
     if (action == GLFW_PRESS) {
         lastTime = glfwGetTime();
@@ -340,14 +361,8 @@ int main(int argc, char **argv) {
     reportInfo(glShadingLanguageVersionInfo);
 
     // Load shaders from file
-    try {
-        meshShader.loadFromString(meshVertexShaderCode, meshFragmentShaderCode, "");
-        skyboxShader.loadFromString(skyboxVertexShaderCode, skyboxFragmentShaderCode, "");
-        depthShader.loadFromString(depthVertexShaderCode, depthFragmentShaderCode, depthGeometryShaderCode);
-    } catch (const string msg) {
-        cerr << msg << endl;
-        exit(4);
-    }
+    if (meshShader.loadFromString(meshVertexShaderCode, meshFragmentShaderCode, "") == false) exit(-1);
+	if (depthShader.loadFromString(depthVertexShaderCode, depthFragmentShaderCode, depthGeometryShaderCode) == false) exit(-1);
 
     // Initialize bullet physics engine
     btBroadphaseInterface* broadphase = new btDbvtBroadphase();

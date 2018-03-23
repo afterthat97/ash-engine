@@ -2,9 +2,15 @@
 
 A cross-platform 3D Engine for learning purpose, based on OpenGL, Bullet, Assimp, FreeImage, and AntTweakBar.
 
+## Requirements
+
+* macOS 10.12+ or Windows x86 / x64
+* A graphics card which supports OpenGL 3.3+
+
+> If you are using Windows, extra Visual C++ redistributable packages (VC2017 and VC 2013) are required. You can download them from [this page](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads).
+
 ## Features
 
-* Requires macOS 10.12+ or Windows x86 or x64.
 * Supports reading 40+ 3D file formats, including FBX, DXF, Collada, Obj, X, PLY, 3DS.
 * Supports diffuse map, specular map, normal map and parallax map, along with popular texture formats like PNG, BMP, JPEG, TGA.
 * Supports up to 8 point lights with real-time shadow (depth map, 1024 * 1024 with PCF)
