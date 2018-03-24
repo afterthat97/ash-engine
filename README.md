@@ -18,9 +18,7 @@ A cross-platform 3D Engine for learning purpose, based on OpenGL, Bullet, Assimp
 
 ## Screenshots
 
-![](screenshots/screenshot0.png)
-
-![](screenshots/screenshot1.png)
+![](screenshots/screenshot.png)
 
 ## Usage
 
