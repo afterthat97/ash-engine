@@ -6,7 +6,9 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
 
     vector<Vertex> verticesTransX, verticesTransY, verticesTransZ;
     vector<Vertex> verticesRotX, verticesRotY, verticesRotZ;
-    vector<uint32_t> indicesTrans, indicesRot;
+	vector<Vertex> verticesScaleX, verticesScaleY, verticesScaleZ;
+
+    vector<uint32_t> indicesTrans, indicesRot, indicesScale;
 
     // Materials for axis X, Y, and Z
     shared_ptr<Material> materialX(new Material());
@@ -18,9 +20,8 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
     materialZ->diffuse = vec4(0.2, 0.2, 0.9, 1.0);
 
     // Generate vertex and index array for translation axes
-    for (uint32_t i = 0; i < arrow_vertices.size() / 3; i++) {
-        vec4 pos(arrow_vertices[i * 3 + 0], arrow_vertices[i * 3 + 1], arrow_vertices[i * 3 + 2], 1.0);
-        pos.x = pos.x * 1.5f + 1.0f;
+    for (uint32_t i = 0; i < transAxisVertices.size() / 3; i++) {
+        vec4 pos(transAxisVertices[i * 3 + 0], transAxisVertices[i * 3 + 1], transAxisVertices[i * 3 + 2], 1.0);
         Vertex vertex;
         vertex.position = vec3(pos);
         verticesTransX.push_back(vertex);
@@ -29,13 +30,12 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
         vertex.position = vec3(mat4(rotate(vec3(0.0, -1.0, 0.0), M_PI / 2)) * pos);
         verticesTransZ.push_back(vertex);
     }
-    for (uint32_t i = 0; i < arrow_indices.size(); i++)
-        indicesTrans.push_back(arrow_indices[i] - 1);
+    for (uint32_t i = 0; i < transAxisIndices.size(); i++)
+        indicesTrans.push_back(transAxisIndices[i] - 1);
 
     // Generate vertex and index array for rotation axes
-    for (uint32_t i = 0; i < torus_vertices.size() / 3; i++) {
-        vec4 pos(torus_vertices[i * 3 + 0], torus_vertices[i * 3 + 1], torus_vertices[i * 3 + 2], 1.0);
-        pos = pos * 3.0; pos.x += 1; pos.y += 1;
+    for (uint32_t i = 0; i < rotAxisVertices.size() / 3; i++) {
+        vec4 pos(rotAxisVertices[i * 3 + 0], rotAxisVertices[i * 3 + 1], rotAxisVertices[i * 3 + 2], 1.0);
         Vertex vertex;
         vertex.position = vec3(pos);
         verticesRotZ.push_back(vertex);
@@ -44,8 +44,22 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
         vertex.position = vec3(mat4(rotate(vec3(0.0, -1.0, 0.0), M_PI / 2)) * pos);
         verticesRotX.push_back(vertex);
     }
-    for (uint32_t i = 0; i < torus_indices.size(); i++)
-        indicesRot.push_back(torus_indices[i] - 1);
+    for (uint32_t i = 0; i < rotAxisIndices.size(); i++)
+        indicesRot.push_back(rotAxisIndices[i] - 1);
+
+    // Generate vertex and index array for scale axes
+    for (uint32_t i = 0; i < scaleAxisVertices.size() / 3; i++) {
+        vec4 pos(scaleAxisVertices[i * 3 + 0], scaleAxisVertices[i * 3 + 1], scaleAxisVertices[i * 3 + 2], 1.0);
+        Vertex vertex;
+        vertex.position = vec3(pos);
+        verticesScaleX.push_back(vertex);
+        vertex.position = vec3(mat4(rotate(vec3(0.0, 0.0, 1.0), M_PI / 2)) * pos);
+        verticesScaleY.push_back(vertex);
+        vertex.position = vec3(mat4(rotate(vec3(0.0, -1.0, 0.0), M_PI / 2)) * pos);
+        verticesScaleZ.push_back(vertex);
+    }
+    for (uint32_t i = 0; i < scaleAxisIndices.size(); i++)
+        indicesScale.push_back(scaleAxisIndices[i] - 1);
 
     // Construct translation axes and rotation axes
     transX = new Mesh(verticesTransX, indicesTrans, materialX, dynamicsWorld, "ATVIEW_AXIS_transX");
@@ -54,40 +68,61 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
     rotX = new Mesh(verticesRotX, indicesRot, materialX, dynamicsWorld, "ATVIEW_AXIS_rotX");
     rotY = new Mesh(verticesRotY, indicesRot, materialY, dynamicsWorld, "ATVIEW_AXIS_rotY");
     rotZ = new Mesh(verticesRotZ, indicesRot, materialZ, dynamicsWorld, "ATVIEW_AXIS_rotZ");
+    scaleX = new Mesh(verticesScaleX, indicesScale, materialX, dynamicsWorld, "ATVIEW_AXIS_scaleX");
+    scaleY = new Mesh(verticesScaleY, indicesScale, materialY, dynamicsWorld, "ATVIEW_AXIS_scaleY");
+    scaleZ = new Mesh(verticesScaleZ, indicesScale, materialZ, dynamicsWorld, "ATVIEW_AXIS_scaleZ");
+}
+
+Axis::~Axis() {
+	delete transX;
+	delete transY;
+	delete transZ;
+	delete rotX;
+	delete rotY;
+	delete rotZ;
+	delete scaleX;
+	delete scaleY;
+	delete scaleZ;
 }
 
 void Axis::show() {
-    transX->show();
-    transY->show();
-    transZ->show();
-    rotX->show();
-    rotY->show();
-    rotZ->show();
+	visible = true;
 }
 
 void Axis::hide() {
-    transX->hide();
-    transY->hide();
-    transZ->hide();
-    rotX->hide();
-    rotY->hide();
-    rotZ->hide();
+	visible = false;
 }
 
 void Axis::render(Shader& shader, vec3 cameraPos) {
+	if (visible == false) return;
     glClear(GL_DEPTH_BUFFER_BIT);
-    transX->setPosition(cameraPos + normalize(pos - cameraPos) * 100);
-    transY->setPosition(cameraPos + normalize(pos - cameraPos) * 100);
-    transZ->setPosition(cameraPos + normalize(pos - cameraPos) * 100);
-    rotX->setPosition(cameraPos + normalize(pos - cameraPos) * 100);
-    rotY->setPosition(cameraPos + normalize(pos - cameraPos) * 100);
-    rotZ->setPosition(cameraPos + normalize(pos - cameraPos) * 100);
-    transX->render(shader);
-    transY->render(shader);
-    transZ->render(shader);
-    rotX->render(shader);
-    rotY->render(shader);
-    rotZ->render(shader);
+
+	//if (transformMode == TRANS_X || transformMode == TRANS_Y || transformMode == TRANS_Z) {
+		transX->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
+		transY->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
+		transZ->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
+		transX->render(shader);
+		transY->render(shader);
+		transZ->render(shader);
+	//}
+	
+	//if (transformMode == ROT_X || transformMode == ROT_Y || transformMode == ROT_Z) {
+		rotX->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
+		rotY->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
+		rotZ->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
+		rotX->render(shader);
+		rotY->render(shader);
+		rotZ->render(shader);
+	//}
+
+	//if (transformMode == SCALE_X || transformMode == SCALE_Y || transformMode == SCALE_Z) {
+		scaleX->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
+		scaleY->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
+		scaleZ->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
+	    scaleX->render(shader);
+		scaleY->render(shader);
+		scaleZ->render(shader);
+	//}
 }
 
 void Axis::addTranslation(vec3 delta) {

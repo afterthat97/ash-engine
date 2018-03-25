@@ -4,6 +4,7 @@
 
 Mesh::Mesh(void *_parent) {
     pos = vec3(0.0);
+	scale = vec3(1.0);
     rot = quat(vec3(0.0));
     model = mat4(1.0);
     name = "Untitled Mesh";
@@ -29,6 +30,7 @@ Mesh::Mesh(vector<Vertex>& _vertices,
     material = _material;
     dynamicsWorld = _dynamicsWorld;
     pos = vec3(0.0);
+	scale = vec3(1.0);
     rot = quat(vec3(0.0));
     visible = true;
     selected = false;
@@ -58,6 +60,7 @@ Mesh::Mesh(vector<Vertex>& _vertices,
 
 Mesh::Mesh(const Mesh &a) {
     pos = a.pos;
+	scale = a.scale;
     rot = a.rot;
     model = a.model;
     name = a.name;
@@ -87,9 +90,9 @@ Mesh::~Mesh() {
 
 	// Clean bullet rigid body
     if (meshRigidBody) {
-        delete meshRigidBody->getMotionState();
-        delete meshRigidBody->getCollisionShape();
         dynamicsWorld->removeRigidBody(meshRigidBody);
+		delete meshMotionState;
+		delete meshShape;
         delete meshRigidBody;
     }
     reportInfo("Mesh " + name + " has been unloaded.");
@@ -137,11 +140,11 @@ void Mesh::render(Shader& shader) {
 
 void Mesh::initRigidBody() {
 	// Initialize bullet rigid body
-    btCollisionShape* meshShape = new btConvexHullShape(
+    meshShape = new btConvexHullShape(
         &vertices[0].position[0],
         (int32_t) vertices.size(),
         (int32_t) sizeof(Vertex));
-    btDefaultMotionState *meshMotionState = new btDefaultMotionState(
+    meshMotionState = new btDefaultMotionState(
         btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w),
         btVector3(pos.x, pos.y, pos.z)));
     btRigidBody::btRigidBodyConstructionInfo meshRigidBodyCI(
@@ -200,6 +203,7 @@ void Mesh::applyToBulletRigidBody() {
     meshTransform.setOrigin(btVector3(pos.x, pos.y, pos.z));
     meshTransform.setRotation(btQuaternion(rot.x, rot.y, rot.z, rot.w));
     meshMotionState->setWorldTransform(meshTransform);
+	meshShape->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
     meshRigidBody->setWorldTransform(meshTransform);
     removeFromBulletDynamicsWorld();
     addToBulletDynamicsWorld();
@@ -217,13 +221,19 @@ void Mesh::removeFromBulletDynamicsWorld() {
 
 void Mesh::addTranslation(vec3 delta) {
     pos += delta; minv += delta; maxv += delta;
-    model = translate(mat4(1.0), pos) * glm::toMat4(rot);
+    model = translate(mat4(1.0), pos) * glm::toMat4(rot) * glm::scale(mat4(1.0), scale);
     applyToBulletRigidBody();
 }
 
 void Mesh::addRotation(vec3 eularAngle) {
     rot = quat(eularAngle) * rot;
-    model = translate(mat4(1.0), pos) * glm::toMat4(rot);
+    model = translate(mat4(1.0), pos) * glm::toMat4(rot) * glm::scale(mat4(1.0), scale);
+    applyToBulletRigidBody();
+}
+
+void Mesh::addScale(vec3 scaleVector) {
+	scale = scale * scaleVector;
+    model = translate(mat4(1.0), pos) * glm::toMat4(rot) * glm::scale(mat4(1.0), scale);
     applyToBulletRigidBody();
 }
 

@@ -8,7 +8,7 @@
 
 class Mesh {
 protected:
-    vec3 pos;
+    vec3 pos, scale;
     quat rot;
     mat4 model;
     void *parent;
@@ -19,7 +19,9 @@ protected:
     vector<Vertex> vertices;
     vector<uint32_t> indices;
     shared_ptr<Material> material;
+    btCollisionShape* meshShape;
     btRigidBody *meshRigidBody;
+    btDefaultMotionState *meshMotionState;
     btDiscreteDynamicsWorld *dynamicsWorld;
     void initRigidBody();
     void initBufferObject();
@@ -44,6 +46,7 @@ public:
     void dumpinfo(string);
     void addTranslation(vec3);
     void addRotation(vec3);
+	void addScale(vec3);
     void setPosition(vec3);
     vec3 getPosition();
     void setParent(void*);

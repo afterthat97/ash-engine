@@ -43,7 +43,7 @@ Shader meshShader, skyboxShader, depthShader;
 Mesh *selectedMesh, *copyedMesh;
 
 // Mouse drag status
-enum MouseDrag { NONE, TRANSLATE_X, TRANSLATE_Y, TRANSLATE_Z, ROTATION_X, ROTATION_Y, ROTATION_Z };
+enum MouseDrag { NONE, TRANSLATE_X, TRANSLATE_Y, TRANSLATE_Z, ROTATION_X, ROTATION_Y, ROTATION_Z, SCALE_X, SCALE_Y, SCALE_Z };
 vec3 lastIntersection;
 MouseDrag dragStatus;
 
@@ -99,7 +99,16 @@ void mouseButtonCallback(GLFWwindow*, int button, int action, int mods) {
                 } else if (selectedAxis->name == "ATVIEW_AXIS_rotZ") {
                     getIntersectionOfLinePlane(raySt, rayEd - raySt, localAxis->getPosition(), vec3(0, 0, 1), lastIntersection);
                     dragStatus = ROTATION_Z;
-                } else
+				} else if (selectedAxis->name == "ATVIEW_AXIS_scaleX") {
+                    getClosestPointOfLineLine(localAxis->getPosition(), vec3(1, 0, 0), raySt, rayEd - raySt, lastIntersection, tmp);
+                    dragStatus = SCALE_X;
+				} else if (selectedAxis->name == "ATVIEW_AXIS_scaleY") {
+                    getClosestPointOfLineLine(localAxis->getPosition(), vec3(0, 1, 0), raySt, rayEd - raySt, lastIntersection, tmp);
+                    dragStatus = SCALE_Y;
+				} else if (selectedAxis->name == "ATVIEW_AXIS_scaleZ") {
+                    getClosestPointOfLineLine(localAxis->getPosition(), vec3(0, 0, 1), raySt, rayEd - raySt, lastIntersection, tmp);
+                    dragStatus = SCALE_Z;
+				} else
                     dragStatus = NONE;
                 if (selectedAxis->name.substr(0, 11) == "ATVIEW_AXIS") {
                     lastTime = 0;
@@ -265,7 +274,18 @@ void processInput() {
         if (dot(rotationAxis, cross(v1, v2)) < 0) theta = -theta;
         selectedMesh->addRotation(theta * rotationAxis);
         lastIntersection = p;
-    } else if (glfwGetMouseButton(window.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+	} else if (dragStatus == SCALE_X || dragStatus == SCALE_Y || dragStatus == SCALE_Z ) {
+        vec4 raySt, rayEd;
+        vec3 p, tmp, translateAxis(dragStatus == SCALE_X, dragStatus == SCALE_Y, dragStatus == SCALE_Z);
+        screenPosToWorldRay(cursor.getCntPosfv(), window.getWindowSizefv(), window.getProjMatrix(), camera.getViewMatrix(), raySt, rayEd);
+        getClosestPointOfLineLine(localAxis->getPosition(), translateAxis, raySt, rayEd - raySt, p, tmp);
+        vec3 scaleVector = ((p - localAxis->getPosition()) / (lastIntersection - localAxis->getPosition()));
+		if (isnan(scaleVector.x)) scaleVector.x = 1.0f;
+		if (isnan(scaleVector.y)) scaleVector.y = 1.0f;
+		if (isnan(scaleVector.z)) scaleVector.z = 1.0f;
+		selectedMesh->addScale(scaleVector);
+		lastIntersection = p;
+	} else if (glfwGetMouseButton(window.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
         camera.turnLeft(-cursor.getDeltafv().x / 500.0f);
         camera.lookUp(-cursor.getDeltafv().y / 500.0f);
     }
