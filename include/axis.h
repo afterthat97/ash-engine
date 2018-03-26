@@ -5,13 +5,12 @@
 #include "shader.h"
 #include "mesh.h"
 
-enum TransformMode { TRANS_X, TRANS_Y, TRANS_Z, ROT_X, ROT_Y, ROT_Z};
-
+enum TransformMode { TRANSLATION, ROTATION, SCALING };
 
 class Axis {
 private:
-    vec3 pos;
-	bool visible;
+    vec3 pos, lastIntersection, transformAxis;
+	bool visible, draging;
 	TransformMode transformMode;
     Mesh * transX, * transY, * transZ;
     Mesh * rotX, * rotY, * rotZ;
@@ -21,6 +20,9 @@ public:
 	~Axis();
     void show();
     void hide();
+	bool startDrag(Mesh* selectedMesh, vec4 raySt, vec4 rayEd);
+	bool continueDrag(Mesh* selectedMesh, vec4 raySt, vec4 rayEd);
+	void stopDrag();
 	void setTransformMode(TransformMode newMode);
 	TransformMode getTransformMode();
     void render(Shader& shader, vec3 cameraPos);

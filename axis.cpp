@@ -3,6 +3,9 @@
 
 Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
     pos = vec3(0.0);
+	draging = false;
+	visible = false;
+	transformMode = TRANSLATION;
 
     vector<Vertex> verticesTransX, verticesTransY, verticesTransZ;
     vector<Vertex> verticesRotX, verticesRotY, verticesRotZ;
@@ -85,6 +88,83 @@ Axis::~Axis() {
 	delete scaleZ;
 }
 
+bool Axis::startDrag(Mesh * selectedMesh, vec4 raySt, vec4 rayEd) {
+	draging = false;
+	if (selectedMesh == NULL) return false;
+	vec3 tmp;
+	if (selectedMesh->name == "ATVIEW_AXIS_transX") {
+		getClosestPointOfLineLine(pos, vec3(1, 0, 0), raySt, rayEd - raySt, lastIntersection, tmp);
+		draging = true;
+		transformAxis = vec3(1.0f, 0.0f, 0.0f);
+	} else if (selectedMesh->name == "ATVIEW_AXIS_transY") {
+		getClosestPointOfLineLine(pos, vec3(0, 1, 0), raySt, rayEd - raySt, lastIntersection, tmp);
+		draging = true;
+		transformAxis = vec3(0.0f, 1.0f, 0.0f);
+	} else if (selectedMesh->name == "ATVIEW_AXIS_transZ") {
+		getClosestPointOfLineLine(pos, vec3(0, 0, 1), raySt, rayEd - raySt, lastIntersection, tmp);
+		draging = true;
+		transformAxis = vec3(0.0f, 0.0f, 1.0f);
+	} else if (selectedMesh->name == "ATVIEW_AXIS_rotX") {
+		getIntersectionOfLinePlane(raySt, rayEd - raySt, pos, vec3(1, 0, 0), lastIntersection);
+		draging = true;
+		transformAxis = vec3(1.0f, 0.0f, 0.0f);
+	} else if (selectedMesh->name == "ATVIEW_AXIS_rotY") {
+		getIntersectionOfLinePlane(raySt, rayEd - raySt, pos, vec3(0, 1, 0), lastIntersection);
+		draging = true;
+		transformAxis = vec3(0.0f, 1.0f, 0.0f);
+	} else if (selectedMesh->name == "ATVIEW_AXIS_rotZ") {
+		getIntersectionOfLinePlane(raySt, rayEd - raySt, pos, vec3(0, 0, 1), lastIntersection);
+		draging = true;
+		transformAxis = vec3(0.0f, 0.0f, 1.0f);
+	} else if (selectedMesh->name == "ATVIEW_AXIS_scaleX") {
+		getClosestPointOfLineLine(pos, vec3(1, 0, 0), raySt, rayEd - raySt, lastIntersection, tmp);
+		draging = true;
+		transformAxis = vec3(1.0f, 0.0f, 0.0f);
+	} else if (selectedMesh->name == "ATVIEW_AXIS_scaleY") {
+		getClosestPointOfLineLine(pos, vec3(0, 1, 0), raySt, rayEd - raySt, lastIntersection, tmp);
+		draging = true;
+		transformAxis = vec3(0.0f, 1.0f, 0.0f);
+	} else if (selectedMesh->name == "ATVIEW_AXIS_scaleZ") {
+		getClosestPointOfLineLine(pos, vec3(0, 0, 1), raySt, rayEd - raySt, lastIntersection, tmp);
+		draging = true;
+		transformAxis = vec3(0.0f, 0.0f, 1.0f);
+	}
+	return draging;
+}
+
+bool Axis::continueDrag(Mesh* selectedMesh, vec4 raySt, vec4 rayEd) {
+	if (!draging) return false;
+    vec3 p, tmp;
+	if (transformMode == TRANSLATION) {
+        getClosestPointOfLineLine(pos, transformAxis, raySt, rayEd - raySt, p, tmp);
+        selectedMesh->addTranslation(p - lastIntersection);
+        addTranslation(p - lastIntersection);
+	} else if (transformMode == ROTATION) {
+        getIntersectionOfLinePlane(raySt, rayEd - raySt, pos, transformAxis, p);
+        vec3 v1 = lastIntersection - pos, v2 = p - pos;
+        float theta = acos(fmin(fmax(dot(v1, v2) / length(v1) / length(v2), -1.0f), 1.0f));
+        if (dot(transformAxis, cross(v1, v2)) < 0) theta = -theta;
+        selectedMesh->addRotation(theta * transformAxis);
+	} else {
+        getClosestPointOfLineLine(pos, transformAxis, raySt, rayEd - raySt, p, tmp);
+        vec3 scaleVector = ((p - pos) / (lastIntersection - pos));
+		if (isnan(scaleVector.x)) scaleVector.x = 1.0f;
+		if (isnan(scaleVector.y)) scaleVector.y = 1.0f;
+		if (isnan(scaleVector.z)) scaleVector.z = 1.0f;
+		selectedMesh->addScale(scaleVector);
+	}
+	lastIntersection = p;
+	return true;
+}
+
+void Axis::stopDrag() {
+	draging = false;
+}
+
+void Axis::setTransformMode(TransformMode newMode) {
+	transformMode = newMode;
+}
+
 void Axis::show() {
 	visible = true;
 }
@@ -97,32 +177,32 @@ void Axis::render(Shader& shader, vec3 cameraPos) {
 	if (visible == false) return;
     glClear(GL_DEPTH_BUFFER_BIT);
 
-	//if (transformMode == TRANS_X || transformMode == TRANS_Y || transformMode == TRANS_Z) {
+	if (transformMode == TRANSLATION) {
 		transX->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		transY->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		transZ->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		transX->render(shader);
 		transY->render(shader);
 		transZ->render(shader);
-	//}
+	}
 	
-	//if (transformMode == ROT_X || transformMode == ROT_Y || transformMode == ROT_Z) {
+	if (transformMode == ROTATION) {
 		rotX->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		rotY->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		rotZ->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		rotX->render(shader);
 		rotY->render(shader);
 		rotZ->render(shader);
-	//}
+	}
 
-	//if (transformMode == SCALE_X || transformMode == SCALE_Y || transformMode == SCALE_Z) {
+	if (transformMode == SCALING) {
 		scaleX->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		scaleY->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		scaleZ->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 	    scaleX->render(shader);
 		scaleY->render(shader);
 		scaleZ->render(shader);
-	//}
+	}
 }
 
 void Axis::addTranslation(vec3 delta) {

@@ -42,11 +42,6 @@ Shader meshShader, skyboxShader, depthShader;
 // For copy-and-paste function
 Mesh *selectedMesh, *copyedMesh;
 
-// Mouse drag status
-enum MouseDrag { NONE, TRANSLATE_X, TRANSLATE_Y, TRANSLATE_Z, ROTATION_X, ROTATION_Y, ROTATION_Z, SCALE_X, SCALE_Y, SCALE_Z };
-vec3 lastIntersection;
-MouseDrag dragStatus;
-
 // Deal with mouse click and hold
 double lastTime;
 
@@ -77,45 +72,13 @@ void mouseButtonCallback(GLFWwindow*, int button, int action, int mods) {
         screenPosToWorldRay(cursor.getCntPosfv(), window.getWindowSizefv(), window.getProjMatrix(), camera.getViewMatrix(), raySt, rayEd);
         btCollisionWorld::AllHitsRayResultCallback allHits(btVector3(raySt.x, raySt.y, raySt.z), btVector3(rayEd.x, rayEd.y, rayEd.z));
         dynamicsWorld->rayTest(btVector3(raySt.x, raySt.y, raySt.z), btVector3(rayEd.x, rayEd.y, rayEd.z), allHits);
-        if (selectedMesh != NULL) {
-            for (int32_t i = 0; i < allHits.m_collisionObjects.size(); i++) {
-                vec3 tmp;
-                Mesh* selectedAxis = (Mesh*) allHits.m_collisionObjects[i]->getUserPointer();
-                if (selectedAxis->name == "ATVIEW_AXIS_transX") {
-                    getClosestPointOfLineLine(localAxis->getPosition(), vec3(1, 0, 0), raySt, rayEd - raySt, lastIntersection, tmp);
-                    dragStatus = TRANSLATE_X;
-                } else if (selectedAxis->name == "ATVIEW_AXIS_transY") {
-                    getClosestPointOfLineLine(localAxis->getPosition(), vec3(0, 1, 0), raySt, rayEd - raySt, lastIntersection, tmp);
-                    dragStatus = TRANSLATE_Y;
-                } else if (selectedAxis->name == "ATVIEW_AXIS_transZ") {
-                    getClosestPointOfLineLine(localAxis->getPosition(), vec3(0, 0, 1), raySt, rayEd - raySt, lastIntersection, tmp);
-                    dragStatus = TRANSLATE_Z;
-                } else if (selectedAxis->name == "ATVIEW_AXIS_rotX") {
-                    getIntersectionOfLinePlane(raySt, rayEd - raySt, localAxis->getPosition(), vec3(1, 0, 0), lastIntersection);
-                    dragStatus = ROTATION_X;
-                } else if (selectedAxis->name == "ATVIEW_AXIS_rotY") {
-                    getIntersectionOfLinePlane(raySt, rayEd - raySt, localAxis->getPosition(), vec3(0, 1, 0), lastIntersection);
-                    dragStatus = ROTATION_Y;
-                } else if (selectedAxis->name == "ATVIEW_AXIS_rotZ") {
-                    getIntersectionOfLinePlane(raySt, rayEd - raySt, localAxis->getPosition(), vec3(0, 0, 1), lastIntersection);
-                    dragStatus = ROTATION_Z;
-				} else if (selectedAxis->name == "ATVIEW_AXIS_scaleX") {
-                    getClosestPointOfLineLine(localAxis->getPosition(), vec3(1, 0, 0), raySt, rayEd - raySt, lastIntersection, tmp);
-                    dragStatus = SCALE_X;
-				} else if (selectedAxis->name == "ATVIEW_AXIS_scaleY") {
-                    getClosestPointOfLineLine(localAxis->getPosition(), vec3(0, 1, 0), raySt, rayEd - raySt, lastIntersection, tmp);
-                    dragStatus = SCALE_Y;
-				} else if (selectedAxis->name == "ATVIEW_AXIS_scaleZ") {
-                    getClosestPointOfLineLine(localAxis->getPosition(), vec3(0, 0, 1), raySt, rayEd - raySt, lastIntersection, tmp);
-                    dragStatus = SCALE_Z;
-				} else
-                    dragStatus = NONE;
-                if (selectedAxis->name.substr(0, 11) == "ATVIEW_AXIS") {
+        if (selectedMesh != NULL)
+            for (int32_t i = 0; i < allHits.m_collisionObjects.size(); i++)
+				if (localAxis->startDrag((Mesh*) allHits.m_collisionObjects[i]->getUserPointer(), raySt, rayEd)) {
                     lastTime = 0;
                     return;
-                }
-            }
-        }
+				}
+
         float mindis = FLT_MAX;
         for (int32_t i = 0; i < allHits.m_collisionObjects.size(); i++)
             if (((Mesh*) allHits.m_collisionObjects[i]->getUserPointer())->name.substr(0, 11) != "ATVIEW_AXIS") {
@@ -129,8 +92,7 @@ void mouseButtonCallback(GLFWwindow*, int button, int action, int mods) {
                 lastTime = 0;
             }
     } else { // Release
-        dragStatus = NONE;
-        lastIntersection = vec3(0.0);
+		localAxis->stopDrag();
         if (glfwGetTime() - lastTime < 0.2f) {
             if (selectedMesh != NULL) selectedMesh->deselect();
             selectedMesh = NULL;
@@ -168,6 +130,15 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
     if (k > 0 && TwKeyPressed(k, TW_KMOD_NONE)) return;
 
     switch (key) {
+		case GLFW_KEY_F1:
+			localAxis->setTransformMode(TRANSLATION);
+			break;
+		case GLFW_KEY_F2:
+			localAxis->setTransformMode(ROTATION);
+			break;
+		case GLFW_KEY_F3:
+			localAxis->setTransformMode(SCALING);
+			break;
         case GLFW_KEY_F10:
             window.screenshot();
             break;
@@ -256,36 +227,9 @@ void processInput() {
 
     // Change camera viewport by mouse motion
     cursor.update(window.getGLFWwindow());
-    if (dragStatus == TRANSLATE_X || dragStatus == TRANSLATE_Y || dragStatus == TRANSLATE_Z) {
-        vec4 raySt, rayEd;
-        vec3 p, tmp, translateAxis(dragStatus == TRANSLATE_X, dragStatus == TRANSLATE_Y, dragStatus == TRANSLATE_Z);
-        screenPosToWorldRay(cursor.getCntPosfv(), window.getWindowSizefv(), window.getProjMatrix(), camera.getViewMatrix(), raySt, rayEd);
-        getClosestPointOfLineLine(localAxis->getPosition(), translateAxis, raySt, rayEd - raySt, p, tmp);
-        selectedMesh->addTranslation(p - lastIntersection);
-        localAxis->addTranslation(p - lastIntersection);
-        lastIntersection = p;
-    } else if (dragStatus == ROTATION_X || dragStatus == ROTATION_Y || dragStatus == ROTATION_Z) {
-        vec4 raySt, rayEd;
-        vec3 p, rotationAxis(dragStatus == ROTATION_X, dragStatus == ROTATION_Y, dragStatus == ROTATION_Z);
-        screenPosToWorldRay(cursor.getCntPosfv(), window.getWindowSizefv(), window.getProjMatrix(), camera.getViewMatrix(), raySt, rayEd);
-        getIntersectionOfLinePlane(raySt, rayEd - raySt, localAxis->getPosition(), rotationAxis, p);
-        vec3 v1 = lastIntersection - localAxis->getPosition(), v2 = p - localAxis->getPosition();
-        float theta = acos(fmin(fmax(dot(v1, v2) / length(v1) / length(v2), -1.0f), 1.0f));
-        if (dot(rotationAxis, cross(v1, v2)) < 0) theta = -theta;
-        selectedMesh->addRotation(theta * rotationAxis);
-        lastIntersection = p;
-	} else if (dragStatus == SCALE_X || dragStatus == SCALE_Y || dragStatus == SCALE_Z ) {
-        vec4 raySt, rayEd;
-        vec3 p, tmp, translateAxis(dragStatus == SCALE_X, dragStatus == SCALE_Y, dragStatus == SCALE_Z);
-        screenPosToWorldRay(cursor.getCntPosfv(), window.getWindowSizefv(), window.getProjMatrix(), camera.getViewMatrix(), raySt, rayEd);
-        getClosestPointOfLineLine(localAxis->getPosition(), translateAxis, raySt, rayEd - raySt, p, tmp);
-        vec3 scaleVector = ((p - localAxis->getPosition()) / (lastIntersection - localAxis->getPosition()));
-		if (isnan(scaleVector.x)) scaleVector.x = 1.0f;
-		if (isnan(scaleVector.y)) scaleVector.y = 1.0f;
-		if (isnan(scaleVector.z)) scaleVector.z = 1.0f;
-		selectedMesh->addScale(scaleVector);
-		lastIntersection = p;
-	} else if (glfwGetMouseButton(window.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+    vec4 raySt, rayEd;
+    screenPosToWorldRay(cursor.getCntPosfv(), window.getWindowSizefv(), window.getProjMatrix(), camera.getViewMatrix(), raySt, rayEd);
+	if (localAxis->continueDrag(selectedMesh, raySt, rayEd) == false && glfwGetMouseButton(window.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
         camera.turnLeft(-cursor.getDeltafv().x / 500.0f);
         camera.lookUp(-cursor.getDeltafv().y / 500.0f);
     }
