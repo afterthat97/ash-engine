@@ -1,4 +1,5 @@
 *.o
 *.d
 .DS_Store
+totlines.sh
 bin/
