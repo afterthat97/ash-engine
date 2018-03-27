@@ -74,6 +74,15 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
     scaleX = new Mesh(verticesScaleX, indicesScale, materialX, dynamicsWorld, "ATVIEW_AXIS_scaleX");
     scaleY = new Mesh(verticesScaleY, indicesScale, materialY, dynamicsWorld, "ATVIEW_AXIS_scaleY");
     scaleZ = new Mesh(verticesScaleZ, indicesScale, materialZ, dynamicsWorld, "ATVIEW_AXIS_scaleZ");
+	transX->hide();
+	transY->hide();
+	transZ->hide();
+	rotX->hide();
+	rotY->hide();
+	rotZ->hide();
+	scaleX->hide();
+	scaleY->hide();
+	scaleZ->hide();
 }
 
 Axis::~Axis() {
@@ -162,15 +171,46 @@ void Axis::stopDrag() {
 }
 
 void Axis::setTransformMode(TransformMode newMode) {
-	transformMode = newMode;
+	if (visible) {
+		hide();
+		transformMode = newMode;
+		show();
+	} else
+		transformMode = newMode;
 }
 
 void Axis::show() {
 	visible = true;
+	if (transformMode == TRANSLATION) {
+		transX->show();
+		transY->show();
+		transZ->show();
+	} else if (transformMode == ROTATION) {
+		rotX->show();
+		rotY->show();
+		rotZ->show();
+	} else {
+		scaleX->show();
+		scaleY->show();
+		scaleZ->show();
+	}
 }
 
 void Axis::hide() {
 	visible = false;
+	if (transformMode == TRANSLATION) {
+		transX->hide();
+		transY->hide();
+		transZ->hide();
+	} else if (transformMode == ROTATION) {
+		rotX->hide();
+		rotY->hide();
+		rotZ->hide();
+	} else {
+		scaleX->hide();
+		scaleY->hide();
+		scaleZ->hide();
+	}
 }
 
 void Axis::render(Shader& shader, vec3 cameraPos) {

@@ -130,6 +130,8 @@ string getFilePath(string dir, string filename);
 vec3 minVec3(vec3, vec3);
 vec3 maxVec3(vec3, vec3);
 
+void glCheckError();
+
 extern const vector<float> cube_vertices;
 
 extern const vector<uint32_t> cube_indices;

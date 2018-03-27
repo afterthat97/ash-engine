@@ -48,10 +48,18 @@ double lastTime;
 // Other vars
 int32_t fps = 0, canMove = 1;
 float moveSpeed = 1.0f;
+vec3 backgroundColor(0.7f);
+uint32_t windowWidth, windowHeight, frameWidth, frameHeight;
+bool retina = 0;
 
 // Callback when user stretch the window
 void windowSizeCallback(GLFWwindow*, int32_t width, int32_t height) {
     window.resize(width, height);
+	windowWidth = window.getWindowSizei().first;
+	windowHeight = window.getWindowSizei().second;
+	frameWidth = window.getFrameSizei().first;
+	frameHeight = window.getFrameSizei().second;
+	retina = (frameWidth > windowWidth);
 }
 
 // Callback when user click the mouse
@@ -72,7 +80,6 @@ void mouseButtonCallback(GLFWwindow*, int button, int action, int mods) {
         screenPosToWorldRay(cursor.getCntPosfv(), window.getWindowSizefv(), window.getProjMatrix(), camera.getViewMatrix(), raySt, rayEd);
         btCollisionWorld::AllHitsRayResultCallback allHits(btVector3(raySt.x, raySt.y, raySt.z), btVector3(rayEd.x, rayEd.y, rayEd.z));
         dynamicsWorld->rayTest(btVector3(raySt.x, raySt.y, raySt.z), btVector3(rayEd.x, rayEd.y, rayEd.z), allHits);
-        if (selectedMesh != NULL)
             for (int32_t i = 0; i < allHits.m_collisionObjects.size(); i++)
 				if (localAxis->startDrag((Mesh*) allHits.m_collisionObjects[i]->getUserPointer(), raySt, rayEd)) {
                     lastTime = 0;
@@ -238,7 +245,7 @@ void processInput() {
 void render() {
     glViewport(0, 0, window.getFrameSizei().first, window.getFrameSizei().second);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
+    glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0f);
 
     // OpenGL configurations
     if (enableFaceCulling) glEnable(GL_CULL_FACE);
@@ -288,22 +295,6 @@ void render() {
     TwDraw();
 }
 
-void glCheckError() {
-    GLenum errorCode;
-    while ((errorCode = glGetError()) != GL_NO_ERROR) {
-        string error;
-        switch (errorCode) {
-            case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
-            case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
-            case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
-            case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
-            case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
-            default:                               error = "Unknown error"; break;
-        }
-        reportError("OpenGL internal error: " + error);
-    }
-}
-
 int main(int argc, char **argv) {
 #ifdef APPLE_MACOS
     CGEventSourceRef evsrc = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
@@ -350,6 +341,12 @@ int main(int argc, char **argv) {
     lights.push_back(new Light(vec3(1.0), dynamicsWorld));
     lights[0]->setPosition(vec3(100.0));
     localAxis->hide();
+	
+	windowWidth = window.getWindowSizei().first;
+	windowHeight = window.getWindowSizei().second;
+	frameWidth = window.getFrameSizei().first;
+	frameHeight = window.getFrameSizei().second;
+	retina = (frameWidth > windowWidth);
 
     meshShader.use();
     for (int i = 0; i < MAX_LIGHTS; i++) {
@@ -363,12 +360,22 @@ int main(int argc, char **argv) {
     // Add tweak bars
     TwInit(TW_OPENGL_CORE, NULL);
     TwDefine("GLOBAL fontsize=3");
-    TwWindowSize(window.getFrameSizei().first, window.getFrameSizei().second);
+    TwWindowSize(frameWidth, frameHeight);
+
+    TwBar * windowInfoBar = TwNewBar("Window Info");
+    TwSetParam(windowInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
+    TwSetParam(windowInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 10");
+    TwSetParam(windowInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 130");
+    TwAddVarRO(windowInfoBar, "Window Width", TW_TYPE_UINT32, &windowWidth, "");
+    TwAddVarRO(windowInfoBar, "Window Height", TW_TYPE_UINT32, &windowHeight, "");
+    TwAddVarRO(windowInfoBar, "Frame Width", TW_TYPE_UINT32, &frameWidth, "");
+    TwAddVarRO(windowInfoBar, "Frame Height", TW_TYPE_UINT32, &frameHeight, "");
+    TwAddVarRO(windowInfoBar, "Retina", TW_TYPE_BOOLCPP, &retina, "");
 
     // Show FPS and camara info
     TwBar * viewerInfoBar = TwNewBar("Viewer Info");
     TwSetParam(viewerInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(viewerInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 10");
+    TwSetParam(viewerInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 150");
     TwSetParam(viewerInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 130");
     TwAddVarRO(viewerInfoBar, "FPS", TW_TYPE_INT32, &fps, "");
     TwAddVarRW(viewerInfoBar, "Moving Speed", TW_TYPE_FLOAT, &moveSpeed, "step=0.01");
@@ -379,9 +386,10 @@ int main(int argc, char **argv) {
     // Show OpenGL config
     TwBar * configBar = TwNewBar("Configuration");
     TwSetParam(configBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 150");
-    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 220");
-    TwAddVarRW(configBar, "Diffuse Map", TW_TYPE_BOOLCPP, &enableDiffuseMap, "");
+    TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 290");
+    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 230");
+    TwAddVarRW(configBar, "Background Color", TW_TYPE_COLOR3F, &backgroundColor.x, "");
+	TwAddVarRW(configBar, "Diffuse Map", TW_TYPE_BOOLCPP, &enableDiffuseMap, "");
     TwAddVarRW(configBar, "Specular Map", TW_TYPE_BOOLCPP, &enableSpecularMap, "");
     TwAddVarRW(configBar, "Normal Map", TW_TYPE_BOOLCPP, &enableNormalMap, "");
     TwAddVarRW(configBar, "Parallax Map", TW_TYPE_BOOLCPP, &enableParallaxMap, "");
@@ -395,7 +403,7 @@ int main(int argc, char **argv) {
     // Show application info
     TwBar * appInfoBar = TwNewBar("Application Info");
     TwSetParam(appInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 380");
+    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 530");
     TwSetParam(appInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
     TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.0'");
     TwAddButton(appInfoBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());

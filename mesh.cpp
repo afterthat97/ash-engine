@@ -100,12 +100,12 @@ Mesh::~Mesh() {
 
 void Mesh::show() {
     visible = true;
-    removeFromBulletDynamicsWorld();
+    addToBulletDynamicsWorld();
 }
 
 void Mesh::hide() {
     visible = false;
-    addToBulletDynamicsWorld();
+    removeFromBulletDynamicsWorld();
 }
 
 void Mesh::select() {

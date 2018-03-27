@@ -1080,3 +1080,19 @@ vec3 minVec3(vec3 v1, vec3 v2) {
 vec3 maxVec3(vec3 v1, vec3 v2) {
     return vec3(max(v1[0], v2[0]), max(v1[1], v2[1]), max(v1[2], v2[2]));
 }
+
+void glCheckError() {
+    GLenum errorCode;
+    while ((errorCode = glGetError()) != GL_NO_ERROR) {
+        string error;
+        switch (errorCode) {
+            case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
+            case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
+            case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
+            case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+            default:                               error = "Unknown error"; break;
+        }
+        reportError("OpenGL internal error: " + error);
+    }
+}
