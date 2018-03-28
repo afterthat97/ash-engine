@@ -46,7 +46,8 @@ Mesh *selectedMesh, *copyedMesh;
 double lastTime;
 
 // Other vars
-int32_t fps = 0, canMove = 1;
+float fps = 60, singleFrameRenderTime;
+bool canMove = 1;
 float moveSpeed = 1.0f;
 vec3 backgroundColor(0.7f);
 uint32_t windowWidth, windowHeight, frameWidth, frameHeight;
@@ -221,9 +222,9 @@ void dropCallBack(GLFWwindow*, int count, const char** paths) {
 void processInput() {
     // Move camera by keyboard
     if (canMove) {
-        float shift = 1.0f;
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) shift = 5.0f;
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) shift = 5.0f;
+        float shift = 60.0f * singleFrameRenderTime;
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) shift *= 5.0f;
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) shift *= 5.0f;
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_W) == GLFW_PRESS) camera.moveForward(shift * moveSpeed);
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_S) == GLFW_PRESS) camera.moveForward(-shift * moveSpeed);
         if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_A) == GLFW_PRESS) camera.moveRight(-shift * moveSpeed);
@@ -363,9 +364,10 @@ int main(int argc, char **argv) {
     TwWindowSize(frameWidth, frameHeight);
 
     TwBar * windowInfoBar = TwNewBar("Window Info");
-    TwSetParam(windowInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
+    TwSetParam(windowInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.5");
     TwSetParam(windowInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 10");
-    TwSetParam(windowInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 130");
+    TwSetParam(windowInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 150");
+    TwAddVarRO(windowInfoBar, "FPS", TW_TYPE_FLOAT, &fps, "step=0.1");
     TwAddVarRO(windowInfoBar, "Window Width", TW_TYPE_UINT32, &windowWidth, "");
     TwAddVarRO(windowInfoBar, "Window Height", TW_TYPE_UINT32, &windowHeight, "");
     TwAddVarRO(windowInfoBar, "Frame Width", TW_TYPE_UINT32, &frameWidth, "");
@@ -375,9 +377,8 @@ int main(int argc, char **argv) {
     // Show FPS and camara info
     TwBar * viewerInfoBar = TwNewBar("Viewer Info");
     TwSetParam(viewerInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(viewerInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 150");
-    TwSetParam(viewerInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 130");
-    TwAddVarRO(viewerInfoBar, "FPS", TW_TYPE_INT32, &fps, "");
+    TwSetParam(viewerInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 170");
+    TwSetParam(viewerInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
     TwAddVarRW(viewerInfoBar, "Moving Speed", TW_TYPE_FLOAT, &moveSpeed, "step=0.01");
     TwAddVarRW(viewerInfoBar, "Camera Position X", TW_TYPE_FLOAT, &camera.pos.x, "step=0.1");
     TwAddVarRW(viewerInfoBar, "Camera Position Y", TW_TYPE_FLOAT, &camera.pos.y, "step=0.1");
@@ -386,7 +387,7 @@ int main(int argc, char **argv) {
     // Show OpenGL config
     TwBar * configBar = TwNewBar("Configuration");
     TwSetParam(configBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 290");
+    TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 300");
     TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 230");
     TwAddVarRW(configBar, "Background Color", TW_TYPE_COLOR3F, &backgroundColor.x, "");
 	TwAddVarRW(configBar, "Diffuse Map", TW_TYPE_BOOLCPP, &enableDiffuseMap, "");
@@ -403,7 +404,7 @@ int main(int argc, char **argv) {
     // Show application info
     TwBar * appInfoBar = TwNewBar("Application Info");
     TwSetParam(appInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 530");
+    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 540");
     TwSetParam(appInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
     TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.0'");
     TwAddButton(appInfoBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());
@@ -426,15 +427,10 @@ int main(int argc, char **argv) {
 
     // Start loop
     glEnable(GL_DEPTH_TEST);
-    double lastTime = glfwGetTime();
+	double totTime = 0;
     for (uint32_t totframes = 0;; totframes++) {
         if (glfwWindowShouldClose(window.getGLFWwindow())) break;
-        double cntTime = glfwGetTime();
-        if (cntTime - lastTime >= 1.0f) {
-            fps = totframes;
-            totframes = 0;
-            lastTime += 1.0f;
-        }
+		double startTime = glfwGetTime();
         processInput();
         if (enableShadow)
             for (uint32_t i = 0; i < lights.size(); i++)
@@ -443,6 +439,14 @@ int main(int argc, char **argv) {
         glfwSwapBuffers(window.getGLFWwindow());
         glfwPollEvents();
         glCheckError();
+        double endTime = glfwGetTime();
+		singleFrameRenderTime = endTime - startTime;
+		totTime += singleFrameRenderTime;
+		if (totTime > 1.0) {
+			fps = totframes / totTime;
+			totTime = 0.0;
+			totframes = 0;
+		}
     }
 
     // Clean
