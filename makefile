@@ -3,7 +3,7 @@ INCLUDE_BULLET_DIR = include/bullet
 LIB_DIR = lib/macosx
 BIN_DIR = bin
 
-SRCS = glad.cpp scene.cpp light.cpp skybox.cpp model.cpp mesh.cpp material.cpp texture.cpp camera.cpp shader.cpp axis.cpp gridlines.cpp glconfig.cpp utilities.cpp extmath.cpp window.cpp main.cpp
+SRCS = glad.cpp scene.cpp light.cpp skybox.cpp model.cpp mesh.cpp material.cpp texture.cpp camera.cpp shader.cpp axis.cpp gridlines.cpp glconfig.cpp utilities.cpp extmath.cpp window.cpp basicShapes.cpp main.cpp
 OBJS = ${SRCS:.cpp=.o}
 
 CC = g++

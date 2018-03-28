@@ -132,22 +132,6 @@ vec3 maxVec3(vec3, vec3);
 
 void glCheckError();
 
-extern const vector<float> cube_vertices;
-
-extern const vector<uint32_t> cube_indices;
-
-extern const vector<float> transAxisVertices;
-
-extern const vector<uint32_t> transAxisIndices;
-
-extern const vector<float> rotAxisVertices;
-
-extern const vector<uint32_t> rotAxisIndices;
-
-extern const vector<float> scaleAxisVertices;
-
-extern const vector<uint32_t> scaleAxisIndices;
-
 template <typename T>
 void allocArray3D(T *** &arr, uint32_t x, uint32_t y, uint32_t z) {
     arr = new T**[x];

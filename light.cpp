@@ -1,4 +1,5 @@
 #include "light.h"
+#include "basicShapes.h"
 
 Light::Light(vec3 _color, btDiscreteDynamicsWorld *_dynamicsWorld) : Mesh() {
     color = _color;

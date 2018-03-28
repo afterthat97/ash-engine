@@ -1,5 +1,6 @@
 #include "axis.h"
 #include "extmath.h"
+#include "basicShapes.h"
 
 Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
     pos = vec3(0.0);

@@ -1,4 +1,5 @@
 #include "skybox.h"
+#include "basicShapes.h"
 
 Skybox::Skybox() : Mesh() {
     cubeTextureID = 0;
