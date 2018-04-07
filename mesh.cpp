@@ -15,7 +15,9 @@ Mesh::Mesh(void *_parent) {
     maxv = vec3(-FLT_MAX);
     lenv = vec3(0.0);
     VAO = VBO = EBO = 0;
+	meshShape = NULL;
     meshRigidBody = NULL;
+	meshMotionState = NULL;
     dynamicsWorld = NULL;
 }
 
@@ -37,7 +39,10 @@ Mesh::Mesh(vector<Vertex>& _vertices,
     minv = vec3(FLT_MAX);
     maxv = vec3(-FLT_MAX);
     VAO = VBO = EBO = 0;
+	parent = NULL;
+	meshShape = NULL;
     meshRigidBody = NULL;
+	meshMotionState = NULL;
 
     // Calculate boundry
     for (uint32_t i = 0; i < vertices.size(); i++) {
@@ -99,11 +104,13 @@ Mesh::~Mesh() {
 }
 
 void Mesh::show() {
+	if (visible) return;
     visible = true;
     addToBulletDynamicsWorld();
 }
 
 void Mesh::hide() {
+	if (!visible) return;
     visible = false;
     removeFromBulletDynamicsWorld();
 }

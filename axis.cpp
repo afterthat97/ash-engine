@@ -184,6 +184,7 @@ void Axis::setTransformMode(TransformMode newMode) {
 }
 
 void Axis::show() {
+	if (visible) return;
 	visible = true;
 	if (transformMode == TRANSLATION) {
 		transX->show();
@@ -201,6 +202,7 @@ void Axis::show() {
 }
 
 void Axis::hide() {
+	if (!visible) return;
 	visible = false;
 	if (transformMode == TRANSLATION) {
 		transX->hide();
