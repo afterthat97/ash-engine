@@ -155,6 +155,9 @@ bool Axis::continueDrag(Mesh* selectedMesh, vec4 raySt, vec4 rayEd) {
         float theta = acos(fmin(fmax(dot(v1, v2) / length(v1) / length(v2), -1.0f), 1.0f));
         if (dot(transformAxis, cross(v1, v2)) < 0) theta = -theta;
         selectedMesh->addRotation(theta * transformAxis);
+		//scaleX->addRotation(theta * transformAxis);
+		//scaleY->addRotation(theta * transformAxis);
+		//scaleZ->addRotation(theta * transformAxis);
 	} else {
         getClosestPointOfLineLine(pos, transformAxis, raySt, rayEd - raySt, p, tmp);
         vec3 scaleVector = ((p - pos) / (lastIntersection - pos));

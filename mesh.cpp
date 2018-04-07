@@ -140,10 +140,17 @@ void Mesh::render(Shader& shader) {
 
 void Mesh::initRigidBody() {
 	// Initialize bullet rigid body
-    meshShape = new btConvexHullShape(
-        &vertices[0].position[0],
-        (int32_t) vertices.size(),
-        (int32_t) sizeof(Vertex));
+	btTriangleMesh* triangleMesh = new btTriangleMesh();
+	for (uint32_t i = 0; i < indices.size(); i += 3) {
+		vec3 v0(vertices[indices[i]].position);
+		vec3 v1(vertices[indices[i + 1]].position);
+		vec3 v2(vertices[indices[i + 2]].position);
+		triangleMesh->addTriangle(
+				btVector3(v0.x, v0.y, v0.z),
+				btVector3(v1.x, v1.y, v1.z),
+				btVector3(v2.x, v2.y, v2.z));
+	}
+	meshShape = new btBvhTriangleMeshShape(triangleMesh, false);
     meshMotionState = new btDefaultMotionState(
         btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w),
         btVector3(pos.x, pos.y, pos.z)));
