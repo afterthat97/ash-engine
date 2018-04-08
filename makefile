@@ -26,6 +26,9 @@ ${BIN_DIR}/${EXE}.app/Contents/MacOS/${EXE} : ${OBJS}
 	cp Info.plist ${BIN_DIR}/${EXE}.app/Contents/
 	cp icon/AppIcon.icns ${BIN_DIR}/${EXE}.app/Contents/Resources/
 
+install : ${BIN_DIR}/${EXE}.app/Contents/MacOS/${EXE}
+	cp -r ${BIN_DIR}/${EXE}.app /Applications/
+
 run : ${BIN_DIR}/${EXE}.app/Contents/MacOS/${EXE}
 	${BIN_DIR}/${EXE}.app/Contents/MacOS/${EXE}
 
