@@ -406,7 +406,7 @@ int main(int argc, char **argv) {
     TwSetParam(appInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
     TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 540");
     TwSetParam(appInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
-    TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.0'");
+    TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.1'");
     TwAddButton(appInfoBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());
     TwAddButton(appInfoBar, "1.2", NULL, NULL, ("label='" + glVersionInfo + "'").c_str());
     TwAddButton(appInfoBar, "1.3", NULL, NULL, ("label='" + glShadingLanguageVersionInfo + "'").c_str());

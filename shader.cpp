@@ -81,9 +81,9 @@ vec4 calcPointLight(int idx, vec3 diff, vec3 spec, vec3 normal) {
 	float attenuation = 1.0f / (1.0f + 0.0014f * distance + 0.000007f * (distance * distance));
 	vec3 lightDir = normalize(lights[idx].pos - fs_in.fragPos);
 	vec3 viewDir = normalize(viewPos - fs_in.fragPos);
-	vec3 reflectDir = reflect(-lightDir, normal);
+	vec3 halfwayDir = normalize(lightDir + viewDir);  
 	vec3 res = diff * max(dot(normal, lightDir), 0.0f);
-	res += spec * pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
+	res += spec * pow(max(dot(normal, halfwayDir), 0.0f), material.shininess * 4.0f);
 	if (enableAttenuation == 1) res *= attenuation;
 	return vec4(res * lights[idx].color, 1.0f);
 }
