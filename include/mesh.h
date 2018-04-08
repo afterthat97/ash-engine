@@ -19,6 +19,7 @@ protected:
     vector<Vertex> vertices;
     vector<uint32_t> indices;
     shared_ptr<Material> material;
+	btTriangleMesh* triangleMesh;
     btCollisionShape* meshShape;
     btRigidBody *meshRigidBody;
     btDefaultMotionState *meshMotionState;

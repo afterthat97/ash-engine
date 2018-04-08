@@ -158,6 +158,12 @@ Scene::Scene(string filename, btDiscreteDynamicsWorld* dynamicsWorld) {
     recycle();
 }
 
+Scene::~Scene() {
+	for (uint32_t i = 0; i < models.size(); i++)
+		delete models[i];
+	recycle();
+}
+
 void Scene::addModel(Model *newModel) {
 	// Add new model to this scene
     pos = minVec3(pos, newModel->getPosition());

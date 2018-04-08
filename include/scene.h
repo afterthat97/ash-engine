@@ -27,6 +27,7 @@ private:
 public:
     string name;
     Scene(string, btDiscreteDynamicsWorld*);
+	~Scene();
     void addModel(Model*);
     void addMaterial(shared_ptr<Material>);
     void show();
