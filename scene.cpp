@@ -87,6 +87,7 @@ shared_ptr<Material> Scene::loadMaterial(const aiMaterial* aiMaterialPtr, string
 			string filePath = getFilePath(dir, aiStr.C_Str());
             shared_ptr<Texture> newTexture = textureManager.loadTexture(filePath, DIFFUSE);
 			newMaterial->addTexture(newTexture);
+			newMaterial->loadDefaultDiffuseRGB();
         }
 
     // Parallax map
@@ -103,6 +104,7 @@ shared_ptr<Material> Scene::loadMaterial(const aiMaterial* aiMaterialPtr, string
 			string filePath = getFilePath(dir, aiStr.C_Str());
             shared_ptr<Texture> newTexture = textureManager.loadTexture(filePath, SPECULAR);
 			newMaterial->addTexture(newTexture);
+			newMaterial->loadDefaultSpecularRGB();
         }
 
     // Normal map

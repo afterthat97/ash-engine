@@ -76,22 +76,22 @@ void Texture::bind(Shader& shader) {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, textureID);
         shader.setInt("material.diffuseMap", 1);
-        shader.setBool("material.hasDiffuseMap", textureID && enableDiffuseMap);
+        shader.setBool("material.hasDiffuseMap", textureID && enableDiffuseMap && !enableWireFrame);
     } else if (textureType == SPECULAR) { // Specular map
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, textureID);
         shader.setInt("material.specularMap", 2);
-        shader.setBool("material.hasSpecularMap", textureID && enableSpecularMap);
+        shader.setBool("material.hasSpecularMap", textureID && enableSpecularMap && !enableWireFrame);
     } else if (textureType == NORMAL) { // Normal map
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, textureID);
         shader.setInt("material.normalMap", 3);
-        shader.setBool("material.hasNormalMap", textureID && enableNormalMap);
+        shader.setBool("material.hasNormalMap", textureID && enableNormalMap && !enableWireFrame);
     } else if (textureType == PARALLAX) { // Parallax map
         glActiveTexture(GL_TEXTURE4);
         glBindTexture(GL_TEXTURE_2D, textureID);
         shader.setInt("material.parallaxMap", 4);
-        shader.setBool("material.hasParallaxMap", textureID && enableParallaxMap && polygonModeStr != "LINE");
+        shader.setBool("material.hasParallaxMap", textureID && enableParallaxMap && !enableWireFrame);
     }
 }
 

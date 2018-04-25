@@ -250,6 +250,11 @@ void render() {
 
     // OpenGL configurations
     if (enableFaceCulling) glEnable(GL_CULL_FACE);
+	if (enableWireFrame) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		enableLight = false;
+	}
+	glfwSwapInterval(enableVSync);
 
     // Get projection and view matrix
     mat4 projection = window.getProjMatrix();
@@ -260,6 +265,7 @@ void render() {
     meshShader.setMat4("projection", projection);
     meshShader.setMat4("view", view);
     meshShader.setVec3("viewPos", camera.pos);
+	meshShader.setInt("enableDoubleSide", enableDoubleSide);
 
     if (enableLight) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -275,13 +281,17 @@ void render() {
             meshShader.setFloat(idx + ".farPlane", lights[i]->getFarPlane());
             meshShader.setVec3(idx + ".pos", lights[i]->getPosition());
             meshShader.setVec3(idx + ".color", lights[i]->getColor());
+			lights[i]->show();
             lights[i]->render(meshShader);
-        }
-    }
+		}
+		meshShader.setInt("enableLight", 1);
+	} else {
+		meshShader.setInt("enableLight", 0);
+		for (uint32_t i = 0; i < lights.size(); i++)
+			lights[i]->hide();
+	}
 
     // Render scenes
-    glPolygonMode(GL_FRONT_AND_BACK, (polygonModeStr == "LINE" ? GL_LINE : GL_FILL));
-    meshShader.setInt("enableLight", enableLight);
     for (uint32_t i = 0; i < scenes.size(); i++)
         scenes[i]->render(meshShader);
 
@@ -388,7 +398,7 @@ int main(int argc, char **argv) {
     TwBar * configBar = TwNewBar("Configuration");
     TwSetParam(configBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
     TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 300");
-    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 230");
+    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 270");
     TwAddVarRW(configBar, "Background Color", TW_TYPE_COLOR3F, &backgroundColor.x, "");
 	TwAddVarRW(configBar, "Diffuse Map", TW_TYPE_BOOLCPP, &enableDiffuseMap, "");
     TwAddVarRW(configBar, "Specular Map", TW_TYPE_BOOLCPP, &enableSpecularMap, "");
@@ -397,14 +407,16 @@ int main(int argc, char **argv) {
     TwAddVarRW(configBar, "Lighting", TW_TYPE_BOOLCPP, &enableLight, "");
     TwAddVarRW(configBar, "Attenuation", TW_TYPE_BOOLCPP, &enableAttenuation, "");
     TwAddVarRW(configBar, "Shadow", TW_TYPE_BOOLCPP, &enableShadow, "");
+    TwAddVarRW(configBar, "Double Side Rendering", TW_TYPE_BOOLCPP, &enableDoubleSide, "");
     TwAddVarRW(configBar, "Backface Culling", TW_TYPE_BOOLCPP, &enableFaceCulling, "");
     TwAddVarRW(configBar, "Gridlines", TW_TYPE_BOOLCPP, &enableGridlines, "");
-    TwAddVarCB(configBar, "Polygon Mode", TW_TYPE_STDSTRING, setPolygonMode, getPolygonMode, &polygonModeStr, NULL);
+    TwAddVarRW(configBar, "Vertical Sync", TW_TYPE_BOOLCPP, &enableVSync, "");
+    TwAddVarRW(configBar, "WireFrame Mode", TW_TYPE_BOOLCPP, &enableWireFrame, "");
 
     // Show application info
     TwBar * appInfoBar = TwNewBar("Application Info");
     TwSetParam(appInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 540");
+    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 580");
     TwSetParam(appInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
     TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.1'");
     TwAddButton(appInfoBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());

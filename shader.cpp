@@ -70,6 +70,7 @@ uniform int lightNum;
 uniform int selected;
 uniform int enableLight;
 uniform int enableAttenuation;
+uniform int enableDoubleSide;
 uniform vec3 viewPos;
 
 uniform Material material;
@@ -82,7 +83,11 @@ vec4 calcPointLight(int idx, vec3 diff, vec3 spec, vec3 normal) {
 	vec3 lightDir = normalize(lights[idx].pos - fs_in.fragPos);
 	vec3 viewDir = normalize(viewPos - fs_in.fragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);  
-	vec3 res = diff * max(dot(normal, lightDir), 0.0f);
+	vec3 res = vec3(0.0f);
+	if (enableDoubleSide == 1)
+		res += diff * abs(dot(normal, lightDir));
+	else
+		res += diff * max(dot(normal, lightDir), 0.0f);
 	res += spec * pow(max(dot(normal, halfwayDir), 0.0f), material.shininess * 4.0f);
 	if (enableAttenuation == 1) res *= attenuation;
 	return vec4(res * lights[idx].color, 1.0f);
