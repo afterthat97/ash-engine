@@ -1,6 +1,7 @@
 #include "scene.h"
 #include "vertex.h"
 #include "extmath.h"
+#include "textureManager.h"
 
 TextureManager textureManager;
 
@@ -18,10 +19,8 @@ Mesh* Scene::loadMesh(const aiMesh* aiMeshPtr, btDiscreteDynamicsWorld* dynamics
             vertex.normal = vec3(aiMeshPtr->mNormals[i].x, aiMeshPtr->mNormals[i].y, aiMeshPtr->mNormals[i].z);
 
 		// Tangent space
-        if (aiMeshPtr->HasTangentsAndBitangents()) {
+        if (aiMeshPtr->HasTangentsAndBitangents())
             vertex.tangent = vec3(aiMeshPtr->mTangents[i].x, aiMeshPtr->mTangents[i].y, aiMeshPtr->mTangents[i].z);
-            vertex.bitangent = vec3(aiMeshPtr->mBitangents[i].x, aiMeshPtr->mBitangents[i].y, aiMeshPtr->mBitangents[i].z);
-        }
 
 		// UV
         if (aiMeshPtr->HasTextureCoords(0))

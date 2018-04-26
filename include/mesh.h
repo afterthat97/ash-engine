@@ -13,7 +13,7 @@ protected:
     mat4 model;
     void *parent;
     bool visible;
-    int32_t selected;
+    int32_t selected, id;
     vec3 minv, maxv, lenv;
     uint32_t VAO, VBO, EBO;
     vector<Vertex> vertices;
@@ -36,7 +36,8 @@ public:
          vector<uint32_t>& indices,
          shared_ptr<Material> material,
          btDiscreteDynamicsWorld* dynamicsWorld,
-         string name = "Untitled Mesh");
+         string name = "Untitled Mesh",
+		 int32_t newid = -1);
     Mesh(const Mesh &a);
     ~Mesh();
     void show();
@@ -52,6 +53,8 @@ public:
     vec3 getPosition();
     void setParent(void*);
     void* getParent();
+	void setID(int32_t);
+	int32_t getID();
     vec3 getSize();
 };
 

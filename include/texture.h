@@ -11,7 +11,7 @@ private:
     string path;
     uint32_t textureID, width, height;
 	TextureType textureType;
-	void loadFromFile(string filePath);
+	void loadFromFile(string filePath, bool SRGB);
 public:
     Texture(TextureType _textureType);
     ~Texture();
@@ -21,15 +21,6 @@ public:
     void bind(Shader&);
     void dumpinfo(string);
 	friend class TextureManager;
-};
-
-class TextureManager {
-private:
-	vector<shared_ptr<Texture>> loadedTextures;
-public:
-	TextureManager() {}
-	shared_ptr<Texture> loadTexture(string filePath, TextureType textureType);
-	void recycle();
 };
 
 #endif

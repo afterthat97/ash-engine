@@ -66,15 +66,15 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
         indicesScale.push_back(scaleAxisIndices[i] - 1);
 
     // Construct translation axes and rotation axes
-    transX = new Mesh(verticesTransX, indicesTrans, materialX, dynamicsWorld, "ATVIEW_AXIS_transX");
-    transY = new Mesh(verticesTransY, indicesTrans, materialY, dynamicsWorld, "ATVIEW_AXIS_transY");
-    transZ = new Mesh(verticesTransZ, indicesTrans, materialZ, dynamicsWorld, "ATVIEW_AXIS_transZ");
-    rotX = new Mesh(verticesRotX, indicesRot, materialX, dynamicsWorld, "ATVIEW_AXIS_rotX");
-    rotY = new Mesh(verticesRotY, indicesRot, materialY, dynamicsWorld, "ATVIEW_AXIS_rotY");
-    rotZ = new Mesh(verticesRotZ, indicesRot, materialZ, dynamicsWorld, "ATVIEW_AXIS_rotZ");
-    scaleX = new Mesh(verticesScaleX, indicesScale, materialX, dynamicsWorld, "ATVIEW_AXIS_scaleX");
-    scaleY = new Mesh(verticesScaleY, indicesScale, materialY, dynamicsWorld, "ATVIEW_AXIS_scaleY");
-    scaleZ = new Mesh(verticesScaleZ, indicesScale, materialZ, dynamicsWorld, "ATVIEW_AXIS_scaleZ");
+    transX = new Mesh(verticesTransX, indicesTrans, materialX, dynamicsWorld, "MASTER_AXIS_transX");
+    transY = new Mesh(verticesTransY, indicesTrans, materialY, dynamicsWorld, "MASTER_AXIS_transY");
+    transZ = new Mesh(verticesTransZ, indicesTrans, materialZ, dynamicsWorld, "MASTER_AXIS_transZ");
+    rotX = new Mesh(verticesRotX, indicesRot, materialX, dynamicsWorld, "MASTER_AXIS_rotX");
+    rotY = new Mesh(verticesRotY, indicesRot, materialY, dynamicsWorld, "MASTER_AXIS_rotY");
+    rotZ = new Mesh(verticesRotZ, indicesRot, materialZ, dynamicsWorld, "MASTER_AXIS_rotZ");
+    scaleX = new Mesh(verticesScaleX, indicesScale, materialX, dynamicsWorld, "MASTER_AXIS_scaleX");
+    scaleY = new Mesh(verticesScaleY, indicesScale, materialY, dynamicsWorld, "MASTER_AXIS_scaleY");
+    scaleZ = new Mesh(verticesScaleZ, indicesScale, materialZ, dynamicsWorld, "MASTER_AXIS_scaleZ");
 	transX->hide();
 	transY->hide();
 	transZ->hide();
@@ -102,39 +102,39 @@ bool Axis::startDrag(Mesh * selectedMesh, vec4 raySt, vec4 rayEd) {
 	draging = false;
 	if (selectedMesh == NULL) return false;
 	vec3 tmp;
-	if (selectedMesh->name == "ATVIEW_AXIS_transX") {
+	if (selectedMesh->name == "MASTER_AXIS_transX") {
 		getClosestPointOfLineLine(pos, vec3(1, 0, 0), raySt, rayEd - raySt, lastIntersection, tmp);
 		draging = true;
 		transformAxis = vec3(1.0f, 0.0f, 0.0f);
-	} else if (selectedMesh->name == "ATVIEW_AXIS_transY") {
+	} else if (selectedMesh->name == "MASTER_AXIS_transY") {
 		getClosestPointOfLineLine(pos, vec3(0, 1, 0), raySt, rayEd - raySt, lastIntersection, tmp);
 		draging = true;
 		transformAxis = vec3(0.0f, 1.0f, 0.0f);
-	} else if (selectedMesh->name == "ATVIEW_AXIS_transZ") {
+	} else if (selectedMesh->name == "MASTER_AXIS_transZ") {
 		getClosestPointOfLineLine(pos, vec3(0, 0, 1), raySt, rayEd - raySt, lastIntersection, tmp);
 		draging = true;
 		transformAxis = vec3(0.0f, 0.0f, 1.0f);
-	} else if (selectedMesh->name == "ATVIEW_AXIS_rotX") {
+	} else if (selectedMesh->name == "MASTER_AXIS_rotX") {
 		getIntersectionOfLinePlane(raySt, rayEd - raySt, pos, vec3(1, 0, 0), lastIntersection);
 		draging = true;
 		transformAxis = vec3(1.0f, 0.0f, 0.0f);
-	} else if (selectedMesh->name == "ATVIEW_AXIS_rotY") {
+	} else if (selectedMesh->name == "MASTER_AXIS_rotY") {
 		getIntersectionOfLinePlane(raySt, rayEd - raySt, pos, vec3(0, 1, 0), lastIntersection);
 		draging = true;
 		transformAxis = vec3(0.0f, 1.0f, 0.0f);
-	} else if (selectedMesh->name == "ATVIEW_AXIS_rotZ") {
+	} else if (selectedMesh->name == "MASTER_AXIS_rotZ") {
 		getIntersectionOfLinePlane(raySt, rayEd - raySt, pos, vec3(0, 0, 1), lastIntersection);
 		draging = true;
 		transformAxis = vec3(0.0f, 0.0f, 1.0f);
-	} else if (selectedMesh->name == "ATVIEW_AXIS_scaleX") {
+	} else if (selectedMesh->name == "MASTER_AXIS_scaleX") {
 		getClosestPointOfLineLine(pos, vec3(1, 0, 0), raySt, rayEd - raySt, lastIntersection, tmp);
 		draging = true;
 		transformAxis = vec3(1.0f, 0.0f, 0.0f);
-	} else if (selectedMesh->name == "ATVIEW_AXIS_scaleY") {
+	} else if (selectedMesh->name == "MASTER_AXIS_scaleY") {
 		getClosestPointOfLineLine(pos, vec3(0, 1, 0), raySt, rayEd - raySt, lastIntersection, tmp);
 		draging = true;
 		transformAxis = vec3(0.0f, 1.0f, 0.0f);
-	} else if (selectedMesh->name == "ATVIEW_AXIS_scaleZ") {
+	} else if (selectedMesh->name == "MASTER_AXIS_scaleZ") {
 		getClosestPointOfLineLine(pos, vec3(0, 0, 1), raySt, rayEd - raySt, lastIntersection, tmp);
 		draging = true;
 		transformAxis = vec3(0.0f, 0.0f, 1.0f);
@@ -155,9 +155,9 @@ bool Axis::continueDrag(Mesh* selectedMesh, vec4 raySt, vec4 rayEd) {
         float theta = acos(fmin(fmax(dot(v1, v2) / length(v1) / length(v2), -1.0f), 1.0f));
         if (dot(transformAxis, cross(v1, v2)) < 0) theta = -theta;
         selectedMesh->addRotation(theta * transformAxis);
-		//scaleX->addRotation(theta * transformAxis);
-		//scaleY->addRotation(theta * transformAxis);
-		//scaleZ->addRotation(theta * transformAxis);
+		scaleX->addRotation(theta * transformAxis);
+		scaleY->addRotation(theta * transformAxis);
+		scaleZ->addRotation(theta * transformAxis);
 	} else {
         getClosestPointOfLineLine(pos, transformAxis, raySt, rayEd - raySt, p, tmp);
         vec3 scaleVector = ((p - pos) / (lastIntersection - pos));

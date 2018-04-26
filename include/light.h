@@ -14,11 +14,12 @@ private:
     void initDepthMap();
     void deleteDepthMap();
 public:
-    Light(vec3 color, btDiscreteDynamicsWorld *_dynamicsWorld);
+    Light(vec3 color, uint16_t _shadowResolution, btDiscreteDynamicsWorld *_dynamicsWorld);
     Light(const Light&);
     ~Light();
     void renderDepthMap(vector<Scene*> scenes, Shader& depthShader);
     void setColor(vec3 _color);
+	void setShadowResolution(uint16_t);
     vec3 getColor();
     uint32_t getDepthMap();
     float getFarPlane();

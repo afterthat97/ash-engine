@@ -13,7 +13,7 @@ Texture::~Texture() {
 	}
 }
 
-void Texture::loadFromFile(string filePath) {
+void Texture::loadFromFile(string filePath, bool SRGB) {
     FreeImage_Initialise(0);
     path = filePath;
 
@@ -45,7 +45,7 @@ void Texture::loadFromFile(string filePath) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Create texture and generate mipmaps
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, textureArr);
+    glTexImage2D(GL_TEXTURE_2D, 0, SRGB ? GL_SRGB : GL_RGB, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, textureArr);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     // Clean
@@ -111,21 +111,3 @@ void Texture::dumpinfo(string tab) {
     printf("%s  Resolution: %u * %u\n", tab.c_str(), width, height);
 }
 
-shared_ptr<Texture> TextureManager::loadTexture(string filePath, TextureType textureType) {
-	for (uint32_t i = 0; i < loadedTextures.size(); i++)
-		if (loadedTextures[i]->getPath() == filePath) {
-			reportInfo("Texture " + loadedTextures[i]->getPath() + "has been re-used.");
-			return loadedTextures[i];
-		}
-	shared_ptr<Texture> newTexture(new Texture(textureType));
-	newTexture->loadFromFile(filePath);
-	loadedTextures.push_back(newTexture);
-	return newTexture;
-}
-
-void TextureManager::recycle() {
-	for (uint32_t i = 0; i < loadedTextures.size(); i++)
-		if (loadedTextures[i].use_count() == 1) {
-			loadedTextures.erase(loadedTextures.begin() + i); --i;
-		}
-}

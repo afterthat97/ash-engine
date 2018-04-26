@@ -1,10 +1,11 @@
 #include "light.h"
 #include "basicShapes.h"
+#include "glconfig.h"
 
-Light::Light(vec3 _color, btDiscreteDynamicsWorld *_dynamicsWorld) : Mesh() {
+Light::Light(vec3 _color, uint16_t _shadowResolution, btDiscreteDynamicsWorld *_dynamicsWorld) : Mesh() {
     color = _color;
     dynamicsWorld = _dynamicsWorld;
-    name = "ATVIEW_LIGHT";
+    name = "MASTER_LIGHT";
     for (uint32_t i = 0; i < cube_vertices.size() / 3; i++) {
         vec3 pos(cube_vertices[i * 3 + 0], cube_vertices[i * 3 + 1], cube_vertices[i * 3 + 2]);
         Vertex vertex;
@@ -23,7 +24,7 @@ Light::Light(vec3 _color, btDiscreteDynamicsWorld *_dynamicsWorld) : Mesh() {
     addToBulletDynamicsWorld();
 
     nearPlane = 1.0f; farPlane = 10000.0f;
-    shadowResolution = 1024;
+    shadowResolution = _shadowResolution;
     depthCubeMap = depthMapFBO = 0;
 }
 
@@ -66,7 +67,9 @@ void Light::initDepthMap() {
 
 void Light::deleteDepthMap() {
     if (depthCubeMap) glDeleteTextures(1, &depthCubeMap);
+	depthCubeMap = 0;
     if (depthMapFBO) glDeleteFramebuffers(1, &depthMapFBO);
+	depthMapFBO = 0;
 }
 
 void Light::renderDepthMap(vector<Scene*> scenes, Shader& depthShader) {
@@ -94,6 +97,11 @@ void Light::renderDepthMap(vector<Scene*> scenes, Shader& depthShader) {
 void Light::setColor(vec3 _color) {
     color = _color;
     material->diffuse = color;
+}
+
+void Light::setShadowResolution(uint16_t newResolution) {
+	shadowResolution = newResolution;
+	deleteDepthMap();
 }
 
 vec3 Light::getColor() {

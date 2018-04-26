@@ -25,7 +25,8 @@ Mesh::Mesh(vector<Vertex>& _vertices,
            vector<uint32_t>& _indices,
            shared_ptr<Material> _material,
            btDiscreteDynamicsWorld *_dynamicsWorld,
-           string _name) {
+           string _name,
+		   int32_t newid) {
     name = _name;
     vertices = _vertices;
     indices = _indices;
@@ -51,7 +52,7 @@ Mesh::Mesh(vector<Vertex>& _vertices,
     }
     lenv = maxv - minv;
 
-    if (name.substr(0, 11) != "ATVIEW_AXIS") {
+    if (name.substr(0, 11) != "MASTER_AXIS") {
         pos = minv;
         for (uint32_t i = 0; i < vertices.size(); i++)
             vertices[i].position -= minv;
@@ -202,10 +203,6 @@ void Mesh::initBufferObject() {
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, tangent));
 
-    // Bitangent
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, bitangent));
-
     glBindVertexArray(0);
 }
 
@@ -220,8 +217,10 @@ void Mesh::applyToBulletRigidBody() {
     meshMotionState->setWorldTransform(meshTransform);
 	meshShape->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
     meshRigidBody->setWorldTransform(meshTransform);
-    removeFromBulletDynamicsWorld();
-    addToBulletDynamicsWorld();
+    if (visible) {
+		removeFromBulletDynamicsWorld();
+		addToBulletDynamicsWorld();
+	}
 }
 
 void Mesh::addToBulletDynamicsWorld() {

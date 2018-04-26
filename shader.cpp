@@ -6,7 +6,6 @@ layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
 layout (location = 2) in vec2 texCoords;
 layout (location = 3) in vec3 tangent;
-layout (location = 4) in vec3 bitangent;
 
 out VS_OUT {
 	vec3 fragPos;
@@ -69,6 +68,8 @@ struct Light {
 uniform int lightNum;
 uniform int selected;
 uniform int enableLight;
+uniform float bias;
+uniform float radius;
 uniform int enableAttenuation;
 uniform int enableDoubleSide;
 uniform vec3 viewPos;
@@ -130,8 +131,6 @@ float calcPointLightShadow(int idx, vec3 normal) {
 	vec3 lightDir = normalize(lights[idx].pos - fs_in.fragPos);
 	float currentDepth = length(fragToLight);
 	float shadow = 0.0f;
-	float bias = max(5.0f * (1.0f - dot(normal, lightDir)), 0.5f);
-	float radius = 0.5f;
 	for (int i = 0; i < 20; ++i) {
 		vec3 dir = fragToLight + sampleOffsetDirections[i] * radius;
 		float closestDepth = lights[idx].farPlane;

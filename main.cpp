@@ -53,6 +53,18 @@ vec3 backgroundColor(0.7f);
 uint32_t windowWidth, windowHeight, frameWidth, frameHeight;
 bool retina = 0;
 
+void TW_CALL setShadowResolution(const void *value, void *client) {
+	uint16_t *src = (uint16_t*) value, *des = (uint16_t*) client;
+	*des = min(*src, (uint16_t) 6144);
+	for (uint32_t i = 0; i < lights.size(); i++)
+		lights[i]->setShadowResolution(*des);
+}
+
+void TW_CALL getShadowResolution(void *value, void *client) {
+	uint16_t *des = (uint16_t*) value, *src = (uint16_t*) client;
+	*des = *src;
+}
+
 // Callback when user stretch the window
 void windowSizeCallback(GLFWwindow*, int32_t width, int32_t height) {
     window.resize(width, height);
@@ -89,7 +101,7 @@ void mouseButtonCallback(GLFWwindow*, int button, int action, int mods) {
 
         float mindis = FLT_MAX;
         for (int32_t i = 0; i < allHits.m_collisionObjects.size(); i++)
-            if (((Mesh*) allHits.m_collisionObjects[i]->getUserPointer())->name.substr(0, 11) != "ATVIEW_AXIS") {
+            if (((Mesh*) allHits.m_collisionObjects[i]->getUserPointer())->name.substr(0, 11) != "MASTER_AXIS") {
                 if (distance(camera.pos, toVec3(allHits.m_hitPointWorld[i])) > mindis) continue;
                 if (selectedMesh != NULL) selectedMesh->deselect();
                 mindis = distance(camera.pos, toVec3(allHits.m_hitPointWorld[i]));
@@ -156,7 +168,7 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
             break;
         case GLFW_KEY_V:
             if (mods == GLFW_MOD_CONTROL && copyedMesh != NULL) {
-                if (copyedMesh->name == "ATVIEW_LIGHT") {
+                if (copyedMesh->name == "MASTER_LIGHT") {
                     if (lights.size() >= MAX_LIGHTS) {
                         reportWarning("You have reached the maximum number of lights, new lights will not be created.");
                         return;
@@ -185,7 +197,7 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
             }
             break;
         case GLFW_KEY_BACKSPACE:
-            if (selectedMesh != NULL && selectedMesh->name == "ATVIEW_LIGHT") {
+            if (selectedMesh != NULL && selectedMesh->name == "MASTER_LIGHT") {
                 for (uint32_t i = 0; i < lights.size(); i++)
                     if (lights[i] == selectedMesh) {
                         lights.erase(lights.begin() + i);
@@ -265,6 +277,8 @@ void render() {
     meshShader.setMat4("view", view);
     meshShader.setVec3("viewPos", camera.pos);
 	meshShader.setInt("enableDoubleSide", enableDoubleSide);
+	meshShader.setFloat("bias", bias);
+	meshShader.setFloat("radius", radius);
 
     if (enableLight && !enableWireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -291,8 +305,10 @@ void render() {
 	}
 
     // Render scenes
+	if (enableGammaCorrection) glEnable(GL_FRAMEBUFFER_SRGB);
     for (uint32_t i = 0; i < scenes.size(); i++)
         scenes[i]->render(meshShader);
+	glDisable(GL_FRAMEBUFFER_SRGB);
 
     // Render axis and gridlines
     glDisable(GL_CULL_FACE);
@@ -348,7 +364,7 @@ int main(int argc, char **argv) {
 
     localAxis = new Axis(dynamicsWorld);
     gridlines = new Gridlines();
-    lights.push_back(new Light(vec3(1.0), dynamicsWorld));
+    lights.push_back(new Light(vec3(1.0), shadowResolution, dynamicsWorld));
     lights[0]->setPosition(vec3(100.0));
     localAxis->hide();
 	
@@ -375,7 +391,7 @@ int main(int argc, char **argv) {
     TwBar * windowInfoBar = TwNewBar("Window Info");
     TwSetParam(windowInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.5");
     TwSetParam(windowInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 10");
-    TwSetParam(windowInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 150");
+    TwSetParam(windowInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 145");
     TwAddVarRO(windowInfoBar, "FPS", TW_TYPE_FLOAT, &fps, "step=0.1");
     TwAddVarRO(windowInfoBar, "Window Width", TW_TYPE_UINT32, &windowWidth, "");
     TwAddVarRO(windowInfoBar, "Window Height", TW_TYPE_UINT32, &windowHeight, "");
@@ -386,39 +402,55 @@ int main(int argc, char **argv) {
     // Show FPS and camara info
     TwBar * viewerInfoBar = TwNewBar("Viewer Info");
     TwSetParam(viewerInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(viewerInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 170");
-    TwSetParam(viewerInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
+    TwSetParam(viewerInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 165");
+    TwSetParam(viewerInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 115");
     TwAddVarRW(viewerInfoBar, "Moving Speed", TW_TYPE_FLOAT, &moveSpeed, "step=0.01");
     TwAddVarRW(viewerInfoBar, "Camera Position X", TW_TYPE_FLOAT, &camera.pos.x, "step=0.1");
     TwAddVarRW(viewerInfoBar, "Camera Position Y", TW_TYPE_FLOAT, &camera.pos.y, "step=0.1");
     TwAddVarRW(viewerInfoBar, "Camera Position Z", TW_TYPE_FLOAT, &camera.pos.z, "step=0.1");
 
+	// Show texture map config
+    TwBar * textureBar = TwNewBar("Texture");
+    TwSetParam(textureBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
+    TwSetParam(textureBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 290");
+    TwSetParam(textureBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 115");
+	TwAddVarRW(textureBar, "Diffuse Map", TW_TYPE_BOOLCPP, &enableDiffuseMap, "");
+    TwAddVarRW(textureBar, "Specular Map", TW_TYPE_BOOLCPP, &enableSpecularMap, "");
+    TwAddVarRW(textureBar, "Normal Map", TW_TYPE_BOOLCPP, &enableNormalMap, "");
+    TwAddVarRW(textureBar, "Parallax Map", TW_TYPE_BOOLCPP, &enableParallaxMap, "");
+
+    // Show shadow config
+	TwBar * shadowBar = TwNewBar("Shadow");
+    TwSetParam(shadowBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
+    TwSetParam(shadowBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 415");
+    TwSetParam(shadowBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 115");
+    TwAddVarRW(shadowBar, "Enable Shadow", TW_TYPE_BOOLCPP, &enableShadow, "");
+    TwAddVarCB(shadowBar, "Resolution", TW_TYPE_UINT16, setShadowResolution, getShadowResolution, &shadowResolution, NULL);
+    TwAddVarRW(shadowBar, "Bias", TW_TYPE_FLOAT, &bias, "step=0.001");
+    TwAddVarRW(shadowBar, "Radius", TW_TYPE_FLOAT, &radius, "step=0.001");
+
     // Show OpenGL config
     TwBar * configBar = TwNewBar("Configuration");
     TwSetParam(configBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 300");
-    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 290");
+    TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 540");
+    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 215");
     TwAddVarRW(configBar, "Background Color", TW_TYPE_COLOR3F, &backgroundColor.x, "");
-	TwAddVarRW(configBar, "Diffuse Map", TW_TYPE_BOOLCPP, &enableDiffuseMap, "");
-    TwAddVarRW(configBar, "Specular Map", TW_TYPE_BOOLCPP, &enableSpecularMap, "");
-    TwAddVarRW(configBar, "Normal Map", TW_TYPE_BOOLCPP, &enableNormalMap, "");
-    TwAddVarRW(configBar, "Parallax Map", TW_TYPE_BOOLCPP, &enableParallaxMap, "");
     TwAddVarRW(configBar, "Lighting", TW_TYPE_BOOLCPP, &enableLight, "");
     TwAddVarRW(configBar, "Attenuation", TW_TYPE_BOOLCPP, &enableAttenuation, "");
-    TwAddVarRW(configBar, "Shadow", TW_TYPE_BOOLCPP, &enableShadow, "");
-    TwAddVarRW(configBar, "Double Side Rendering", TW_TYPE_BOOLCPP, &enableDoubleSide, "");
+	TwAddVarRW(configBar, "Double Side Rendering", TW_TYPE_BOOLCPP, &enableDoubleSide, "");
     TwAddVarRW(configBar, "Backface Culling", TW_TYPE_BOOLCPP, &enableFaceCulling, "");
     TwAddVarRW(configBar, "Gridlines", TW_TYPE_BOOLCPP, &enableGridlines, "");
     TwAddVarRW(configBar, "Vertical Sync", TW_TYPE_BOOLCPP, &enableVSync, "");
     TwAddVarRW(configBar, "MSAA 4X", TW_TYPE_BOOLCPP, &enableMSAA4X, "");
+    TwAddVarRW(configBar, "Gamma Correction", TW_TYPE_BOOLCPP, &enableGammaCorrection, "");
     TwAddVarRW(configBar, "WireFrame Mode", TW_TYPE_BOOLCPP, &enableWireFrame, "");
 
     // Show application info
     TwBar * appInfoBar = TwNewBar("Application Info");
     TwSetParam(appInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 600");
+    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 765");
     TwSetParam(appInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
-    TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.1'");
+    TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.2'");
     TwAddButton(appInfoBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());
     TwAddButton(appInfoBar, "1.2", NULL, NULL, ("label='" + glVersionInfo + "'").c_str());
     TwAddButton(appInfoBar, "1.3", NULL, NULL, ("label='" + glShadingLanguageVersionInfo + "'").c_str());
