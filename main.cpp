@@ -276,15 +276,18 @@ void render() {
     meshShader.setMat4("projection", projection);
     meshShader.setMat4("view", view);
     meshShader.setVec3("viewPos", camera.pos);
-	meshShader.setInt("enableDoubleSide", enableDoubleSide);
+	meshShader.setInt("enableDoubleSideLighting", enableDoubleSideLighting);
 	meshShader.setFloat("bias", bias);
 	meshShader.setFloat("radius", radius);
 
-    if (enableLight && !enableWireFrame) {
+    if (enableLighting && !enableWireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         meshShader.setInt("lightNum", (int32_t) lights.size());
-        meshShader.setInt("enableLight", 0);
+        meshShader.setInt("enableLighting", 0);
 		meshShader.setInt("enableAttenuation", enableAttenuation);
+		meshShader.setFloat("attenuation_quadratic", attenuation_quadratic);
+		meshShader.setFloat("attenuation_linear", attenuation_linear);
+		meshShader.setFloat("attenuation_constant", attenuation_constant);
         for (uint32_t i = 0; i < lights.size(); i++) {
             string idx = "lights[" + to_string(i) + "]";
             glActiveTexture(GL_TEXTURE8 + i);
@@ -297,9 +300,9 @@ void render() {
 			lights[i]->show();
             lights[i]->render(meshShader);
 		}
-		meshShader.setInt("enableLight", 1);
+		meshShader.setInt("enableLighting", 1);
 	} else {
-		meshShader.setInt("enableLight", 0);
+		meshShader.setInt("enableLighting", 0);
 		for (uint32_t i = 0; i < lights.size(); i++)
 			lights[i]->hide();
 	}
@@ -313,7 +316,7 @@ void render() {
     // Render axis and gridlines
     glDisable(GL_CULL_FACE);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    meshShader.setInt("enableLight", 0);
+    meshShader.setInt("enableLighting", 0);
     if (enableGridlines) gridlines->render(meshShader);
     localAxis->render(meshShader, camera.pos);
 
@@ -419,10 +422,22 @@ int main(int argc, char **argv) {
     TwAddVarRW(textureBar, "Normal Map", TW_TYPE_BOOLCPP, &enableNormalMap, "");
     TwAddVarRW(textureBar, "Parallax Map", TW_TYPE_BOOLCPP, &enableParallaxMap, "");
 
+    // Show lighting config
+	TwBar * lightingBar = TwNewBar("Lighting");
+    TwSetParam(lightingBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
+    TwSetParam(lightingBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 415");
+    TwSetParam(lightingBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 155");
+    TwAddVarRW(lightingBar, "Enable Lighting", TW_TYPE_BOOLCPP, &enableLighting, "");
+    TwAddVarRW(lightingBar, "Double Side Lighting", TW_TYPE_BOOLCPP, &enableDoubleSideLighting, "");
+    TwAddVarRW(lightingBar, "Enable Attenuation", TW_TYPE_BOOLCPP, &enableAttenuation, "");
+	TwAddVarRW(lightingBar, "Attenuation Quadratic", TW_TYPE_FLOAT, &attenuation_quadratic, "step=0.000001");
+	TwAddVarRW(lightingBar, "Attenuation Linear", TW_TYPE_FLOAT, &attenuation_linear, "step=0.000001");
+    TwAddVarRW(lightingBar, "Attenuation Constant", TW_TYPE_FLOAT, &attenuation_constant, "step=0.000001");
+
     // Show shadow config
 	TwBar * shadowBar = TwNewBar("Shadow");
     TwSetParam(shadowBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(shadowBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 415");
+    TwSetParam(shadowBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 580");
     TwSetParam(shadowBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 115");
     TwAddVarRW(shadowBar, "Enable Shadow", TW_TYPE_BOOLCPP, &enableShadow, "");
     TwAddVarCB(shadowBar, "Resolution", TW_TYPE_UINT16, setShadowResolution, getShadowResolution, &shadowResolution, NULL);
@@ -432,12 +447,9 @@ int main(int argc, char **argv) {
     // Show OpenGL config
     TwBar * configBar = TwNewBar("Configuration");
     TwSetParam(configBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 540");
-    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 215");
+    TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 705");
+    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 165");
     TwAddVarRW(configBar, "Background Color", TW_TYPE_COLOR3F, &backgroundColor.x, "");
-    TwAddVarRW(configBar, "Lighting", TW_TYPE_BOOLCPP, &enableLight, "");
-    TwAddVarRW(configBar, "Attenuation", TW_TYPE_BOOLCPP, &enableAttenuation, "");
-	TwAddVarRW(configBar, "Double Side Rendering", TW_TYPE_BOOLCPP, &enableDoubleSide, "");
     TwAddVarRW(configBar, "Backface Culling", TW_TYPE_BOOLCPP, &enableFaceCulling, "");
     TwAddVarRW(configBar, "Gridlines", TW_TYPE_BOOLCPP, &enableGridlines, "");
     TwAddVarRW(configBar, "Vertical Sync", TW_TYPE_BOOLCPP, &enableVSync, "");
@@ -448,7 +460,7 @@ int main(int argc, char **argv) {
     // Show application info
     TwBar * appInfoBar = TwNewBar("Application Info");
     TwSetParam(appInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 765");
+    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 880");
     TwSetParam(appInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
     TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.2'");
     TwAddButton(appInfoBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());

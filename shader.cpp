@@ -65,13 +65,17 @@ struct Light {
 	float farPlane;
 };
 
+uniform int enableLighting;
+uniform int enableDoubleSideLighting;
+uniform int enableAttenuation;
+uniform float attenuation_quadratic;
+uniform float attenuation_linear;
+uniform float attenuation_constant;
+
 uniform int lightNum;
 uniform int selected;
-uniform int enableLight;
 uniform float bias;
 uniform float radius;
-uniform int enableAttenuation;
-uniform int enableDoubleSide;
 uniform vec3 viewPos;
 
 uniform Material material;
@@ -80,12 +84,12 @@ uniform samplerCube depthMap[8];
 
 vec4 calcPointLight(int idx, vec3 diff, vec3 spec, vec3 normal) {
 	float distance = length(lights[idx].pos - fs_in.fragPos);
-	float attenuation = 1.0f / (1.0f + 0.0014f * distance + 0.000007f * (distance * distance));
+	float attenuation = 1.0f / (attenuation_constant + attenuation_linear * distance + attenuation_quadratic * (distance * distance));
 	vec3 lightDir = normalize(lights[idx].pos - fs_in.fragPos);
 	vec3 viewDir = normalize(viewPos - fs_in.fragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);  
 	vec3 res = vec3(0.0f);
-	if (enableDoubleSide == 1)
+	if (enableDoubleSideLighting == 1)
 		res += diff * abs(dot(normal, lightDir));
 	else
 		res += diff * max(dot(normal, lightDir), 0.0f);
@@ -157,7 +161,7 @@ void main() {
 	vec3 normal		   = (material.hasNormalMap   ? texture(material.normalMap, dispTexCoords).rgb * 2.0f - 1.0f : vec3(0.0f, 0.0f, 1.0f));
 	normal = fs_in.TBN * normalize(normal);
 
-	if (enableLight == 0) {
+	if (enableLighting == 0) {
 		fragColor = vec4(diffuseColor, 1.0f);
 	} else {
 		fragColor = vec4(diffuseColor * material.ambientRGB, 1.0f);
