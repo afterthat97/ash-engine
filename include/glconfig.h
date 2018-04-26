@@ -15,6 +15,7 @@ extern bool enableDoubleSide;
 extern bool enableFaceCulling;
 extern bool enableGridlines;
 extern bool enableVSync;
+extern bool enableMSAA4X;
 extern bool enableWireFrame;
 
 #endif

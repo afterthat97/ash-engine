@@ -250,10 +250,9 @@ void render() {
 
     // OpenGL configurations
     if (enableFaceCulling) glEnable(GL_CULL_FACE);
-	if (enableWireFrame) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		enableLight = false;
-	}
+	if (enableWireFrame) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (enableMSAA4X) glEnable(GL_MULTISAMPLE);
+	else glDisable(GL_MULTISAMPLE);
 	glfwSwapInterval(enableVSync);
 
     // Get projection and view matrix
@@ -267,7 +266,7 @@ void render() {
     meshShader.setVec3("viewPos", camera.pos);
 	meshShader.setInt("enableDoubleSide", enableDoubleSide);
 
-    if (enableLight) {
+    if (enableLight && !enableWireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         meshShader.setInt("lightNum", (int32_t) lights.size());
         meshShader.setInt("enableLight", 0);
@@ -398,7 +397,7 @@ int main(int argc, char **argv) {
     TwBar * configBar = TwNewBar("Configuration");
     TwSetParam(configBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
     TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 300");
-    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 270");
+    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 290");
     TwAddVarRW(configBar, "Background Color", TW_TYPE_COLOR3F, &backgroundColor.x, "");
 	TwAddVarRW(configBar, "Diffuse Map", TW_TYPE_BOOLCPP, &enableDiffuseMap, "");
     TwAddVarRW(configBar, "Specular Map", TW_TYPE_BOOLCPP, &enableSpecularMap, "");
@@ -411,12 +410,13 @@ int main(int argc, char **argv) {
     TwAddVarRW(configBar, "Backface Culling", TW_TYPE_BOOLCPP, &enableFaceCulling, "");
     TwAddVarRW(configBar, "Gridlines", TW_TYPE_BOOLCPP, &enableGridlines, "");
     TwAddVarRW(configBar, "Vertical Sync", TW_TYPE_BOOLCPP, &enableVSync, "");
+    TwAddVarRW(configBar, "MSAA 4X", TW_TYPE_BOOLCPP, &enableMSAA4X, "");
     TwAddVarRW(configBar, "WireFrame Mode", TW_TYPE_BOOLCPP, &enableWireFrame, "");
 
     // Show application info
     TwBar * appInfoBar = TwNewBar("Application Info");
     TwSetParam(appInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 580");
+    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 600");
     TwSetParam(appInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
     TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.1'");
     TwAddButton(appInfoBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());

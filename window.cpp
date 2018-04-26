@@ -10,7 +10,8 @@ Window::Window(int32_t sizeX, int32_t sizeY, const char* title) {
     }
 
     // OpenGL 3.3 Core Profile
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 #ifdef APPLE_MACOS
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
