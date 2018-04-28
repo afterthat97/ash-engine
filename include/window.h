@@ -12,6 +12,9 @@ private:
     GLFWwindow* window;
 public:
     Window() {};
+	~Window() {
+		glfwDestroyWindow(window);
+	}
     Window(int32_t sizeX, int32_t sizeY, const char* title);
     void resize(int32_t sizeX, int32_t sizeY);
     mat4 getProjMatrix();

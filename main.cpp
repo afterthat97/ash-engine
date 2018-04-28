@@ -570,7 +570,7 @@ int main(int argc, char **argv) {
         processInput();
     
 		// Render all depthmaps first in each frame
-		if (enableShadow)
+		if (enableLighting && enableShadow && !enableWireFrame)
             for (uint32_t i = 0; i < lights.size(); i++)
                 lights[i]->renderDepthMap(scenes, depthShader);
         
