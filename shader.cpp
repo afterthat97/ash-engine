@@ -134,7 +134,7 @@ float calcPointLightShadow(int idx, vec3 normal) {
 	vec3 fragToLight = fs_in.fragPos - lights[idx].pos;
 	vec3 lightDir = normalize(lights[idx].pos - fs_in.fragPos);
 	float currentDepth = length(fragToLight);
-	float shadow = 0.0f;
+	float shadow = 0.0f, dynamicBias = max(bias * (1.0f - dot(normal, lightDir)), 0.5f);
 	for (int i = 0; i < 20; ++i) {
 		vec3 dir = fragToLight + sampleOffsetDirections[i] * radius;
 		float closestDepth = lights[idx].farPlane;
@@ -148,7 +148,7 @@ float calcPointLightShadow(int idx, vec3 normal) {
 			case 6: closestDepth *= texture(depthMap[6], dir).r; break;
 			case 7: closestDepth *= texture(depthMap[7], dir).r; break;
 		}
-		if (currentDepth - bias > closestDepth) shadow += 1.0f;
+		if (currentDepth - dynamicBias > closestDepth) shadow += 1.0f;
 	}
 	return shadow / 20.0f;
 }
