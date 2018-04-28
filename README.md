@@ -13,7 +13,7 @@ A cross-platform 3D Engine for learning purpose, based on OpenGL, Bullet, Assimp
 
 * Supports reading 40+ 3D file formats, including FBX, DXF, Collada, Obj, X, PLY, 3DS.
 * Supports diffuse map, specular map, normal map and parallax map, along with popular texture formats like PNG, BMP, JPEG, TGA.
-* Supports up to 8 point lights with real-time shadow (depth map, 1024 * 1024 with PCF)
+* Supports up to 8 point lights with real-time shadow (depth map)
 * Supports translation, rotation and scaling.
 * Import your model easily: just drag and drop them onto the window.
 
