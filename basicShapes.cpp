@@ -1,5 +1,8 @@
 #include "basicShapes.h"
 
+// This file includes some basic mesh shapes used in the program, such
+// as the axes.
+
 const vector<float> cube_vertices {
     0.0, 0.0, 0.0,
     0.0, 0.0, 1.0,

@@ -1,5 +1,6 @@
 #include "extmath.h"
 
+// Some helper functions for glm
 vec3 operator * (const vec3& v1, float f) {
     return vec3(v1[0] * f, v1[1] * f, v1[2] * f);
 }
@@ -16,6 +17,7 @@ vec4 operator / (const vec4& v1, float f) {
     return vec4(v1[0] / f, v1[1] / f, v1[2] / f, v1[3] / f);
 }
 
+// Functions for debug
 void dumpVec2(vec2 v) {
     for (uint32_t i = 0; i < 2; i++)
         printf("%12.4f", v[i]);
@@ -61,6 +63,7 @@ void dumpMat4(mat4 m) {
     putchar('\n');
 }
 
+// Return the rotation matrix around `axis`
 mat3 rotate(vec3 axis, float angle) {
     axis = glm::normalize(axis);
     float cosa = cos(angle), sina = sin(angle);
@@ -78,6 +81,9 @@ mat3 rotate(vec3 axis, float angle) {
     return ans;
 }
 
+// Get two closest points(p1, p2) of two lines:
+// L1 = st1 + dir1 * t1
+// L2 = st2 + dir2 * t2
 void getClosestPointOfLineLine(vec3 st1, vec3 dir1, vec3 st2, vec3 dir2, vec3& p1, vec3& p2) {
     vec3 n = cross(normalize(dir1), normalize(dir2));
     n = dot(st2 - st1, n) * n;
@@ -85,11 +91,15 @@ void getClosestPointOfLineLine(vec3 st1, vec3 dir1, vec3 st2, vec3 dir2, vec3& p
     p2 = p1 + n;
 }
 
+// Get intersection of a line and a plane:
+// L = st + dir * t;
+// `p` is a point on the plane and `n` is the normal vector
 void getIntersectionOfLinePlane(vec3 st, vec3 dir, vec3 p, vec3 n, vec3& intersection) {
     float t = dot(n, p - st) / dot(n, dir);
     intersection = st + dir * t;
 }
 
+// Screen space to world space
 void screenPosToWorldRay(vec2 cursorPos, vec2 windowSize, mat4 proj, mat4 view, vec4& st, vec4& ed) {
     cursorPos.y = windowSize.y - cursorPos.y;
     mat4 inv = inverse(proj * view);

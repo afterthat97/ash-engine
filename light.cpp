@@ -6,20 +6,29 @@ Light::Light(vec3 _color, uint16_t _shadowResolution, btDiscreteDynamicsWorld *_
     color = _color;
     dynamicsWorld = _dynamicsWorld;
     name = "MASTER_LIGHT";
+
+	// Vertices and indices
     for (uint32_t i = 0; i < cube_vertices.size() / 3; i++) {
         vec3 pos(cube_vertices[i * 3 + 0], cube_vertices[i * 3 + 1], cube_vertices[i * 3 + 2]);
         Vertex vertex;
         vertex.position = pos * vec3(10.0);
         vertices.push_back(vertex);
     }
-    minv = vec3(0.0); maxv = vec3(10.0); lenv = vec3(10.0);
     for (uint32_t i = 0; i < cube_indices.size(); i++)
         indices.push_back(cube_indices[i] - 1);
 
-    shared_ptr<Material> newMaterial(new Material());
+	// Boundry
+    minv = vec3(0.0); maxv = vec3(10.0); lenv = vec3(10.0);
+    
+	// Assign material (only pure color)
+	shared_ptr<Material> newMaterial(new Material());
     newMaterial->diffuse = color;
     material = newMaterial;
-    initBufferObject();
+
+	// Initialize OpenGL buffer object
+	initBufferObject();
+
+	// Initialize Bullet rigid body
     initRigidBody();
     addToBulletDynamicsWorld();
 
@@ -74,10 +83,17 @@ void Light::deleteDepthMap() {
 
 void Light::renderDepthMap(vector<Scene*> scenes, Shader& depthShader) {
     if (depthMapFBO == 0 || depthCubeMap == 0) initDepthMap();
+
+	// Set viewport resolution
     glViewport(0, 0, shadowResolution, shadowResolution);
+
+	// Bind frame buffer
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+
+	// Clear depth buffer
     glClear(GL_DEPTH_BUFFER_BIT);
 
+	// Set 6 shadow matrices, render to a cubemap
     depthShader.use();
     mat4 proj = glm::perspective(glm::radians(90.0f), 1.0f, nearPlane, farPlane);
     depthShader.setMat4("shadowMatrices[0]", proj * glm::lookAt(pos, pos + vec3(1, 0, 0), vec3(0, -1, 0)));
@@ -89,6 +105,7 @@ void Light::renderDepthMap(vector<Scene*> scenes, Shader& depthShader) {
     depthShader.setFloat("farPlane", farPlane);
     depthShader.setVec3("lightPos", pos);
 
+	// Render the scene using the depth shader
     for (uint32_t i = 0; i < scenes.size(); i++)
         scenes[i]->render(depthShader);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

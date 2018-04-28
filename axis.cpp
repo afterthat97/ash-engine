@@ -6,19 +6,20 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
     pos = vec3(0.0);
 	draging = false;
 	visible = false;
+
+	// Default transform mode is `translation`
 	transformMode = TRANSLATION;
 
+	// Vertices and indices
     vector<Vertex> verticesTransX, verticesTransY, verticesTransZ;
     vector<Vertex> verticesRotX, verticesRotY, verticesRotZ;
 	vector<Vertex> verticesScaleX, verticesScaleY, verticesScaleZ;
-
     vector<uint32_t> indicesTrans, indicesRot, indicesScale;
 
-    // Materials for axis X, Y, and Z
+    // Materials (only pure color)
     shared_ptr<Material> materialX(new Material());
     shared_ptr<Material> materialY(new Material());
     shared_ptr<Material> materialZ(new Material());
-
     materialX->diffuse = vec4(0.9, 0.2, 0.2, 1.0);
     materialY->diffuse = vec4(0.2, 0.9, 0.2, 1.0);
     materialZ->diffuse = vec4(0.2, 0.2, 0.9, 1.0);
@@ -51,7 +52,7 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
     for (uint32_t i = 0; i < rotAxisIndices.size(); i++)
         indicesRot.push_back(rotAxisIndices[i] - 1);
 
-    // Generate vertex and index array for scale axes
+    // Generate vertex and index array for scaling axes
     for (uint32_t i = 0; i < scaleAxisVertices.size() / 3; i++) {
         vec4 pos(scaleAxisVertices[i * 3 + 0], scaleAxisVertices[i * 3 + 1], scaleAxisVertices[i * 3 + 2], 1.0);
         Vertex vertex;
@@ -65,7 +66,7 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
     for (uint32_t i = 0; i < scaleAxisIndices.size(); i++)
         indicesScale.push_back(scaleAxisIndices[i] - 1);
 
-    // Construct translation axes and rotation axes
+    // Construct 9 axes
     transX = new Mesh(verticesTransX, indicesTrans, materialX, dynamicsWorld, "MASTER_AXIS_transX");
     transY = new Mesh(verticesTransY, indicesTrans, materialY, dynamicsWorld, "MASTER_AXIS_transY");
     transZ = new Mesh(verticesTransZ, indicesTrans, materialZ, dynamicsWorld, "MASTER_AXIS_transZ");
@@ -75,6 +76,8 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
     scaleX = new Mesh(verticesScaleX, indicesScale, materialX, dynamicsWorld, "MASTER_AXIS_scaleX");
     scaleY = new Mesh(verticesScaleY, indicesScale, materialY, dynamicsWorld, "MASTER_AXIS_scaleY");
     scaleZ = new Mesh(verticesScaleZ, indicesScale, materialZ, dynamicsWorld, "MASTER_AXIS_scaleZ");
+
+	// Hide them
 	transX->hide();
 	transY->hide();
 	transZ->hide();
@@ -98,6 +101,8 @@ Axis::~Axis() {
 	delete scaleZ;
 }
 
+// Check if the selected mesh is one of the axes. If so, the dragging
+// starts and the function returns true. Otherwise it returns false.
 bool Axis::startDrag(Mesh * selectedMesh, vec4 raySt, vec4 rayEd) {
 	draging = false;
 	if (selectedMesh == NULL) return false;
@@ -142,6 +147,7 @@ bool Axis::startDrag(Mesh * selectedMesh, vec4 raySt, vec4 rayEd) {
 	return draging;
 }
 
+// Check if the user is dragging the selected mesh, and perform opeartion.
 bool Axis::continueDrag(Mesh* selectedMesh, vec4 raySt, vec4 rayEd) {
 	if (!draging) return false;
     vec3 p, tmp;
@@ -170,10 +176,12 @@ bool Axis::continueDrag(Mesh* selectedMesh, vec4 raySt, vec4 rayEd) {
 	return true;
 }
 
+// Stop the dragging
 void Axis::stopDrag() {
 	draging = false;
 }
 
+// Set transform mode
 void Axis::setTransformMode(TransformMode newMode) {
 	if (visible) {
 		hide();
@@ -183,6 +191,8 @@ void Axis::setTransformMode(TransformMode newMode) {
 		transformMode = newMode;
 }
 
+
+// Show the axes
 void Axis::show() {
 	if (visible) return;
 	visible = true;
@@ -201,6 +211,7 @@ void Axis::show() {
 	}
 }
 
+// Hide the axes
 void Axis::hide() {
 	if (!visible) return;
 	visible = false;
@@ -219,8 +230,11 @@ void Axis::hide() {
 	}
 }
 
+// Render the axes
 void Axis::render(Shader& shader, vec3 cameraPos) {
 	if (visible == false) return;
+
+	// Clear the depth buffer to avoid depth test
     glClear(GL_DEPTH_BUFFER_BIT);
 
 	if (transformMode == TRANSLATION) {
@@ -230,18 +244,14 @@ void Axis::render(Shader& shader, vec3 cameraPos) {
 		transX->render(shader);
 		transY->render(shader);
 		transZ->render(shader);
-	}
-	
-	if (transformMode == ROTATION) {
+	} else if (transformMode == ROTATION) {
 		rotX->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		rotY->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		rotZ->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		rotX->render(shader);
 		rotY->render(shader);
 		rotZ->render(shader);
-	}
-
-	if (transformMode == SCALING) {
+	} else {
 		scaleX->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		scaleY->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		scaleZ->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
@@ -251,14 +261,17 @@ void Axis::render(Shader& shader, vec3 cameraPos) {
 	}
 }
 
+// Translate the axes
 void Axis::addTranslation(vec3 delta) {
     pos += delta;
 }
 
+// Set the axes to a new position
 void Axis::setPosition(vec3 newPos) {
     pos = newPos;
 }
 
+// Get current position
 vec3 Axis::getPosition() {
     return pos;
 }

@@ -21,6 +21,7 @@ Gridlines::Gridlines() : Mesh() {
     initBufferObject();
 }
 
+// Render gridlines
 void Gridlines::render(Shader& shader) {
     shader.use();
     shader.setMat4("model", model);
