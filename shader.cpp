@@ -322,6 +322,7 @@ bool Shader::loadFromString(string vertexShaderCode, string fragmentShaderCode, 
     reportInfo("Fragment shader has been compiled.");
 
     if (geometryShaderCode != "") {
+
         // Compile Geometry Shader
         reportInfo("Compiling geometry shader...");
         GLchar const * geometryShaderCodePointer = geometryShaderCode.c_str();

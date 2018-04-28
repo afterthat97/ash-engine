@@ -5,6 +5,7 @@
 
 TextureManager textureManager;
 
+// Convert from aiMesh* to Mesh*
 Mesh* Scene::loadMesh(const aiMesh* aiMeshPtr, btDiscreteDynamicsWorld* dynamicsWorld) {
     vector<Vertex> vertices;
     for (uint32_t i = 0; i < aiMeshPtr->mNumVertices; i++) {
@@ -37,6 +38,7 @@ Mesh* Scene::loadMesh(const aiMesh* aiMeshPtr, btDiscreteDynamicsWorld* dynamics
     return new Mesh(vertices, indices, materials[aiMeshPtr->mMaterialIndex], dynamicsWorld, aiMeshPtr->mName.C_Str());
 }
 
+// Convert from aiNodePtr* to Model*
 Model* Scene::loadModel(const aiNode* aiNodePtr, const aiScene* aiScenePtr, btDiscreteDynamicsWorld* dynamicsWorld) {
     Model* newModel = new Model();
     newModel->name = string(aiNodePtr->mName.C_Str());
@@ -56,6 +58,7 @@ Model* Scene::loadModel(const aiNode* aiNodePtr, const aiScene* aiScenePtr, btDi
     return newModel;
 }
 
+// Convert from aiMaterial* to Material*
 shared_ptr<Material> Scene::loadMaterial(const aiMaterial* aiMaterialPtr, string dir) {
     shared_ptr<Material> newMaterial(new Material());
     aiColor4D color; float value; aiString aiStr;

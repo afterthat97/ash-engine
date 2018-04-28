@@ -1,5 +1,6 @@
 #include "textureManager.h"
 
+// Load texture from file
 shared_ptr<Texture> TextureManager::loadTexture(string filePath, TextureType textureType) {
 	for (uint32_t i = 0; i < loadedTextures.size(); i++)
 		if (loadedTextures[i]->getPath() == filePath) {
@@ -12,6 +13,7 @@ shared_ptr<Texture> TextureManager::loadTexture(string filePath, TextureType tex
 	return newTexture;
 }
 
+// Recycle unreferenced textures
 void TextureManager::recycle() {
 	for (uint32_t i = 0; i < loadedTextures.size(); i++)
 		if (loadedTextures[i].use_count() == 1) {

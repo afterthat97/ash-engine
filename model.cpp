@@ -13,18 +13,21 @@ Model::~Model() {
         delete children[i];
 }
 
+// Add mesh
 void Model::addMesh(Mesh *newMesh) {
     pos = minVec3(pos, newMesh->getPosition());
     newMesh->setParent(this);
     meshes.push_back(newMesh);
 }
 
+// Add child model
 void Model::addChildren(Model *newModel) {
     pos = minVec3(pos, newModel->getPosition());
     newModel->setParent(this);
     children.push_back(newModel);
 }
 
+// Remove mesh
 void Model::removeMesh(Mesh *target) {
     pos = vec3(FLT_MAX);
     for (uint32_t i = 0; i < meshes.size(); i++)
@@ -34,6 +37,7 @@ void Model::removeMesh(Mesh *target) {
         pos = minVec3(pos, meshes[i]->getPosition());
 }
 
+// Remove chile model
 void Model::removeChildren(Model *target) {
     pos = vec3(FLT_MAX);
     for (uint32_t i = 0; i < children.size(); i++)
@@ -57,6 +61,7 @@ void Model::hide() {
         children[i]->hide();
 }
 
+// Select the whole model
 void Model::select() {
     for (uint32_t i = 0; i < meshes.size(); i++)
         meshes[i]->select();
@@ -64,6 +69,7 @@ void Model::select() {
         children[i]->select();
 }
 
+// Deselect the whole model
 void Model::deselect() {
     for (uint32_t i = 0; i < meshes.size(); i++)
         meshes[i]->deselect();
