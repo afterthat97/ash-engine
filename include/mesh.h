@@ -8,13 +8,12 @@
 
 class Mesh {
 protected:
-    vec3 pos, scale;
+    vec3 pos, scale, minv, maxv, lenv;
     quat rot;
     mat4 model;
     void *parent;
     bool visible;
     int32_t selected, id;
-    vec3 minv, maxv, lenv;
     uint32_t VAO, VBO, EBO;
     vector<Vertex> vertices;
     vector<uint32_t> indices;
@@ -30,6 +29,8 @@ protected:
     void addToBulletDynamicsWorld();
     void removeFromBulletDynamicsWorld();
 public:
+    // Name is important as the program tells the difference
+    // among meshes, lights and axes according to their names.
     string name;
     Mesh(void *_parent = NULL);
     Mesh(vector<Vertex>& vertices,

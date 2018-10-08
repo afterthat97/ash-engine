@@ -45,13 +45,14 @@ Mesh::Mesh(vector<Vertex>& _vertices,
     meshRigidBody = NULL;
 	meshMotionState = NULL;
 
-    // Calculate boundry
+    // Size of mesh
     for (uint32_t i = 0; i < vertices.size(); i++) {
         minv = minVec3(minv, vertices[i].position);
         maxv = maxVec3(maxv, vertices[i].position);
     }
     lenv = maxv - minv;
 
+    // What a mess!
     if (name.substr(0, 11) != "MASTER_AXIS") {
         pos = minv;
         for (uint32_t i = 0; i < vertices.size(); i++)
@@ -59,8 +60,13 @@ Mesh::Mesh(vector<Vertex>& _vertices,
     }
     model = translate(mat4(1.0), pos) * glm::toMat4(rot);
 
+    // Initialize VAO, VBO, etc
     initBufferObject();
+
+    // Initialize rigid body for bullet
     initRigidBody();
+
+    // Add this mesh to bullet engine, preparing for mouse picking
     addToBulletDynamicsWorld();
 }
 
@@ -83,8 +89,13 @@ Mesh::Mesh(const Mesh &a) {
     meshRigidBody = NULL;
     dynamicsWorld = a.dynamicsWorld;
 
+    // Initialize VAO, VBO, etc
     initBufferObject();
+
+    // Initialize rigid body for bullet
     initRigidBody();
+
+    // Add this mesh to bullet engine, preparing for mouse picking
     addToBulletDynamicsWorld();
 }
 
@@ -105,26 +116,35 @@ Mesh::~Mesh() {
     reportInfo("Mesh " + name + " has been unloaded.");
 }
 
+// Show the mesh on screen
 void Mesh::show() {
 	if (visible) return;
     visible = true;
+
+    // Add it to bullet engine so it can be selected by mouse picking
     addToBulletDynamicsWorld();
 }
 
+// Hide the mesh
 void Mesh::hide() {
 	if (!visible) return;
     visible = false;
+
+    // Remove it from bullet engine
     removeFromBulletDynamicsWorld();
 }
 
+// Select the mesh
 void Mesh::select() {
     selected = true;
 }
 
+// Deselect the mesh
 void Mesh::deselect() {
     selected = false;
 }
 
+// Render
 void Mesh::render(Shader& shader) {
     if (!visible) return;
     if (VAO == 0) {
@@ -132,7 +152,7 @@ void Mesh::render(Shader& shader) {
         return;
     }
 
-    // Use shader
+    // Use and configure shader
     shader.use();
     shader.setMat4("model", model);
     shader.setInt("selected", selected);
@@ -141,14 +161,14 @@ void Mesh::render(Shader& shader) {
     if (material != NULL)
         material->bind(shader);
 
-    // Render object
+    // Render
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, (GLsizei) indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
 
+// Initialize rigid body for bullet engine
 void Mesh::initRigidBody() {
-	// Initialize bullet rigid body
 	triangleMesh = new btTriangleMesh();
 	for (uint32_t i = 0; i < indices.size(); i += 3) {
 		vec3 v0(vertices[indices[i]].position);
@@ -172,6 +192,7 @@ void Mesh::initRigidBody() {
     meshRigidBody->setUserPointer((void*) this);
 }
 
+// Initialize VAO, VBO, etc
 void Mesh::initBufferObject() {
     // Generate object ID
     glGenVertexArrays(1, &VAO);
@@ -206,71 +227,88 @@ void Mesh::initBufferObject() {
     glBindVertexArray(0);
 }
 
+// Apply transformation to bullet rigid body
 void Mesh::applyToBulletRigidBody() {
-    if (!dynamicsWorld) return;
-
-	// Apply transform to bullet rigid body
     btTransform meshTransform;
     btMotionState *meshMotionState = meshRigidBody->getMotionState();
+    
+    // Translation
     meshTransform.setOrigin(btVector3(pos.x, pos.y, pos.z));
+    
+    // Rotation
     meshTransform.setRotation(btQuaternion(rot.x, rot.y, rot.z, rot.w));
     meshMotionState->setWorldTransform(meshTransform);
+
+    // Scaling
 	meshShape->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
     meshRigidBody->setWorldTransform(meshTransform);
+    
     if (visible) {
+        // Re-add the mesh to bullet engine to update
 		removeFromBulletDynamicsWorld();
 		addToBulletDynamicsWorld();
 	}
 }
 
+// Add the mesh to bullet engine
 void Mesh::addToBulletDynamicsWorld() {
     if (dynamicsWorld)
 		dynamicsWorld->addRigidBody(meshRigidBody);
 }
 
+// Remove the mesh from bullet engine
 void Mesh::removeFromBulletDynamicsWorld() {
     if (dynamicsWorld)
 		dynamicsWorld->removeRigidBody(meshRigidBody);
 }
 
+// Apply translation to the mesh
 void Mesh::addTranslation(vec3 delta) {
     pos += delta; minv += delta; maxv += delta;
     model = translate(mat4(1.0), pos) * glm::toMat4(rot) * glm::scale(mat4(1.0), scale);
     applyToBulletRigidBody();
 }
 
+// Apply rotation to the mesh
 void Mesh::addRotation(vec3 eularAngle) {
     rot = quat(eularAngle) * rot;
     model = translate(mat4(1.0), pos) * glm::toMat4(rot) * glm::scale(mat4(1.0), scale);
     applyToBulletRigidBody();
 }
 
+// Apply scaling to the mesh
 void Mesh::addScale(vec3 scaleVector) {
 	scale = scale * scaleVector;
     model = translate(mat4(1.0), pos) * glm::toMat4(rot) * glm::scale(mat4(1.0), scale);
     applyToBulletRigidBody();
 }
 
+// Set the position
 void Mesh::setPosition(vec3 newPos) {
     addTranslation(newPos - pos);
 }
 
+// Get the position
 vec3 Mesh::getPosition() {
     return pos;
 }
 
+// Set the parent model
 void Mesh::setParent(void * _parent) {
     parent = _parent;
 }
 
+// Get the parent model
 void* Mesh::getParent() {
     return parent;
 }
 
+// Get the size of the mesh
 vec3 Mesh::getSize() {
     return lenv;
 }
 
+// Dump details to console
 void Mesh::dumpinfo(string tab) {
     printf("%sMesh %s:\n", tab.c_str(), name.c_str());
     printf("%s  Vertices: %d\n", tab.c_str(), (int) vertices.size());

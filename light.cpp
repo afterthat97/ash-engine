@@ -5,6 +5,8 @@
 Light::Light(vec3 _color, uint16_t _shadowResolution, btDiscreteDynamicsWorld *_dynamicsWorld) : Mesh() {
     color = _color;
     dynamicsWorld = _dynamicsWorld;
+
+    // All lights have the same name: MASTER_LIGHT
     name = "MASTER_LIGHT";
 
 	// Vertices and indices
@@ -17,7 +19,7 @@ Light::Light(vec3 _color, uint16_t _shadowResolution, btDiscreteDynamicsWorld *_
     for (uint32_t i = 0; i < cube_indices.size(); i++)
         indices.push_back(cube_indices[i] - 1);
 
-	// Boundry
+	// Size
     minv = vec3(0.0); maxv = vec3(10.0); lenv = vec3(10.0);
     
 	// Assign material (only pure color)
@@ -25,13 +27,16 @@ Light::Light(vec3 _color, uint16_t _shadowResolution, btDiscreteDynamicsWorld *_
     newMaterial->diffuse = color;
     material = newMaterial;
 
-	// Initialize OpenGL buffer object
+    // Initialize VAO, VBO, etc
 	initBufferObject();
 
-	// Initialize Bullet rigid body
+	// Initialize the rigid body for bullet
     initRigidBody();
+    
+    // Add this mesh to bullet engine, preparing for mouse picking
     addToBulletDynamicsWorld();
 
+    // Arguments for depthmap shadow
     nearPlane = 1.0f; farPlane = 10000.0f;
     shadowResolution = _shadowResolution;
     depthCubeMap = depthMapFBO = 0;
@@ -58,6 +63,8 @@ void Light::initDepthMap() {
     // Generate depth map texture
     glGenTextures(1, &depthCubeMap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap);
+    
+    // 6 faces for a cubemap
     for (unsigned int i = 0; i < 6; ++i)
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowResolution, shadowResolution, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -75,6 +82,7 @@ void Light::initDepthMap() {
 }
 
 void Light::deleteDepthMap() {
+    // Delete depth map and recycle memory
     if (depthCubeMap) glDeleteTextures(1, &depthCubeMap);
 	depthCubeMap = 0;
     if (depthMapFBO) glDeleteFramebuffers(1, &depthMapFBO);
@@ -93,7 +101,7 @@ void Light::renderDepthMap(vector<Scene*> scenes, Shader& depthShader) {
 	// Clear depth buffer
     glClear(GL_DEPTH_BUFFER_BIT);
 
-	// Set 6 shadow matrices, render to a cubemap
+	// 6 shadow matrices, corresponding to 6 faces
     depthShader.use();
     mat4 proj = glm::perspective(glm::radians(90.0f), 1.0f, nearPlane, farPlane);
     depthShader.setMat4("shadowMatrices[0]", proj * glm::lookAt(pos, pos + vec3(1, 0, 0), vec3(0, -1, 0)));
@@ -111,14 +119,18 @@ void Light::renderDepthMap(vector<Scene*> scenes, Shader& depthShader) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+// Set the color of light
 void Light::setColor(vec3 _color) {
     color = _color;
     material->diffuse = color;
 }
 
+// Set shadow resolution
 void Light::setShadowResolution(uint16_t newResolution) {
 	shadowResolution = newResolution;
-	deleteDepthMap();
+	
+    // Re-Initialize depthmap
+    initDepthMap();
 }
 
 vec3 Light::getColor() {

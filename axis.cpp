@@ -16,7 +16,7 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
 	vector<Vertex> verticesScaleX, verticesScaleY, verticesScaleZ;
     vector<uint32_t> indicesTrans, indicesRot, indicesScale;
 
-    // Materials (only pure color)
+    // Materials (only pure color: R for X, G for Y, B for Z)
     shared_ptr<Material> materialX(new Material());
     shared_ptr<Material> materialY(new Material());
     shared_ptr<Material> materialZ(new Material());
@@ -147,24 +147,29 @@ bool Axis::startDrag(Mesh * selectedMesh, vec4 raySt, vec4 rayEd) {
 	return draging;
 }
 
-// Check if the user is dragging the selected mesh, and perform opeartion.
+// Check if the user is dragging the axis, and perform operation.
 bool Axis::continueDrag(Mesh* selectedMesh, vec4 raySt, vec4 rayEd) {
 	if (!draging) return false;
     vec3 p, tmp;
 	if (transformMode == TRANSLATION) {
+        // Translate selected mesh
         getClosestPointOfLineLine(pos, transformAxis, raySt, rayEd - raySt, p, tmp);
         selectedMesh->addTranslation(p - lastIntersection);
         addTranslation(p - lastIntersection);
 	} else if (transformMode == ROTATION) {
+        // Rotate selected mesh
         getIntersectionOfLinePlane(raySt, rayEd - raySt, pos, transformAxis, p);
         vec3 v1 = lastIntersection - pos, v2 = p - pos;
         float theta = acos(fmin(fmax(dot(v1, v2) / length(v1) / length(v2), -1.0f), 1.0f));
         if (dot(transformAxis, cross(v1, v2)) < 0) theta = -theta;
         selectedMesh->addRotation(theta * transformAxis);
-		scaleX->addRotation(theta * transformAxis);
+		
+        // Rotate axes too
+        scaleX->addRotation(theta * transformAxis);
 		scaleY->addRotation(theta * transformAxis);
 		scaleZ->addRotation(theta * transformAxis);
 	} else {
+        // Scale selected mesh
         getClosestPointOfLineLine(pos, transformAxis, raySt, rayEd - raySt, p, tmp);
         vec3 scaleVector = ((p - pos) / (lastIntersection - pos));
 		if (isnan(scaleVector.x)) scaleVector.x = 1.0f;
@@ -190,7 +195,6 @@ void Axis::setTransformMode(TransformMode newMode) {
 	} else
 		transformMode = newMode;
 }
-
 
 // Show the axes
 void Axis::show() {
@@ -237,6 +241,8 @@ void Axis::render(Shader& shader, vec3 cameraPos) {
 	// Clear the depth buffer to avoid depth test
     glClear(GL_DEPTH_BUFFER_BIT);
 
+    // The axes are rendered in a certain distance from the camera,
+    // so they won't look smaller as the camera moves far away.
 	if (transformMode == TRANSLATION) {
 		transX->setPosition(cameraPos + normalize(pos - cameraPos) * 200);
 		transY->setPosition(cameraPos + normalize(pos - cameraPos) * 200);

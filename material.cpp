@@ -10,6 +10,7 @@ Material::~Material() {
 	reportInfo("Material " + name + " has been unloaded.");
 }
 
+// Add textures to material
 void Material::addTexture(shared_ptr<Texture> newTexture) {
     textures.push_back(newTexture);
 }
@@ -24,6 +25,7 @@ void Material::loadAllDefault() {
     loadDefaultSharpness();
 }
 
+// Default arguments
 void Material::loadDefaultName() {
     name = "Untitled";
 }
@@ -53,7 +55,7 @@ void Material::loadDefaultSpecularRGB() {
 }
 
 void Material::bind(Shader& shader) {
-    // Use and set shader
+    // Use and configure shader
     shader.use();
     shader.setVec3("material.ambientRGB", ambient);
     shader.setVec3("material.diffuseRGB", diffuse);
@@ -69,6 +71,7 @@ void Material::bind(Shader& shader) {
         textures[i]->bind(shader);
 }
 
+// Dump details to console
 void Material::dumpinfo(string tab) {
     printf("%sMaterial %s with %d textures in total.\n", tab.c_str(), name.c_str(), (int) textures.size());
     printf("%s  Ambient RGB:", tab.c_str());

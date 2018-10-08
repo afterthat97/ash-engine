@@ -126,6 +126,7 @@ void reportWarning(string msg);
 string getFormatTime();
 string getFormatDate();
 string getFilePath(string dir, string filename);
+string loadStringFromFile(string filepath);
 
 vec3 minVec3(vec3, vec3);
 vec3 maxVec3(vec3, vec3);

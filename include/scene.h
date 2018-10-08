@@ -10,8 +10,6 @@
 class Scene {
 private:
     vec3 pos;
-    quat rot;
-    mat4 model;
     vector<Model*> models;
     vector<shared_ptr<Material>> materials;
     Mesh* loadMesh(
@@ -41,6 +39,7 @@ public:
     void addRotation(vec3);
     void setPosition(vec3);
     vec3 getPosition();
+    vec3 getSize();
 };
 
 #endif

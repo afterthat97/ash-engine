@@ -3,19 +3,22 @@
 
 Skybox::Skybox() : Mesh() {
     cubeTextureID = 0;
+	
+    // Vertices and indices
     for (uint32_t i = 0; i < cube_vertices.size() / 3; i++) {
         vec3 pos(cube_vertices[i * 3 + 0], cube_vertices[i * 3 + 1], cube_vertices[i * 3 + 2]);
         Vertex vertex;
         vertex.position = pos - vec3(0.5f);
         vertices.push_back(vertex);
     }
-
     for (uint32_t i = 0; i < cube_indices.size(); i++)
         indices.push_back(cube_indices[i] - 1);
 
+    // Initialize VAO, VBO, etc
     initBufferObject();
 }
 
+// Load cube map from 6 image files
 void Skybox::loadCubeMap(vector<string> filenames) {
     FreeImage_Initialise(0);
     glGenTextures(1, &cubeTextureID);
@@ -55,12 +58,16 @@ void Skybox::loadCubeMap(vector<string> filenames) {
     FreeImage_DeInitialise();
 }
 
+// Render
 void Skybox::render(Shader& shader) {
     if (cubeTextureID != 0) {
-        glDepthMask(GL_FALSE);
+        // Use and configure shader
         shader.use();
         shader.setInt("hasCubeMap", 1);
         shader.setInt("cubeMap", 0);
+        
+        // Call OpenGL functions to render skybox
+        glDepthMask(GL_FALSE);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubeTextureID);
         glBindVertexArray(VAO);

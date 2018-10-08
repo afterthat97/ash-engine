@@ -48,8 +48,10 @@ double lastTime;
 // Calculate FPS
 float fps = 60, singleFrameRenderTime;
 
-// Whether user can move around or not
-bool canMove = 1;
+// If a key press or mouse press is handled by AntTweakBar,
+// we should not handle it again.
+bool ignoreKeyboard = false;
+bool ignoreMouseMotion = false;
 
 // user's moving speed
 float moveSpeed = 1.0f;
@@ -60,6 +62,20 @@ vec3 backgroundColor(0.7f);
 // Window resolution
 uint32_t windowWidth, windowHeight, frameWidth, frameHeight;
 bool retina = 0;
+
+// Add a light to the scene
+void addLight() {
+    vec3 maxv(-FLT_MAX), minv(FLT_MAX);
+    for (uint32_t i = 0; i < scenes.size(); i++) {
+        maxv = maxVec3(maxv, scenes[i]->getPosition() + scenes[i]->getSize());
+        minv = minVec3(minv, scenes[i]->getPosition());
+    }
+    if (scenes.size() == 0)
+        maxv = minv = vec3(0.0f);
+    Light *newLight = new Light(vec3(1.0), shadowResolution, dynamicsWorld);
+    newLight->setPosition(minv + (maxv - minv) * 1.1f);
+    lights.push_back(newLight);
+}
 
 // Callback when user modifies shadow resolution setting
 void TW_CALL setShadowResolution(const void *value, void *client) {
@@ -86,7 +102,8 @@ void windowSizeCallback(GLFWwindow*, int32_t width, int32_t height) {
 	windowHeight = window.getWindowSizei().second;
 	frameWidth = window.getFrameSizei().first;
 	frameHeight = window.getFrameSizei().second;
-	retina = (frameWidth > windowWidth);
+	// Retina support for MacBook, might not work on Windows.
+    retina = (frameWidth > windowWidth);
 }
 
 // Callback when user clicks the mouse
@@ -97,17 +114,23 @@ void mouseButtonCallback(GLFWwindow*, int button, int action, int mods) {
 	// Update currnet cursor position
     cursor.update(window.getGLFWwindow());
 
-	// If the click is handled by AntTweakBar, just ignore it
+	// If the click is handled by AntTweakBar, ignore it
     TwMouseAction twAction = (action == GLFW_PRESS) ? TW_MOUSE_PRESSED : TW_MOUSE_RELEASED;
-	if (TwMouseButton(twAction, TW_MOUSE_LEFT)) return;
+    if (TwMouseButton(twAction, TW_MOUSE_LEFT)) {
+        ignoreMouseMotion = (action == GLFW_PRESS);
+        return;
+    }
 
+    // Mouse picking
     if (action == GLFW_PRESS) {
+        // Record the time when user press mouse button
         lastTime = glfwGetTime();
+        
+        // Convert mouse position in 2D screen space to a ray in 3D world space
         vec4 raySt, rayEd;
-        // Screen space to world space
 		screenPosToWorldRay(cursor.getCntPosfv(), window.getWindowSizefv(), window.getProjMatrix(), camera.getViewMatrix(), raySt, rayEd);
 		
-		// Perform ray test
+		// Perform ray test using bullet
         btCollisionWorld::AllHitsRayResultCallback allHits(btVector3(raySt.x, raySt.y, raySt.z), btVector3(rayEd.x, rayEd.y, rayEd.z));
         dynamicsWorld->rayTest(btVector3(raySt.x, raySt.y, raySt.z), btVector3(rayEd.x, rayEd.y, rayEd.z), allHits);
 
@@ -122,18 +145,26 @@ void mouseButtonCallback(GLFWwindow*, int button, int action, int mods) {
         float mindis = FLT_MAX;
         for (int32_t i = 0; i < allHits.m_collisionObjects.size(); i++)
             if (((Mesh*) allHits.m_collisionObjects[i]->getUserPointer())->name.substr(0, 11) != "MASTER_AXIS") {
+                // Calculate the distance from user to object and get the closest one
                 if (distance(camera.pos, toVec3(allHits.m_hitPointWorld[i])) > mindis) continue;
+                
+                // If user has selected a mesh before, deselect it
                 if (selectedMesh != NULL) selectedMesh->deselect();
+                
+                // Update mindis
                 mindis = distance(camera.pos, toVec3(allHits.m_hitPointWorld[i]));
+                
+                // Select it
                 selectedMesh = (Mesh*) allHits.m_collisionObjects[i]->getUserPointer();
                 selectedMesh->select();
 
-				// Show local axis
+				// Locate local axis to the selected mesh
                 localAxis->setPosition(selectedMesh->getPosition());
                 localAxis->show();
+
                 lastTime = 0;
             }
-    } else { // Release
+    } else { // Mouse button released
 		localAxis->stopDrag();
 
 		// The time when the mouse is pressed down is stored in `lastTime`.
@@ -194,6 +225,10 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
 			// F10: take a screenshot
             window.screenshot();
             break;
+        case GLFW_KEY_L:
+            // L: add a light to the scene
+            addLight();
+            break;
         case GLFW_KEY_C:
 			// Ctrl + C: copy selected mesh
             if (mods == GLFW_MOD_CONTROL && selectedMesh != NULL)
@@ -214,12 +249,16 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
 
 					// Move to a different position
                     newLight->addTranslation(vec3(newLight->getSize().x * 1.2, 0, 0));
+
 					// Select the new light
-                    if (selectedMesh != NULL)
-                        selectedMesh->deselect();
+                    if (selectedMesh != NULL) selectedMesh->deselect();
                     copyedMesh = selectedMesh = newLight;
                     selectedMesh->select();
+
+                    // Locate the local axis to new light
                     localAxis->setPosition(newLight->getPosition());
+                    localAxis->show();
+
                     reportInfo("Light " + to_string(lights.size() - 1) + " pasted");
                 } else { // If the selected mesh is a general model
                     // Get the copyed mesh's parent
@@ -234,24 +273,28 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
                     parentModel->addMesh(newMesh);
 
 					// Select the new mesh
-                    if (selectedMesh != NULL)
-                        selectedMesh->deselect();
+                    if (selectedMesh != NULL) selectedMesh->deselect();
                     copyedMesh = selectedMesh = newMesh;
                     selectedMesh->select();
+                    
+                    // Locate the local axis to new mesh
                     localAxis->setPosition(newMesh->getPosition());
+                    localAxis->show();
+
                     reportInfo("Mesh " + selectedMesh->name + " pasted");
                 }
             }
             break;
-        case GLFW_KEY_BACKSPACE:
-			// Delete selected mesh
-            if (selectedMesh != NULL && selectedMesh->name == "MASTER_LIGHT") { // If the selected mesh is a light
+        case GLFW_KEY_BACKSPACE: // Delete selected mesh
+            if (selectedMesh == NULL) break;
+            if (selectedMesh->name == "MASTER_LIGHT") {
+                // If the selected mesh is a light
                 for (uint32_t i = 0; i < lights.size(); i++)
-                    if (lights[i] == selectedMesh) {
+                    if (lights[i] == selectedMesh)
                         lights.erase(lights.begin() + i);
-                    }
                 delete (Light*) selectedMesh;
-            } else if (selectedMesh != NULL) { // Other general models
+            } else {
+                // Others
                 Model* parentModel = ((Model*) selectedMesh->getParent());
                 parentModel->removeMesh(selectedMesh);
                 delete selectedMesh;
@@ -269,7 +312,7 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
 
 // Callback when user inputs a char
 void charCallback(GLFWwindow*, uint32_t key) {
-    canMove = !TwKeyPressed(key, TW_KMOD_NONE);
+    ignoreKeyboard = TwKeyPressed(key, TW_KMOD_NONE);
 }
 
 // Callback when user drops some files onto the window
@@ -282,33 +325,46 @@ void dropCallBack(GLFWwindow*, int count, const char** paths) {
     } catch (const string msg) {
         cerr << msg << endl;
     }
+    // If there is no light in the scene, add one
+    if (lights.size() == 0) addLight();
 }
 
 void processInput() {
-    // Move using keyboard
-    if (canMove) {
+    // Update cursor position
+    cursor.update(window.getGLFWwindow());
+   
+    if (!ignoreKeyboard) {
+        // Press SHIFT to get a 5x speed up
         float shift = 60.0f * singleFrameRenderTime;
-
-		// Press SHIFT to get a 5x speed up
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) shift *= 5.0f;
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) shift *= 5.0f;
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
+                || glfwGetKey(window.getGLFWwindow(), GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
+            shift *= 5.0f;
         
-		// Press W, S, A, D, Q, E to move around
-		if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_W) == GLFW_PRESS) camera.moveForward(shift * moveSpeed);
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_S) == GLFW_PRESS) camera.moveForward(-shift * moveSpeed);
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_A) == GLFW_PRESS) camera.moveRight(-shift * moveSpeed);
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_D) == GLFW_PRESS) camera.moveRight(shift * moveSpeed);
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_Q) == GLFW_PRESS) camera.moveUp(-shift * moveSpeed);
-        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_E) == GLFW_PRESS) camera.moveUp(shift * moveSpeed);
+        // Press W, S, A, D, Q, E to move around
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_W) == GLFW_PRESS)
+            camera.moveForward(shift * moveSpeed);
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_S) == GLFW_PRESS)
+            camera.moveForward(-shift * moveSpeed);
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_A) == GLFW_PRESS)
+            camera.moveRight(-shift * moveSpeed);
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_D) == GLFW_PRESS)
+            camera.moveRight(shift * moveSpeed);
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_Q) == GLFW_PRESS)
+            camera.moveUp(-shift * moveSpeed);
+        if (glfwGetKey(window.getGLFWwindow(), GLFW_KEY_E) == GLFW_PRESS)
+            camera.moveUp(shift * moveSpeed);
     }
 
-    // Change camera viewport by mouse motion
-    cursor.update(window.getGLFWwindow());
+    if (glfwGetMouseButton(window.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) != GLFW_PRESS
+            || ignoreMouseMotion) return;
+
+    // Convert mouse position in 2D screen space to a ray in 3D world space
     vec4 raySt, rayEd;
     screenPosToWorldRay(cursor.getCntPosfv(), window.getWindowSizefv(), window.getProjMatrix(), camera.getViewMatrix(), raySt, rayEd);
 	
-	// If the user is not dragging the axis
-	if (localAxis->continueDrag(selectedMesh, raySt, rayEd) == false && glfwGetMouseButton(window.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+    // If the user is not dragging any axis,
+    // change camera viewport by mouse motion
+	if (localAxis->continueDrag(selectedMesh, raySt, rayEd) == false) { 
         camera.turnLeft(-cursor.getDeltafv().x / 500.0f);
         camera.lookUp(-cursor.getDeltafv().y / 500.0f);
     }
@@ -318,6 +374,8 @@ void processInput() {
 void render() {
     glViewport(0, 0, window.getFrameSizei().first, window.getFrameSizei().second);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Set background color
     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1.0f);
 
     // OpenGL configurations
@@ -333,7 +391,7 @@ void render() {
     mat4 projection = window.getProjMatrix();
     mat4 view = camera.getViewMatrix();
 
-    // Set shader for meshes
+    // Configure shader for meshes
     meshShader.use();
     meshShader.setMat4("projection", projection);
     meshShader.setMat4("view", view);
@@ -342,9 +400,11 @@ void render() {
 	meshShader.setFloat("bias", bias);
 	meshShader.setFloat("radius", radius);
 
-	// Render lights
+    // Enable lighting?
     if (enableLighting && !enableWireFrame) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        // Configure shader for lights
         meshShader.setInt("lightNum", (int32_t) lights.size());
         meshShader.setInt("enableLighting", 0);
 		meshShader.setInt("enableAttenuation", enableAttenuation);
@@ -362,6 +422,8 @@ void render() {
             meshShader.setFloat(idx + ".farPlane", lights[i]->getFarPlane());
             meshShader.setVec3(idx + ".pos", lights[i]->getPosition());
             meshShader.setVec3(idx + ".color", lights[i]->getColor());
+
+            // Render lights
 			lights[i]->show();
             lights[i]->render(meshShader);
 		}
@@ -389,7 +451,7 @@ void render() {
     if (enableGridlines) gridlines->render(meshShader);
     localAxis->render(meshShader, camera.pos);
 
-    // Draw UI
+    // Render AntTweakBar
     TwDraw();
 }
 
@@ -442,10 +504,6 @@ int main(int argc, char **argv) {
 	// Initialize gridlines
     gridlines = new Gridlines();
 
-	// Initialize lights
-    lights.push_back(new Light(vec3(1.0), shadowResolution, dynamicsWorld));
-    lights[0]->setPosition(vec3(100.0));
-	
 	// Get window size
 	windowWidth = window.getWindowSizei().first;
 	windowHeight = window.getWindowSizei().second;
@@ -540,7 +598,7 @@ int main(int argc, char **argv) {
     TwSetParam(appInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
     TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 880");
     TwSetParam(appInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
-    TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.2'");
+    TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.3'");
     TwAddButton(appInfoBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());
     TwAddButton(appInfoBar, "1.2", NULL, NULL, ("label='" + glVersionInfo + "'").c_str());
     TwAddButton(appInfoBar, "1.3", NULL, NULL, ("label='" + glShadingLanguageVersionInfo + "'").c_str());

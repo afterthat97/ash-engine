@@ -45,6 +45,7 @@ mat4 Window::getProjMatrix() {
     return glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100000.0f);
 }
 
+// Take a screenshot and save to file
 void Window::screenshot() {
     uint8_t* pixels = new uint8_t[3 * frameSizeX * frameSizeY];
     string filename = "Screen Shot " + getFormatDate() + " at " + getFormatTime() + " .bmp";

@@ -253,28 +253,15 @@ void main() {
 }
 )";
 
-string loadStringFromFile(string path) {
-    if (path == "") return "";
-    ifstream fin(path);
-    if (!fin.is_open()) {
-        reportError("Failed to open " + path);
-        return "";
-    }
-    string str;
-    for (string line; getline(fin, line);)
-        str += "\n" + line;
-    fin.close();
-    return str;
-}
-
+// Load shader code (GLSL) from files
 bool Shader::loadFromFile(string vertexShaderPath, string fragmentShaderPath, string geometryShaderPath) {
-    // Read the Vertex Shader code from the file
     string vertexShaderCode = loadStringFromFile(vertexShaderPath);
     string fragmentShaderCode = loadStringFromFile(fragmentShaderPath);
     string geometryShaderCode = loadStringFromFile(geometryShaderPath);
     return loadFromString(vertexShaderCode, fragmentShaderCode, geometryShaderCode);
 }
 
+// Load shader code (GLSL) from C++ strings
 bool Shader::loadFromString(string vertexShaderCode, string fragmentShaderCode, string geometryShaderCode) {
     GLuint vertexShaderID, fragmentShaderID, geometryShaderID;
     GLint compileResult = 0, compileLogLength = 0;
@@ -322,7 +309,6 @@ bool Shader::loadFromString(string vertexShaderCode, string fragmentShaderCode, 
     reportInfo("Fragment shader has been compiled.");
 
     if (geometryShaderCode != "") {
-
         // Compile Geometry Shader
         reportInfo("Compiling geometry shader...");
         GLchar const * geometryShaderCodePointer = geometryShaderCode.c_str();

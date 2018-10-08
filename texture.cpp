@@ -13,6 +13,7 @@ Texture::~Texture() {
 	}
 }
 
+// Load texture from image file
 void Texture::loadFromFile(string filePath, bool SRGB) {
     FreeImage_Initialise(0);
     path = filePath;
@@ -56,18 +57,22 @@ void Texture::loadFromFile(string filePath, bool SRGB) {
     reportInfo("Texture " + path + " loaded. (" + to_string(width) + " * " + to_string(height) + ")");
 }
 
+// Get the path of the original image file
 string Texture::getPath() {
 	return path;
 }
 
+// Return 1920 if the resolution is 1920x1080
 uint32_t Texture::getWidth() {
 	return width;
 }
 
+// Return 1080 if the resolution is 1920x1080
 uint32_t Texture::getHeight() {
 	return height;
 }
 
+// Bind texture for rendering
 void Texture::bind(Shader& shader) {
 	if (textureID == 0) return;
     if (textureType == AMBIENT) { // Ambient map
@@ -95,6 +100,7 @@ void Texture::bind(Shader& shader) {
     }
 }
 
+// Dump details to console
 void Texture::dumpinfo(string tab) {
     printf("%sTexture %s\n", tab.c_str(), path.c_str());
     if (textureType == AMBIENT)

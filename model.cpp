@@ -47,6 +47,7 @@ void Model::removeChildren(Model *target) {
         pos = minVec3(pos, children[i]->getPosition());
 }
 
+// Show the model on screen
 void Model::show() {
     for (uint32_t i = 0; i < meshes.size(); i++)
         meshes[i]->show();
@@ -54,6 +55,7 @@ void Model::show() {
         children[i]->show();
 }
 
+// Hide the model
 void Model::hide() {
     for (uint32_t i = 0; i < meshes.size(); i++)
         meshes[i]->hide();
@@ -77,6 +79,7 @@ void Model::deselect() {
         children[i]->deselect();
 }
 
+// Render
 void Model::render(Shader& shader) {
     for (uint32_t i = 0; i < meshes.size(); i++)
         meshes[i]->render(shader);
@@ -84,6 +87,7 @@ void Model::render(Shader& shader) {
         children[i]->render(shader);
 }
 
+// Dump details to console
 void Model::dumpinfo(string tab) {
     printf("%sModel %s with %d meshes and %d children in total.\n", tab.c_str(), name.c_str(), (int) meshes.size(), (int) children.size());
     for (uint32_t i = 0; i < meshes.size(); i++)
@@ -92,6 +96,7 @@ void Model::dumpinfo(string tab) {
         children[i]->dumpinfo(tab + "  ");
 }
 
+// Apply translation to the model
 void Model::addTranslation(vec3 delta) {
     pos += delta;
     for (uint32_t i = 0; i < meshes.size(); i++)
@@ -100,6 +105,7 @@ void Model::addTranslation(vec3 delta) {
         children[i]->addTranslation(delta);
 }
 
+// Apply rotation to the model
 void Model::addRotation(vec3 eularAngle) {
     for (uint32_t i = 0; i < meshes.size(); i++)
         meshes[i]->addRotation(eularAngle);
@@ -107,18 +113,32 @@ void Model::addRotation(vec3 eularAngle) {
         children[i]->addRotation(eularAngle);
 }
 
+// Set the postion of the model
 void Model::setPosition(vec3 newPos) {
     addTranslation(newPos - pos);
 }
 
+// Get the position of the model
 vec3 Model::getPosition() {
     return pos;
 }
 
+// Get the size of the model
+vec3 Model::getSize() {
+    vec3 maxv = vec3(-FLT_MAX);
+    for (uint32_t i = 0; i < meshes.size(); i++)
+        maxv = maxVec3(maxv, meshes[i]->getPosition() + meshes[i]->getSize());
+    for (uint32_t i = 0; i < children.size(); i++)
+        maxv = maxVec3(maxv, children[i]->getPosition() + children[i]->getSize());
+    return maxv - pos;
+}
+
+// Set the parent model
 void Model::setParent(void * _parent) {
     parent = _parent;
 }
 
+// Get the parent model
 void * Model::getParent() {
     return parent;
 }

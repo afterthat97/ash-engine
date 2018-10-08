@@ -5,21 +5,21 @@
 
 TextureManager textureManager;
 
-// Convert from aiMesh* to Mesh*
+// Convert aiMesh* to Mesh*
 Mesh* Scene::loadMesh(const aiMesh* aiMeshPtr, btDiscreteDynamicsWorld* dynamicsWorld) {
     vector<Vertex> vertices;
     for (uint32_t i = 0; i < aiMeshPtr->mNumVertices; i++) {
         Vertex vertex;
 
-		// Vertex position
+		// Position
         if (aiMeshPtr->HasPositions())
             vertex.position = vec3(aiMeshPtr->mVertices[i].x, aiMeshPtr->mVertices[i].y, aiMeshPtr->mVertices[i].z);
 
-		// Vertex normal
+		// Normal
         if (aiMeshPtr->HasNormals())
             vertex.normal = vec3(aiMeshPtr->mNormals[i].x, aiMeshPtr->mNormals[i].y, aiMeshPtr->mNormals[i].z);
 
-		// Tangent space
+		// Tangent
         if (aiMeshPtr->HasTangentsAndBitangents())
             vertex.tangent = vec3(aiMeshPtr->mTangents[i].x, aiMeshPtr->mTangents[i].y, aiMeshPtr->mTangents[i].z);
 
@@ -30,6 +30,7 @@ Mesh* Scene::loadMesh(const aiMesh* aiMeshPtr, btDiscreteDynamicsWorld* dynamics
         vertices.push_back(vertex);
     }
 
+    // Indices
     vector<uint32_t> indices;
     for (uint32_t i = 0; i < aiMeshPtr->mNumFaces; i++)
         for (uint32_t j = 0; j < 3; j++)
@@ -38,7 +39,7 @@ Mesh* Scene::loadMesh(const aiMesh* aiMeshPtr, btDiscreteDynamicsWorld* dynamics
     return new Mesh(vertices, indices, materials[aiMeshPtr->mMaterialIndex], dynamicsWorld, aiMeshPtr->mName.C_Str());
 }
 
-// Convert from aiNodePtr* to Model*
+// Convert aiNodePtr* to Model*
 Model* Scene::loadModel(const aiNode* aiNodePtr, const aiScene* aiScenePtr, btDiscreteDynamicsWorld* dynamicsWorld) {
     Model* newModel = new Model();
     newModel->name = string(aiNodePtr->mName.C_Str());
@@ -58,7 +59,7 @@ Model* Scene::loadModel(const aiNode* aiNodePtr, const aiScene* aiScenePtr, btDi
     return newModel;
 }
 
-// Convert from aiMaterial* to Material*
+// Convert aiMaterial* to Material*
 shared_ptr<Material> Scene::loadMaterial(const aiMaterial* aiMaterialPtr, string dir) {
     shared_ptr<Material> newMaterial(new Material());
     aiColor4D color; float value; aiString aiStr;
@@ -83,7 +84,7 @@ shared_ptr<Material> Scene::loadMaterial(const aiMaterial* aiMaterialPtr, string
     if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_SHININESS, value) && value > 0.01)
         newMaterial->shininess = value;
 
-    // Diffuse map
+    // Load diffuse map
     for (uint32_t i = 0; i < aiMaterialPtr->GetTextureCount(aiTextureType_DIFFUSE); i++)
         if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_DIFFUSE, i, &aiStr)) {
 			string filePath = getFilePath(dir, aiStr.C_Str());
@@ -92,7 +93,7 @@ shared_ptr<Material> Scene::loadMaterial(const aiMaterial* aiMaterialPtr, string
 			newMaterial->loadDefaultDiffuseRGB();
         }
 
-    // Parallax map
+    // Load parallax map
     for (uint32_t i = 0; i < aiMaterialPtr->GetTextureCount(aiTextureType_DISPLACEMENT); i++)
         if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_DISPLACEMENT, i, &aiStr)) {
 			string filePath = getFilePath(dir, aiStr.C_Str());
@@ -100,7 +101,7 @@ shared_ptr<Material> Scene::loadMaterial(const aiMaterial* aiMaterialPtr, string
 			newMaterial->addTexture(newTexture);
         }
 
-    // Specular map
+    // Load specular map
     for (uint32_t i = 0; i < aiMaterialPtr->GetTextureCount(aiTextureType_SPECULAR); i++)
         if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_SPECULAR, i, &aiStr)) {
 			string filePath = getFilePath(dir, aiStr.C_Str());
@@ -109,7 +110,7 @@ shared_ptr<Material> Scene::loadMaterial(const aiMaterial* aiMaterialPtr, string
 			newMaterial->loadDefaultSpecularRGB();
         }
 
-    // Normal map
+    // Load normal map
     for (uint32_t i = 0; i < aiMaterialPtr->GetTextureCount(aiTextureType_HEIGHT); i++)
         if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_HEIGHT, i, &aiStr)) {
 			string filePath = getFilePath(dir, aiStr.C_Str());
@@ -121,8 +122,6 @@ shared_ptr<Material> Scene::loadMaterial(const aiMaterial* aiMaterialPtr, string
 
 Scene::Scene(string filename, btDiscreteDynamicsWorld* dynamicsWorld) {
     pos = vec3(FLT_MAX);
-    model = mat4(1.0);
-    rot = quat(vec3(0.0));
 
 	// Deal with filesystem
     string dir = "";
@@ -159,6 +158,7 @@ Scene::Scene(string filename, btDiscreteDynamicsWorld* dynamicsWorld) {
     Model *newModel = loadModel(aiScenePtr->mRootNode, aiScenePtr, dynamicsWorld);
     addModel(newModel);
 
+    // Recycle memory
     recycle();
 }
 
@@ -168,51 +168,59 @@ Scene::~Scene() {
 	recycle();
 }
 
+// Add new model to this scene
 void Scene::addModel(Model *newModel) {
-	// Add new model to this scene
     pos = minVec3(pos, newModel->getPosition());
     newModel->setParent(this);
     models.push_back(newModel);
 }
 
+// Add material to this scene
 void Scene::addMaterial(shared_ptr<Material> newMaterial) {
-	// Add material to this scene
     materials.push_back(newMaterial);
 }
 
+// Show the scene on screen
 void Scene::show() {
     for (uint32_t i = 0; i < models.size(); i++)
         models[i]->show();
 }
 
+// Hide the scene
 void Scene::hide() {
     for (uint32_t i = 0; i < models.size(); i++)
         models[i]->hide();
 }
 
+// Select the whole scene
 void Scene::select() {
     for (uint32_t i = 0; i < models.size(); i++)
         models[i]->select();
 }
 
+// Deselect the whole scene
 void Scene::deselect() {
     for (uint32_t i = 0; i < models.size(); i++)
         models[i]->deselect();
 }
 
+// Render
 void Scene::render(Shader& shader) {
     for (uint32_t i = 0; i < models.size(); i++)
         models[i]->render(shader);
 }
 
+// Recycle memory
 void Scene::recycle() {
     for (uint32_t i = 0; i < materials.size(); i++)
         if (materials[i].use_count() == 1) {
-            materials.erase(materials.begin() + i); --i;
+            materials.erase(materials.begin() + i);
+            i--;
         }
 	textureManager.recycle();
 }
 
+// Dump details to console
 void Scene::dumpinfo(string tab) {
     printf("\n%sScene %s, %d models and %d materials in total.\n", tab.c_str(), name.c_str(), (int) models.size(), (int) materials.size());
     for (uint32_t i = 0; i < models.size(); i++)
@@ -220,21 +228,33 @@ void Scene::dumpinfo(string tab) {
     putchar('\n');
 }
 
+// Apply translation to the scene
 void Scene::addTranslation(vec3 delta) {
     pos += delta;
     for (uint32_t i = 0; i < models.size(); i++)
         models[i]->addTranslation(delta);
 }
 
+// Apply rotation to the scene
 void Scene::addRotation(vec3 eularAngle) {
     for (uint32_t i = 0; i < models.size(); i++)
         models[i]->addRotation(eularAngle);
 }
 
+// Set the position of the scene
 void Scene::setPosition(vec3 newPos) {
     addTranslation(newPos - pos);
 }
 
+// Get the position of the scene
 vec3 Scene::getPosition() {
     return pos;
+}
+
+// Get the size of the scene
+vec3 Scene::getSize() {
+    vec3 maxv = vec3(-FLT_MAX);
+    for (uint32_t i = 0; i < models.size(); i++)
+        maxv = maxVec3(maxv, models[i]->getPosition() + models[i]->getSize());
+    return maxv - pos;
 }

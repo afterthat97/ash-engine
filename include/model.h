@@ -29,6 +29,7 @@ public:
     void addRotation(vec3);
     void setPosition(vec3);
     vec3 getPosition();
+    vec3 getSize();
     void setParent(void*);
     void* getParent();
 };
