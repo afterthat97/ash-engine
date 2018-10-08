@@ -7,7 +7,7 @@ A cross-platform 3D Engine for learning purpose, based on OpenGL, Bullet, Assimp
 * macOS 10.12+ or Windows x86 / x64
 * A graphics card which supports OpenGL 3.3+
 
-> If you are using Windows, extra Visual C++ redistributable packages (VC2017 and VC 2013) are required. You can download them from [this page](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads).
+> If you are using Windows, extra Visual C++ redistributable packages (VC2017 and VC2013) are required. You can download them from [this page](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads).
 
 ## Features
 
@@ -31,9 +31,9 @@ How to import your models? Drag and Drop them onto the window!
 
 ### Move around
 
-* Press `w` and `s` to move forward or backward
-* Press `a` and `d` to move left ot right
-* Press `e` and `q` to move up or down
+* Press `W` and `S` to move forward or backward
+* Press `A` and `D` to move left ot right
+* Press `E` and `Q` to move up or down
 * Press `SHIFT` to shift moving speed (5X faster)
 * Click and hold your left mouse button and drag to change viewport
 
@@ -45,6 +45,10 @@ How to import your models? Drag and Drop them onto the window!
  * `<F2>` = rotation
  * `<F3>` = scaling.
 3. Click on the axis and drag your mouse to perform transformation.
+
+### Add a light
+
+If there is no light in the scene, a new light will be added automatically when you import a model. Besides, you can press `L` to add one manually.
 
 ### Copy & Paste
 
