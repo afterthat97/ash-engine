@@ -11,7 +11,7 @@
 #include "cursor.h"
 #include "window.h"
 
-// Create one 960 * 640 window
+// Create a 960 * 640 window titled 'masterEngine'
 Window window(960, 640, "masterEngine");
 
 // Deal with cursor movement
@@ -20,7 +20,7 @@ Cursor cursor;
 // Perspective camera
 Camera camera;
 
-// Axis for translation and rotation
+// Axis for translation, rotation and scaling
 Axis *localAxis;
 
 // Gridlines in the scene
@@ -42,7 +42,7 @@ Shader meshShader, skyboxShader, depthShader;
 // For copy-and-paste function
 Mesh *selectedMesh, *copyedMesh;
 
-// Deal with mouse click and hold
+// The last time when user presses mouse button
 double lastTime;
 
 // Calculate FPS
@@ -53,7 +53,7 @@ float fps = 60, singleFrameRenderTime;
 bool ignoreKeyboard = false;
 bool ignoreMouseMotion = false;
 
-// user's moving speed
+// Moving speed
 float moveSpeed = 1.0f;
 
 // Background color, can be adjusted during runtime
@@ -102,13 +102,14 @@ void windowSizeCallback(GLFWwindow*, int32_t width, int32_t height) {
 	windowHeight = window.getWindowSizei().second;
 	frameWidth = window.getFrameSizei().first;
 	frameHeight = window.getFrameSizei().second;
+
 	// Retina support for MacBook, might not work on Windows.
     retina = (frameWidth > windowWidth);
 }
 
-// Callback when user clicks the mouse
+// Callback when user presses the mouse button
 void mouseButtonCallback(GLFWwindow*, int button, int action, int mods) {
-	// Only respond handle left button actions
+	// Only handle left button
 	if (button != GLFW_MOUSE_BUTTON_LEFT) return;
 
 	// Update currnet cursor position
@@ -134,7 +135,7 @@ void mouseButtonCallback(GLFWwindow*, int button, int action, int mods) {
         btCollisionWorld::AllHitsRayResultCallback allHits(btVector3(raySt.x, raySt.y, raySt.z), btVector3(rayEd.x, rayEd.y, rayEd.z));
         dynamicsWorld->rayTest(btVector3(raySt.x, raySt.y, raySt.z), btVector3(rayEd.x, rayEd.y, rayEd.z), allHits);
 
-		// If user tries to drag one of the axes
+		// If user tries to drag any axis
 		for (int32_t i = 0; i < allHits.m_collisionObjects.size(); i++)
 			if (localAxis->startDrag((Mesh*) allHits.m_collisionObjects[i]->getUserPointer(), raySt, rayEd)) {
 				lastTime = 0;
@@ -145,10 +146,10 @@ void mouseButtonCallback(GLFWwindow*, int button, int action, int mods) {
         float mindis = FLT_MAX;
         for (int32_t i = 0; i < allHits.m_collisionObjects.size(); i++)
             if (((Mesh*) allHits.m_collisionObjects[i]->getUserPointer())->name.substr(0, 11) != "MASTER_AXIS") {
-                // Calculate the distance from user to object and get the closest one
+                // Calculate the distance between user and object and get the closest one
                 if (distance(camera.pos, toVec3(allHits.m_hitPointWorld[i])) > mindis) continue;
                 
-                // If user has selected a mesh before, deselect it
+                // If user selected a mesh before, deselect it
                 if (selectedMesh != NULL) selectedMesh->deselect();
                 
                 // Update mindis
@@ -167,9 +168,9 @@ void mouseButtonCallback(GLFWwindow*, int button, int action, int mods) {
     } else { // Mouse button released
 		localAxis->stopDrag();
 
-		// The time when the mouse is pressed down is stored in `lastTime`.
-        // If the interval is less than 200ms, it is treated as a mouse
-		// click. Otherwise it is treated as a mouse hold.
+		// The time when the mouse button is pressed is stored in `lastTime`.
+        // If the interval is less than 200ms, it is treated as a mouse click.
+		// Otherwise it is treated as a mouse hold.
 		if (glfwGetTime() - lastTime < 0.2f) {
             if (selectedMesh != NULL) selectedMesh->deselect();
             selectedMesh = NULL;
@@ -243,7 +244,7 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
                         return;
                     }
 
-					// Construct a new light
+					// Add a new light
                     Light* newLight = new Light(*(Light*) copyedMesh);
                     lights.push_back(newLight);
 
@@ -260,7 +261,7 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
                     localAxis->show();
 
                     reportInfo("Light " + to_string(lights.size() - 1) + " pasted");
-                } else { // If the selected mesh is a general model
+                } else { // Others
                     // Get the copyed mesh's parent
 					Model* parentModel = ((Model*) copyedMesh->getParent());
                    
@@ -269,7 +270,8 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
 
 					// Move it to a different position
                     newMesh->addTranslation(vec3(newMesh->getSize().x * 1.2, 0, 0));
-					// Add it to the same parent
+					
+                    // Add it to the same parent
                     parentModel->addMesh(newMesh);
 
 					// Select the new mesh
@@ -293,8 +295,7 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
                     if (lights[i] == selectedMesh)
                         lights.erase(lights.begin() + i);
                 delete (Light*) selectedMesh;
-            } else {
-                // Others
+            } else { // Others
                 Model* parentModel = ((Model*) selectedMesh->getParent());
                 parentModel->removeMesh(selectedMesh);
                 delete selectedMesh;
@@ -310,7 +311,7 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
         scenes[i]->recycle();
 }
 
-// Callback when user inputs a char
+// Callback when user presses a key
 void charCallback(GLFWwindow*, uint32_t key) {
     ignoreKeyboard = TwKeyPressed(key, TW_KMOD_NONE);
 }
@@ -325,6 +326,7 @@ void dropCallBack(GLFWwindow*, int count, const char** paths) {
     } catch (const string msg) {
         cerr << msg << endl;
     }
+
     // If there is no light in the scene, add one
     if (lights.size() == 0) addLight();
 }
@@ -362,8 +364,7 @@ void processInput() {
     vec4 raySt, rayEd;
     screenPosToWorldRay(cursor.getCntPosfv(), window.getWindowSizefv(), window.getProjMatrix(), camera.getViewMatrix(), raySt, rayEd);
 	
-    // If the user is not dragging any axis,
-    // change camera viewport by mouse motion
+    // If the user is not dragging any axis, change camera viewport by mouse motion
 	if (localAxis->continueDrag(selectedMesh, raySt, rayEd) == false) { 
         camera.turnLeft(-cursor.getDeltafv().x / 500.0f);
         camera.lookUp(-cursor.getDeltafv().y / 500.0f);
@@ -441,7 +442,7 @@ void render() {
     for (uint32_t i = 0; i < scenes.size(); i++)
         scenes[i]->render(meshShader);
 
-	// Disable some options when rendering axes, gridlines, and UI
+	// Disable some options when rendering axes, gridlines, and AntTweakBar
 	glDisable(GL_FRAMEBUFFER_SRGB);
     glDisable(GL_CULL_FACE);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -461,6 +462,14 @@ int main(int argc, char **argv) {
     CGEventSourceRef evsrc = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
     CGEventSourceSetLocalEventsSuppressionInterval(evsrc, 0.0);
 #endif
+
+	// Get window size
+	windowWidth = window.getWindowSizei().first;
+	windowHeight = window.getWindowSizei().second;
+	frameWidth = window.getFrameSizei().first;
+	frameHeight = window.getFrameSizei().second;
+	retina = (frameWidth > windowWidth);
+    if (!retina) window.resize(1600, 900);
 
     // Initialize GLEW library
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
@@ -504,13 +513,6 @@ int main(int argc, char **argv) {
 	// Initialize gridlines
     gridlines = new Gridlines();
 
-	// Get window size
-	windowWidth = window.getWindowSizei().first;
-	windowHeight = window.getWindowSizei().second;
-	frameWidth = window.getFrameSizei().first;
-	frameHeight = window.getFrameSizei().second;
-	retina = (frameWidth > windowWidth);
-
 	// Initialize depthmap indices in shader
     meshShader.use();
     for (int i = 0; i < MAX_LIGHTS; i++) {
@@ -528,7 +530,7 @@ int main(int argc, char **argv) {
 
 	// Show window info
     TwBar * windowInfoBar = TwNewBar("Window Info");
-    TwSetParam(windowInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.5");
+    TwSetParam(windowInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
     TwSetParam(windowInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 10");
     TwSetParam(windowInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 145");
     TwAddVarRO(windowInfoBar, "FPS", TW_TYPE_FLOAT, &fps, "step=0.1");

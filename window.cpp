@@ -33,10 +33,10 @@ Window::Window(int32_t sizeX, int32_t sizeY, const char* title) {
 }
 
 void Window::resize(int32_t sizeX, int32_t sizeY) {
+    glfwSetWindowSize(window, sizeX, sizeY);
     windowSizeX = sizeX; windowSizeY = sizeY;
     glfwGetFramebufferSize(window, &frameSizeX, &frameSizeY);
     TwWindowSize(frameSizeX, frameSizeY);
-    glViewport(0, 0, frameSizeX, frameSizeY);
     aspectRatio = (float) frameSizeX / (float) frameSizeY;
     scaleRatio = windowSizeX ? frameSizeX / windowSizeX : 0;
 }
