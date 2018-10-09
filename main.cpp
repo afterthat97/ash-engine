@@ -65,6 +65,10 @@ bool retina = 0;
 
 // Add a light to the scene
 void addLight() {
+    if (lights.size() >= MAX_LIGHTS) {
+        reportWarning("You have reached the maximum number of lights, new lights will not be created.");
+        return;
+    }
     vec3 maxv(-FLT_MAX), minv(FLT_MAX);
     for (uint32_t i = 0; i < scenes.size(); i++) {
         maxv = maxVec3(maxv, scenes[i]->getPosition() + scenes[i]->getSize());
@@ -145,7 +149,7 @@ void mouseButtonCallback(GLFWwindow*, int button, int action, int mods) {
 		// Select the closest object
         float mindis = FLT_MAX;
         for (int32_t i = 0; i < allHits.m_collisionObjects.size(); i++)
-            if (((Mesh*) allHits.m_collisionObjects[i]->getUserPointer())->name.substr(0, 11) != "MASTER_AXIS") {
+            if (((Mesh*) allHits.m_collisionObjects[i]->getUserPointer())->getType() != AXIS) {
                 // Calculate the distance between user and object and get the closest one
                 if (distance(camera.pos, toVec3(allHits.m_hitPointWorld[i])) > mindis) continue;
                 
@@ -232,70 +236,47 @@ void keyCallback(GLFWwindow*, int32_t key, int32_t scancode, int32_t action, int
             break;
         case GLFW_KEY_C:
 			// Ctrl + C: copy selected mesh
-            if (mods == GLFW_MOD_CONTROL && selectedMesh != NULL)
+            if (mods == GLFW_MOD_CONTROL && selectedMesh && selectedMesh->getType() == DEFAULT) {
                 copyedMesh = selectedMesh;
+                reportInfo(selectedMesh->getName() + " copyed.");
+            }
             break;
         case GLFW_KEY_V:
 			// Ctrl + V: paste copyed mesh
             if (mods == GLFW_MOD_CONTROL && copyedMesh != NULL) {
-                if (copyedMesh->name == "MASTER_LIGHT") { // If the selected mesh is a light
-                    if (lights.size() >= MAX_LIGHTS) {
-                        reportWarning("You have reached the maximum number of lights, new lights will not be created.");
-                        return;
-                    }
+                // Get the copyed mesh's parent
+                Model* parentModel = ((Model*) copyedMesh->getParent());
+               
+                // Contruct a new mesh
+                Mesh *newMesh = new Mesh(*copyedMesh);
 
-					// Add a new light
-                    Light* newLight = new Light(*(Light*) copyedMesh);
-                    lights.push_back(newLight);
+                // Move it to a different position
+                newMesh->addTranslation(vec3(newMesh->getSize().x * 1.2, 0, 0));
+                
+                // Add it to the same parent
+                parentModel->addMesh(newMesh);
 
-					// Move to a different position
-                    newLight->addTranslation(vec3(newLight->getSize().x * 1.2, 0, 0));
+                // Select the new mesh
+                if (selectedMesh != NULL) selectedMesh->deselect();
+                copyedMesh = selectedMesh = newMesh;
+                selectedMesh->select();
+                
+                // Locate the local axis to new mesh
+                localAxis->setPosition(newMesh->getPosition());
+                localAxis->show();
 
-					// Select the new light
-                    if (selectedMesh != NULL) selectedMesh->deselect();
-                    copyedMesh = selectedMesh = newLight;
-                    selectedMesh->select();
-
-                    // Locate the local axis to new light
-                    localAxis->setPosition(newLight->getPosition());
-                    localAxis->show();
-
-                    reportInfo("Light " + to_string(lights.size() - 1) + " pasted");
-                } else { // Others
-                    // Get the copyed mesh's parent
-					Model* parentModel = ((Model*) copyedMesh->getParent());
-                   
-					// Contruct a new mesh
-					Mesh *newMesh = new Mesh(*copyedMesh);
-
-					// Move it to a different position
-                    newMesh->addTranslation(vec3(newMesh->getSize().x * 1.2, 0, 0));
-					
-                    // Add it to the same parent
-                    parentModel->addMesh(newMesh);
-
-					// Select the new mesh
-                    if (selectedMesh != NULL) selectedMesh->deselect();
-                    copyedMesh = selectedMesh = newMesh;
-                    selectedMesh->select();
-                    
-                    // Locate the local axis to new mesh
-                    localAxis->setPosition(newMesh->getPosition());
-                    localAxis->show();
-
-                    reportInfo("Mesh " + selectedMesh->name + " pasted");
-                }
+                reportInfo(selectedMesh->getName() + " pasted");
             }
             break;
         case GLFW_KEY_BACKSPACE: // Delete selected mesh
             if (selectedMesh == NULL) break;
-            if (selectedMesh->name == "MASTER_LIGHT") {
+            if (selectedMesh->getType() == LIGHT) {
                 // If the selected mesh is a light
                 for (uint32_t i = 0; i < lights.size(); i++)
                     if (lights[i] == selectedMesh)
                         lights.erase(lights.begin() + i);
                 delete (Light*) selectedMesh;
-            } else { // Others
+            } else if (selectedMesh->getType() == DEFAULT) { // Others
                 Model* parentModel = ((Model*) selectedMesh->getParent());
                 parentModel->removeMesh(selectedMesh);
                 delete selectedMesh;
@@ -525,14 +506,14 @@ int main(int argc, char **argv) {
 
     // Add tweak bars
     TwInit(TW_OPENGL_CORE, NULL);
-    TwDefine("GLOBAL fontsize=3");
+    //TwDefine("GLOBAL fontsize=3");
     TwWindowSize(frameWidth, frameHeight);
 
 	// Show window info
     TwBar * windowInfoBar = TwNewBar("Window Info");
     TwSetParam(windowInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(windowInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 10");
-    TwSetParam(windowInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 145");
+    //TwSetParam(windowInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 10");
+    //TwSetParam(windowInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 145");
     TwAddVarRO(windowInfoBar, "FPS", TW_TYPE_FLOAT, &fps, "step=0.1");
     TwAddVarRO(windowInfoBar, "Window Width", TW_TYPE_UINT32, &windowWidth, "");
     TwAddVarRO(windowInfoBar, "Window Height", TW_TYPE_UINT32, &windowHeight, "");
@@ -541,69 +522,46 @@ int main(int argc, char **argv) {
     TwAddVarRO(windowInfoBar, "Retina", TW_TYPE_BOOLCPP, &retina, "");
 
     // Show FPS and camara info
-    TwBar * viewerInfoBar = TwNewBar("Viewer Info");
-    TwSetParam(viewerInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(viewerInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 165");
-    TwSetParam(viewerInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 115");
-    TwAddVarRW(viewerInfoBar, "Moving Speed", TW_TYPE_FLOAT, &moveSpeed, "step=0.01");
-    TwAddVarRW(viewerInfoBar, "Camera Position X", TW_TYPE_FLOAT, &camera.pos.x, "step=0.1");
-    TwAddVarRW(viewerInfoBar, "Camera Position Y", TW_TYPE_FLOAT, &camera.pos.y, "step=0.1");
-    TwAddVarRW(viewerInfoBar, "Camera Position Z", TW_TYPE_FLOAT, &camera.pos.z, "step=0.1");
+    TwAddSeparator(windowInfoBar, "sep1", NULL);
+    TwAddVarRW(windowInfoBar, "Moving Speed", TW_TYPE_FLOAT, &moveSpeed, "step=0.01");
+    TwAddVarRW(windowInfoBar, "Camera Position X", TW_TYPE_FLOAT, &camera.pos.x, "step=0.1");
+    TwAddVarRW(windowInfoBar, "Camera Position Y", TW_TYPE_FLOAT, &camera.pos.y, "step=0.1");
+    TwAddVarRW(windowInfoBar, "Camera Position Z", TW_TYPE_FLOAT, &camera.pos.z, "step=0.1");
 
 	// Show texture map config
-    TwBar * textureBar = TwNewBar("Texture");
-    TwSetParam(textureBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(textureBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 290");
-    TwSetParam(textureBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 115");
-	TwAddVarRW(textureBar, "Diffuse Map", TW_TYPE_BOOLCPP, &enableDiffuseMap, "");
-    TwAddVarRW(textureBar, "Specular Map", TW_TYPE_BOOLCPP, &enableSpecularMap, "");
-    TwAddVarRW(textureBar, "Normal Map", TW_TYPE_BOOLCPP, &enableNormalMap, "");
-    TwAddVarRW(textureBar, "Parallax Map", TW_TYPE_BOOLCPP, &enableParallaxMap, "");
+	TwAddVarRW(windowInfoBar, "Diffuse Map", TW_TYPE_BOOLCPP, &enableDiffuseMap, "");
+    TwAddVarRW(windowInfoBar, "Specular Map", TW_TYPE_BOOLCPP, &enableSpecularMap, "");
+    TwAddVarRW(windowInfoBar, "Normal Map", TW_TYPE_BOOLCPP, &enableNormalMap, "");
+    TwAddVarRW(windowInfoBar, "Parallax Map", TW_TYPE_BOOLCPP, &enableParallaxMap, "");
 
     // Show lighting config
-	TwBar * lightingBar = TwNewBar("Lighting");
-    TwSetParam(lightingBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(lightingBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 415");
-    TwSetParam(lightingBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 155");
-    TwAddVarRW(lightingBar, "Enable Lighting", TW_TYPE_BOOLCPP, &enableLighting, "");
-    TwAddVarRW(lightingBar, "Double Side Lighting", TW_TYPE_BOOLCPP, &enableDoubleSideLighting, "");
-    TwAddVarRW(lightingBar, "Enable Attenuation", TW_TYPE_BOOLCPP, &enableAttenuation, "");
-	TwAddVarRW(lightingBar, "Attenuation Quadratic", TW_TYPE_FLOAT, &attenuation_quadratic, "step=0.000001");
-	TwAddVarRW(lightingBar, "Attenuation Linear", TW_TYPE_FLOAT, &attenuation_linear, "step=0.000001");
-    TwAddVarRW(lightingBar, "Attenuation Constant", TW_TYPE_FLOAT, &attenuation_constant, "step=0.000001");
+    TwAddVarRW(windowInfoBar, "Enable Lighting", TW_TYPE_BOOLCPP, &enableLighting, "");
+    TwAddVarRW(windowInfoBar, "Double Side Lighting", TW_TYPE_BOOLCPP, &enableDoubleSideLighting, "");
+    TwAddVarRW(windowInfoBar, "Enable Attenuation", TW_TYPE_BOOLCPP, &enableAttenuation, "");
+	TwAddVarRW(windowInfoBar, "Attenuation Quadratic", TW_TYPE_FLOAT, &attenuation_quadratic, "step=0.000001");
+	TwAddVarRW(windowInfoBar, "Attenuation Linear", TW_TYPE_FLOAT, &attenuation_linear, "step=0.000001");
+    TwAddVarRW(windowInfoBar, "Attenuation Constant", TW_TYPE_FLOAT, &attenuation_constant, "step=0.000001");
 
     // Show shadow config
-	TwBar * shadowBar = TwNewBar("Shadow");
-    TwSetParam(shadowBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(shadowBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 580");
-    TwSetParam(shadowBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 115");
-    TwAddVarRW(shadowBar, "Enable Shadow", TW_TYPE_BOOLCPP, &enableShadow, "");
-    TwAddVarCB(shadowBar, "Resolution", TW_TYPE_UINT16, setShadowResolution, getShadowResolution, &shadowResolution, NULL);
-    TwAddVarRW(shadowBar, "Bias", TW_TYPE_FLOAT, &bias, "step=0.001");
-    TwAddVarRW(shadowBar, "Radius", TW_TYPE_FLOAT, &radius, "step=0.001");
+    TwAddVarRW(windowInfoBar, "Enable Shadow", TW_TYPE_BOOLCPP, &enableShadow, "");
+    TwAddVarCB(windowInfoBar, "Resolution", TW_TYPE_UINT16, setShadowResolution, getShadowResolution, &shadowResolution, NULL);
+    TwAddVarRW(windowInfoBar, "Bias", TW_TYPE_FLOAT, &bias, "step=0.001");
+    TwAddVarRW(windowInfoBar, "Radius", TW_TYPE_FLOAT, &radius, "step=0.001");
 
     // Show OpenGL config
-    TwBar * configBar = TwNewBar("Configuration");
-    TwSetParam(configBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(configBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 705");
-    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 165");
-    TwAddVarRW(configBar, "Background Color", TW_TYPE_COLOR3F, &backgroundColor.x, "");
-    TwAddVarRW(configBar, "Backface Culling", TW_TYPE_BOOLCPP, &enableFaceCulling, "");
-    TwAddVarRW(configBar, "Gridlines", TW_TYPE_BOOLCPP, &enableGridlines, "");
-    TwAddVarRW(configBar, "Vertical Sync", TW_TYPE_BOOLCPP, &enableVSync, "");
-    TwAddVarRW(configBar, "MSAA 4X", TW_TYPE_BOOLCPP, &enableMSAA4X, "");
-    TwAddVarRW(configBar, "Gamma Correction", TW_TYPE_BOOLCPP, &enableGammaCorrection, "");
-    TwAddVarRW(configBar, "WireFrame Mode", TW_TYPE_BOOLCPP, &enableWireFrame, "");
+    TwAddVarRW(windowInfoBar, "Background Color", TW_TYPE_COLOR3F, &backgroundColor.x, "");
+    TwAddVarRW(windowInfoBar, "Backface Culling", TW_TYPE_BOOLCPP, &enableFaceCulling, "");
+    TwAddVarRW(windowInfoBar, "Gridlines", TW_TYPE_BOOLCPP, &enableGridlines, "");
+    TwAddVarRW(windowInfoBar, "Vertical Sync", TW_TYPE_BOOLCPP, &enableVSync, "");
+    TwAddVarRW(windowInfoBar, "MSAA 4X", TW_TYPE_BOOLCPP, &enableMSAA4X, "");
+    TwAddVarRW(windowInfoBar, "Gamma Correction", TW_TYPE_BOOLCPP, &enableGammaCorrection, "");
+    TwAddVarRW(windowInfoBar, "WireFrame Mode", TW_TYPE_BOOLCPP, &enableWireFrame, "");
 
     // Show application info
-    TwBar * appInfoBar = TwNewBar("Application Info");
-    TwSetParam(appInfoBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(appInfoBar, NULL, "position", TW_PARAM_CSTRING, 1, "5 880");
-    TwSetParam(appInfoBar, NULL, "size", TW_PARAM_CSTRING, 1, "280 120");
-    TwAddButton(appInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.3'");
-    TwAddButton(appInfoBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());
-    TwAddButton(appInfoBar, "1.2", NULL, NULL, ("label='" + glVersionInfo + "'").c_str());
-    TwAddButton(appInfoBar, "1.3", NULL, NULL, ("label='" + glShadingLanguageVersionInfo + "'").c_str());
+    TwAddButton(windowInfoBar, "1.0", NULL, NULL, "label='App Version: v0.4.3'");
+    TwAddButton(windowInfoBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());
+    TwAddButton(windowInfoBar, "1.2", NULL, NULL, ("label='" + glVersionInfo + "'").c_str());
+    TwAddButton(windowInfoBar, "1.3", NULL, NULL, ("label='" + glShadingLanguageVersionInfo + "'").c_str());
 
     // Set callback functions
     glfwSetWindowSizeCallback(window.getGLFWwindow(), windowSizeCallback);

@@ -2,12 +2,13 @@
 #include "basicShapes.h"
 #include "glconfig.h"
 
-Light::Light(vec3 _color, uint16_t _shadowResolution, btDiscreteDynamicsWorld *_dynamicsWorld) : Mesh() {
+// To give a unique name to each light
+uint32_t lightCount = 0;
+
+Light::Light(vec3 _color, uint32_t _shadowResolution, btDiscreteDynamicsWorld *_dynamicsWorld) : Mesh(NULL, LIGHT) {
     color = _color;
     dynamicsWorld = _dynamicsWorld;
-
-    // All lights have the same name: MASTER_LIGHT
-    name = "MASTER_LIGHT";
+    name = "LIGHT " + to_string(lightCount++);
 
 	// Vertices and indices
     for (uint32_t i = 0; i < cube_vertices.size() / 3; i++) {
@@ -43,6 +44,7 @@ Light::Light(vec3 _color, uint16_t _shadowResolution, btDiscreteDynamicsWorld *_
 }
 
 Light::Light(const Light& a) : Mesh(a) {
+    name = "LIGHT " + to_string(lightCount++);
     color = a.color;
     nearPlane = a.nearPlane;
     farPlane = a.farPlane;
@@ -126,11 +128,15 @@ void Light::setColor(vec3 _color) {
 }
 
 // Set shadow resolution
-void Light::setShadowResolution(uint16_t newResolution) {
+void Light::setShadowResolution(uint32_t newResolution) {
 	shadowResolution = newResolution;
 	
     // Re-Initialize depthmap
     initDepthMap();
+}
+
+uint32_t Light::getShadowResolution() {
+    return shadowResolution;
 }
 
 vec3 Light::getColor() {

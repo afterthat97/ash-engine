@@ -6,9 +6,13 @@
 #include "vertex.h"
 #include "shader.h"
 
+enum MeshType { DEFAULT, LIGHT, AXIS }; 
+
 class Mesh {
 protected:
+    string name;
     vec3 pos, scale, minv, maxv, lenv;
+    MeshType meshType;
     quat rot;
     mat4 model;
     void *parent;
@@ -29,33 +33,42 @@ protected:
     void addToBulletDynamicsWorld();
     void removeFromBulletDynamicsWorld();
 public:
-    // Name is important as the program tells the difference
-    // among meshes, lights and axes according to their names.
-    string name;
-    Mesh(void *_parent = NULL);
-    Mesh(vector<Vertex>& vertices,
-         vector<uint32_t>& indices,
-         shared_ptr<Material> material,
-         btDiscreteDynamicsWorld* dynamicsWorld,
-         string name = "Untitled Mesh",
-		 int32_t newid = -1);
+    Mesh(void *_parent = NULL,
+            MeshType _meshType = DEFAULT);
+    Mesh(vector<Vertex>& _vertices,
+            vector<uint32_t>& _indices,
+            shared_ptr<Material> _material,
+            btDiscreteDynamicsWorld* _dynamicsWorld,
+            string _name = "Untitled",
+            MeshType _meshType = DEFAULT);
     Mesh(const Mesh &a);
     ~Mesh();
+
     void show();
     void hide();
+    
     void select();
     void deselect();
+    
     void render(Shader&);
     void dumpinfo(string);
+    
     void addTranslation(vec3);
     void addRotation(vec3);
-	void addScale(vec3);
+	void addScaling(vec3);
+    
+    void setName(string);
+    string getName();
+
     void setPosition(vec3);
     vec3 getPosition();
+
     void setParent(void*);
     void* getParent();
-	void setID(int32_t);
-	int32_t getID();
+	
+    void setType(MeshType);
+	MeshType getType();
+    
     vec3 getSize();
 };
 

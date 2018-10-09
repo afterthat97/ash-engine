@@ -67,15 +67,15 @@ Axis::Axis(btDiscreteDynamicsWorld* dynamicsWorld) {
         indicesScale.push_back(scaleAxisIndices[i] - 1);
 
     // Construct 9 axes
-    transX = new Mesh(verticesTransX, indicesTrans, materialX, dynamicsWorld, "MASTER_AXIS_transX");
-    transY = new Mesh(verticesTransY, indicesTrans, materialY, dynamicsWorld, "MASTER_AXIS_transY");
-    transZ = new Mesh(verticesTransZ, indicesTrans, materialZ, dynamicsWorld, "MASTER_AXIS_transZ");
-    rotX = new Mesh(verticesRotX, indicesRot, materialX, dynamicsWorld, "MASTER_AXIS_rotX");
-    rotY = new Mesh(verticesRotY, indicesRot, materialY, dynamicsWorld, "MASTER_AXIS_rotY");
-    rotZ = new Mesh(verticesRotZ, indicesRot, materialZ, dynamicsWorld, "MASTER_AXIS_rotZ");
-    scaleX = new Mesh(verticesScaleX, indicesScale, materialX, dynamicsWorld, "MASTER_AXIS_scaleX");
-    scaleY = new Mesh(verticesScaleY, indicesScale, materialY, dynamicsWorld, "MASTER_AXIS_scaleY");
-    scaleZ = new Mesh(verticesScaleZ, indicesScale, materialZ, dynamicsWorld, "MASTER_AXIS_scaleZ");
+    transX = new Mesh(verticesTransX, indicesTrans, materialX, dynamicsWorld, "TRANS_AXIS_X", AXIS);
+    transY = new Mesh(verticesTransY, indicesTrans, materialY, dynamicsWorld, "TRANS_AXIS_Y", AXIS);
+    transZ = new Mesh(verticesTransZ, indicesTrans, materialZ, dynamicsWorld, "TRANS_AXIS_Z", AXIS);
+    rotX = new Mesh(verticesRotX, indicesRot, materialX, dynamicsWorld, "ROT_AXIS_X", AXIS);
+    rotY = new Mesh(verticesRotY, indicesRot, materialY, dynamicsWorld, "ROT_AXIS_Y", AXIS);
+    rotZ = new Mesh(verticesRotZ, indicesRot, materialZ, dynamicsWorld, "ROT_AXIS_Z", AXIS);
+    scaleX = new Mesh(verticesScaleX, indicesScale, materialX, dynamicsWorld, "SCALE_AXIS_X", AXIS);
+    scaleY = new Mesh(verticesScaleY, indicesScale, materialY, dynamicsWorld, "SCALE_AXIS_Y", AXIS);
+    scaleZ = new Mesh(verticesScaleZ, indicesScale, materialZ, dynamicsWorld, "SCALE_AXIS_Z", AXIS);
 
 	// Hide them
 	transX->hide();
@@ -105,41 +105,41 @@ Axis::~Axis() {
 // starts and the function returns true. Otherwise it returns false.
 bool Axis::startDrag(Mesh * selectedMesh, vec4 raySt, vec4 rayEd) {
 	draging = false;
-	if (selectedMesh == NULL) return false;
+	if (selectedMesh == NULL || selectedMesh->getType() != AXIS) return false;
 	vec3 tmp;
-	if (selectedMesh->name == "MASTER_AXIS_transX") {
+	if (selectedMesh->getName() == "TRANS_AXIS_X") {
 		getClosestPointOfLineLine(pos, vec3(1, 0, 0), raySt, rayEd - raySt, lastIntersection, tmp);
 		draging = true;
 		transformAxis = vec3(1.0f, 0.0f, 0.0f);
-	} else if (selectedMesh->name == "MASTER_AXIS_transY") {
+	} else if (selectedMesh->getName() == "TRANS_AXIS_Y") {
 		getClosestPointOfLineLine(pos, vec3(0, 1, 0), raySt, rayEd - raySt, lastIntersection, tmp);
 		draging = true;
 		transformAxis = vec3(0.0f, 1.0f, 0.0f);
-	} else if (selectedMesh->name == "MASTER_AXIS_transZ") {
+	} else if (selectedMesh->getName() == "TRANS_AXIS_Z") {
 		getClosestPointOfLineLine(pos, vec3(0, 0, 1), raySt, rayEd - raySt, lastIntersection, tmp);
 		draging = true;
 		transformAxis = vec3(0.0f, 0.0f, 1.0f);
-	} else if (selectedMesh->name == "MASTER_AXIS_rotX") {
+	} else if (selectedMesh->getName() == "ROT_AXIS_X") {
 		getIntersectionOfLinePlane(raySt, rayEd - raySt, pos, vec3(1, 0, 0), lastIntersection);
 		draging = true;
 		transformAxis = vec3(1.0f, 0.0f, 0.0f);
-	} else if (selectedMesh->name == "MASTER_AXIS_rotY") {
+	} else if (selectedMesh->getName() == "ROT_AXIS_Y") {
 		getIntersectionOfLinePlane(raySt, rayEd - raySt, pos, vec3(0, 1, 0), lastIntersection);
 		draging = true;
 		transformAxis = vec3(0.0f, 1.0f, 0.0f);
-	} else if (selectedMesh->name == "MASTER_AXIS_rotZ") {
+	} else if (selectedMesh->getName() == "ROT_AXIS_Z") {
 		getIntersectionOfLinePlane(raySt, rayEd - raySt, pos, vec3(0, 0, 1), lastIntersection);
 		draging = true;
 		transformAxis = vec3(0.0f, 0.0f, 1.0f);
-	} else if (selectedMesh->name == "MASTER_AXIS_scaleX") {
+	} else if (selectedMesh->getName() == "SCALE_AXIS_X") {
 		getClosestPointOfLineLine(pos, vec3(1, 0, 0), raySt, rayEd - raySt, lastIntersection, tmp);
 		draging = true;
 		transformAxis = vec3(1.0f, 0.0f, 0.0f);
-	} else if (selectedMesh->name == "MASTER_AXIS_scaleY") {
+	} else if (selectedMesh->getName() == "SCALE_AXIS_Y") {
 		getClosestPointOfLineLine(pos, vec3(0, 1, 0), raySt, rayEd - raySt, lastIntersection, tmp);
 		draging = true;
 		transformAxis = vec3(0.0f, 1.0f, 0.0f);
-	} else if (selectedMesh->name == "MASTER_AXIS_scaleZ") {
+	} else if (selectedMesh->getName() == "SCALE_AXIS_Z") {
 		getClosestPointOfLineLine(pos, vec3(0, 0, 1), raySt, rayEd - raySt, lastIntersection, tmp);
 		draging = true;
 		transformAxis = vec3(0.0f, 0.0f, 1.0f);
@@ -175,7 +175,7 @@ bool Axis::continueDrag(Mesh* selectedMesh, vec4 raySt, vec4 rayEd) {
 		if (isnan(scaleVector.x)) scaleVector.x = 1.0f;
 		if (isnan(scaleVector.y)) scaleVector.y = 1.0f;
 		if (isnan(scaleVector.z)) scaleVector.z = 1.0f;
-		selectedMesh->addScale(scaleVector);
+		selectedMesh->addScaling(scaleVector);
 	}
 	lastIntersection = p;
 	return true;

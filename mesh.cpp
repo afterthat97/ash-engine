@@ -2,12 +2,14 @@
 #include "glconfig.h"
 #include "extmath.h"
 
-Mesh::Mesh(void *_parent) {
+Mesh::Mesh(void *_parent,
+        MeshType _meshType) {
+    name = "Untitled";
+    meshType = _meshType;
     pos = vec3(0.0);
 	scale = vec3(1.0);
     rot = quat(vec3(0.0));
     model = mat4(1.0);
-    name = "Untitled Mesh";
     parent = _parent;
     visible = true;
     selected = false;
@@ -26,8 +28,9 @@ Mesh::Mesh(vector<Vertex>& _vertices,
            shared_ptr<Material> _material,
            btDiscreteDynamicsWorld *_dynamicsWorld,
            string _name,
-		   int32_t newid) {
+           MeshType _meshType) {
     name = _name;
+    meshType = _meshType;
     vertices = _vertices;
     indices = _indices;
     material = _material;
@@ -52,12 +55,14 @@ Mesh::Mesh(vector<Vertex>& _vertices,
     }
     lenv = maxv - minv;
 
-    // What a mess!
-    if (name.substr(0, 11) != "MASTER_AXIS") {
+    // Reset position
+    if (meshType != AXIS) {
         pos = minv;
         for (uint32_t i = 0; i < vertices.size(); i++)
             vertices[i].position -= minv;
     }
+
+    // Model matrix
     model = translate(mat4(1.0), pos) * glm::toMat4(rot);
 
     // Initialize VAO, VBO, etc
@@ -71,11 +76,12 @@ Mesh::Mesh(vector<Vertex>& _vertices,
 }
 
 Mesh::Mesh(const Mesh &a) {
+    name = a.name;
+    meshType = a.meshType;
     pos = a.pos;
 	scale = a.scale;
     rot = a.rot;
     model = a.model;
-    name = a.name;
     parent = a.parent;
     visible = true;
     selected = false;
@@ -277,10 +283,20 @@ void Mesh::addRotation(vec3 eularAngle) {
 }
 
 // Apply scaling to the mesh
-void Mesh::addScale(vec3 scaleVector) {
+void Mesh::addScaling(vec3 scaleVector) {
 	scale = scale * scaleVector;
     model = translate(mat4(1.0), pos) * glm::toMat4(rot) * glm::scale(mat4(1.0), scale);
     applyToBulletRigidBody();
+}
+
+// Set name
+void Mesh::setName(string newName) {
+    name = newName;
+}
+
+// Get name
+string Mesh::getName() {
+    return name;
 }
 
 // Set the position
@@ -301,6 +317,16 @@ void Mesh::setParent(void * _parent) {
 // Get the parent model
 void* Mesh::getParent() {
     return parent;
+}
+
+// Set mesh type
+void Mesh::setType(MeshType _meshType) {
+    meshType = _meshType;
+}
+
+// Get mesh type
+MeshType Mesh::getType() {
+    return meshType;
 }
 
 // Get the size of the mesh
