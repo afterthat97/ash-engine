@@ -68,10 +68,6 @@ shared_ptr<Material> Scene::loadMaterial(const aiMaterial* aiMaterialPtr, string
     if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_NAME, aiStr))
         newMaterial->name = string(aiStr.C_Str());
 
-    // ambient RGB
-    if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_COLOR_AMBIENT, color))
-        newMaterial->ambient = toVec3(color);
-
     // diffuse RGB
     if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_COLOR_DIFFUSE, color))
         newMaterial->diffuse = toVec3(color);
@@ -210,6 +206,14 @@ void Scene::render(Shader& shader) {
         models[i]->render(shader);
 }
 
+// Dump details to console
+void Scene::dumpinfo(string tab) {
+    printf("\n%sScene %s, %d models and %d materials in total.\n", tab.c_str(), name.c_str(), (int) models.size(), (int) materials.size());
+    for (uint32_t i = 0; i < models.size(); i++)
+        models[i]->dumpinfo(tab + "  ");
+    putchar('\n');
+}
+
 // Recycle memory
 void Scene::recycle() {
     for (uint32_t i = 0; i < materials.size(); i++)
@@ -218,14 +222,20 @@ void Scene::recycle() {
             i--;
         }
 	textureManager.recycle();
+    for (uint32_t i = 0; i < models.size(); i++)
+        if (models[i]->getMeshNum() == 0) {
+            delete models[i];
+            models.erase(models.begin() + i);
+            i--;
+        } 
 }
 
-// Dump details to console
-void Scene::dumpinfo(string tab) {
-    printf("\n%sScene %s, %d models and %d materials in total.\n", tab.c_str(), name.c_str(), (int) models.size(), (int) materials.size());
+// Count all meshes belong to this scene
+uint32_t Scene::getMeshNum() {
+    uint32_t tot = 0;
     for (uint32_t i = 0; i < models.size(); i++)
-        models[i]->dumpinfo(tab + "  ");
-    putchar('\n');
+        tot += models[i]->getMeshNum();
+    return tot;
 }
 
 // Apply translation to the scene

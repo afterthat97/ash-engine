@@ -15,21 +15,34 @@ public:
     string name;
     Model(void *_parent = NULL);
     ~Model();
+    
     void addMesh(Mesh*);
     void addChildren(Model*);
+    
+    uint32_t getMeshNum();
+
     void removeMesh(Mesh*);
     void removeChildren(Model*);
+
+    void recycle();
+    
     void show();
     void hide();
+    
     void select();
     void deselect();
+    
     void render(Shader&);
     void dumpinfo(string);
+    
     void addTranslation(vec3);
     void addRotation(vec3);
+
     void setPosition(vec3);
     vec3 getPosition();
+    
     vec3 getSize();
+    
     void setParent(void*);
     void* getParent();
 };

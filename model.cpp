@@ -27,6 +27,14 @@ void Model::addChildren(Model *newModel) {
     children.push_back(newModel);
 }
 
+// Count all meshes belong to this model
+uint32_t Model::getMeshNum() {
+    uint32_t tot = meshes.size();
+    for (uint32_t i = 0; i < children.size(); i++)
+        tot += children[i]->getMeshNum();
+    return tot;
+}
+
 // Remove mesh
 void Model::removeMesh(Mesh *target) {
     pos = vec3(FLT_MAX);
@@ -45,6 +53,16 @@ void Model::removeChildren(Model *target) {
             children.erase(children.begin() + i);
     for (uint32_t i = 0; i < children.size(); i++)
         pos = minVec3(pos, children[i]->getPosition());
+}
+
+// Recycle memory
+void Model::recycle() {
+    for (uint32_t i = 0; i < children.size(); i++)
+        if (children[i]->getMeshNum() == 0) {
+            delete children[i];
+            children.erase(children.begin() + i);
+            i--;
+        }
 }
 
 // Show the model on screen

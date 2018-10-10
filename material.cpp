@@ -47,11 +47,11 @@ void Material::loadDefaultAmbientRGB() {
 }
 
 void Material::loadDefaultDiffuseRGB() {
-    diffuse = vec3(1.0f, 1.0f, 1.0f);
+    diffuse = vec3(0.8f, 0.8f, 0.8f);
 }
 
 void Material::loadDefaultSpecularRGB() {
-    specular = vec3(0.5f, 0.5f, 0.5f);
+    specular = vec3(0.4f, 0.4f, 0.4f);
 }
 
 void Material::bind(Shader& shader) {

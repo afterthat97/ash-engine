@@ -26,19 +26,28 @@ public:
     string name;
     Scene(string, btDiscreteDynamicsWorld*);
 	~Scene();
+
     void addModel(Model*);
     void addMaterial(shared_ptr<Material>);
+    
     void show();
     void hide();
+    
     void select();
     void deselect();
+    
     void render(Shader&);
-    void recycle();
     void dumpinfo(string);
+    
+    void recycle();
+    uint32_t getMeshNum();
+    
     void addTranslation(vec3);
     void addRotation(vec3);
+    
     void setPosition(vec3);
     vec3 getPosition();
+    
     vec3 getSize();
 };
 
