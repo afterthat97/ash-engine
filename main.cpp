@@ -513,7 +513,7 @@ int main(int argc, char **argv) {
 	// Show window info
     TwBar * configBar = TwNewBar("Configuration");
     TwSetParam(configBar, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
-    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "270 700");
+    TwSetParam(configBar, NULL, "size", TW_PARAM_CSTRING, 1, "270 680");
     TwAddVarRO(configBar, "FPS", TW_TYPE_FLOAT, &fps, "step=0.1");
     TwAddVarRO(configBar, "Window Width", TW_TYPE_UINT32, &windowWidth, "");
     TwAddVarRO(configBar, "Window Height", TW_TYPE_UINT32, &windowHeight, "");
@@ -564,7 +564,7 @@ int main(int argc, char **argv) {
 
     // Show application info
     TwAddSeparator(configBar, "sep6", NULL);
-    TwAddButton(configBar, "1.0", NULL, NULL, "label='App Version: v0.4.3'");
+    TwAddButton(configBar, "1.0", NULL, NULL, "label='App Version: v0.5.0'");
     TwAddButton(configBar, "1.1", NULL, NULL, ("label='" + rendererInfo + "'").c_str());
     TwAddButton(configBar, "1.2", NULL, NULL, ("label='" + glVersionInfo + "'").c_str());
     TwAddButton(configBar, "1.3", NULL, NULL, ("label='" + glShadingLanguageVersionInfo + "'").c_str());
