@@ -8,6 +8,7 @@ CC = g++
 atview : ${OBJS}
 	g++ ${CFLAGS} ${OBJS} -o atview -framework OpenGL -framework GLUT -framework Cocoa -L${LIB} -lassimp -lfreeimage
 	install_name_tool -change /usr/local/opt/assimp/lib/libassimp.4.dylib @executable_path/libassimp.dylib atview
+	mkdir -p bin
 	mv atview bin/
 	cp ${LIB}libassimp.dylib bin/
 
@@ -15,4 +16,4 @@ atview : ${OBJS}
 	${CC} -c ${CFLAGS} $<
 
 clean :
-	rm ${OBJS}
+	rm -rf bin ${OBJS}
