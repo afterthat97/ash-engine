@@ -9,6 +9,7 @@ atview : ${OBJS}
 	g++ ${CFLAGS} ${OBJS} -o atview -framework OpenGL -framework Cocoa -L${LIB} -lassimp -lfreeimage -lglfw -lanttweakbar
 	install_name_tool -change /usr/local/opt/assimp/lib/libassimp.4.dylib @executable_path/libassimp.dylib atview
 	install_name_tool -change /usr/local/opt/glfw/lib/libglfw.3.dylib @executable_path/libglfw.dylib atview
+	mkdir -p bin
 	mv atview bin/
 	cp ${LIB}*.dylib bin/
 
@@ -19,4 +20,4 @@ run : atview
 	${CC} -c ${CFLAGS} $<
 
 clean :
-	rm ${OBJS}
+	rm -rf bin ${OBJS}
