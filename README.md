@@ -13,9 +13,9 @@ An cross-platform 3D model viewer for learning purpose, based on OpenGL, Assimp,
 
 ## Screenshots
 
-![](screenshots/screenshot1.png)
+![](screenshots/screenshot1.jpg)
 
-![](screenshots/screenshot2.png)
+![](screenshots/screenshot2.jpg)
 
 ## How to use
 
