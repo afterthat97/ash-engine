@@ -48,7 +48,11 @@ mat4 Window::getProjMatrix() {
 // Take a screenshot and save to file
 void Window::screenshot() {
     uint8_t* pixels = new uint8_t[3 * frameSizeX * frameSizeY];
-    string filename = "Screen Shot " + getFormatDate() + " at " + getFormatTime() + " .bmp";
+    string filename = "Screen Shot " + getFormatDate() + " at " + getFormatTime() + ".bmp";
+
+#ifdef APPLE_MACOS
+    filename = string(getenv("HOME")) + "/Desktop/" + filename;
+#endif
 
     // Capture screen pixels
     glReadPixels(0, 0, frameSizeX, frameSizeY, GL_BGR, GL_UNSIGNED_BYTE, pixels);

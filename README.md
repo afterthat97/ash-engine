@@ -19,9 +19,9 @@ A cross-platform 3D Engine for learning purpose, based on OpenGL, Bullet, Assimp
 
 ## Screenshots
 
-![](screenshots/screenshot0.png)
+![](screenshots/screenshot0.jpg)
 
-![](screenshots/screenshot1.png)
+![](screenshots/screenshot1.jpg)
 
 ## Usage
 
@@ -48,7 +48,7 @@ How to import your models? Drag and Drop them onto the window!
 
 ### Add a light
 
-If there is no light in the scene, a new light will be added automatically when you import a model. Besides, you can press `L` to add one manually.
+**There is no light in the scene at the begining**, you need to add lights by the `Add new light` button on the left bar. You can also press `L` to add one quickly.
 
 ### Copy & Paste
 
