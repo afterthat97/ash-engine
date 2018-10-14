@@ -2,7 +2,10 @@
 *.d
 .DS_Store
 <<<<<<< HEAD
+<<<<<<< HEAD
 totlines.sh
+=======
+>>>>>>> bugfix
 =======
 >>>>>>> bugfix
 bin/

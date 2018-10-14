@@ -72,4 +72,3 @@ All the pre-compiled dependencies are placed in the `lib` directory.
 For macOS, clone this repository and type `make` to build.
 
 For Windows, just download the VS2017 project from the "release" page and build it. All the dynamic libraries and the static libraries are included.
-
