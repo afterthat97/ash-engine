@@ -1,5 +1,8 @@
 *.o
 *.d
 .DS_Store
+<<<<<<< HEAD
 totlines.sh
+=======
+>>>>>>> bugfix
 bin/
