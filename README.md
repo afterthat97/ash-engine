@@ -1,6 +1,6 @@
 # atview
 
-An cross-platform 3D model viewer for learning purpose, based on OpenGL, Assimp, FreeImage, and AntTweakBar.
+A cross-platform 3D model viewer for learning purpose, based on OpenGL, Assimp, FreeImage, and AntTweakBar.
 
 ## Features
 
@@ -13,11 +13,11 @@ An cross-platform 3D model viewer for learning purpose, based on OpenGL, Assimp,
 
 ## Screenshots
 
-![](screenshots/gun.png)
+![](screenshots/screenshot1.jpg)
 
-![](screenshots/chair.png)
+![](screenshots/screenshot2.jpg)
 
-![](screenshots/nanosuit.png)
+![](screenshots/screenshot3.jpg)
 
 ## How to use
 
