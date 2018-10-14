@@ -11,25 +11,25 @@ An cross-platform 3D model viewer for learning purpose, based on OpenGL, Assimp,
 
 ## Screenshots
 
-Rock, lighting on, texture on, fill mode.
-
-![](https://img.masterliu.net/atview/rock.jpg)
-
 Rock, lighting off, texture on, fill mode.
 
-![](https://img.masterliu.net/atview/rock-nolight.jpg)
+![](screenshots/screenshot1.jpg)
+
+Rock, lighting on, texture on, fill mode.
+
+![](screenshots/screenshot2.jpg)
 
 Rock, lighting on, texture off, fill mode.
 
-![](https://img.masterliu.net/atview/rock-notexture.jpg)
+![](screenshots/screenshot3.jpg)
 
-Rock, lighting on, texture off, line mode.
+Rock, lighting off, texture off, wireframe mode.
 
-![](https://img.masterliu.net/atview/rock-line.jpg)
+![](screenshots/screenshot4.jpg)
 
 ## How to use
 
-Only command-line interface is supported currently. Pass the path of model as arguments, for example:
+Only command-line interface is supported. Pass the path of model as arguments, for example:
 
 ```
 atview rock/rock.obj
