@@ -52,6 +52,8 @@ void Window::screenshot() {
 
 #ifdef APPLE_MACOS
     filename = string(getenv("HOME")) + "/Desktop/" + filename;
+#else
+    filename = string(getenv("USERPROFILE")) + "\\Desktop\\" + filename;
 #endif
 
     // Capture screen pixels
@@ -66,6 +68,8 @@ void Window::screenshot() {
 
 	// Clean
     delete[] pixels;
+
+    reportInfo("Screen shot saved to \"" + filename + "\"");
 }
 
 uint32_t Window::getFrameAreai() {

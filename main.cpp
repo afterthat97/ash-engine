@@ -451,10 +451,10 @@ int main(int argc, char **argv) {
 	windowHeight = window.getWindowSizei().second;
 	frameWidth = window.getFrameSizei().first;
 	frameHeight = window.getFrameSizei().second;
-	retina = (frameWidth > windowWidth);
-    if (!retina) window.resize(1600, 900);
+    retina = (frameWidth > windowWidth);
+	if (!retina) windowSizeCallback(NULL, 1600, 900);
 
-    // Initialize GLEW library
+    // Initialize GLAD library
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         reportError("Failed to initialize GLAD library");
         exit(-1);
