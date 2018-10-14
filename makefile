@@ -9,6 +9,7 @@ atview : ${OBJS}
 	g++ ${CFLAGS} ${OBJS} -o atview -framework OpenGL -framework Cocoa -L${LIB} -lassimp -lfreeimage -lglfw -lanttweakbar -lglew
 	install_name_tool -change /usr/local/opt/assimp/lib/libassimp.4.dylib @executable_path/libassimp.dylib atview
 	install_name_tool -change /usr/local/opt/glfw/lib/libglfw.3.dylib @executable_path/libglfw.dylib atview
+	mkdir -p bin
 	mv atview bin/
 	cp ${LIB}*.dylib bin/
 
@@ -20,7 +21,3 @@ run : atview
 
 clean :
 	rm -rf ${OBJS} bin/
-	mkdir bin
-
-countline :
-	@echo "Total code lines: `ls *include/*.h *.cpp shader/* | xargs cat | wc -l`"

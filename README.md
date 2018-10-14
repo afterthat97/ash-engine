@@ -13,11 +13,11 @@ An cross-platform 3D model viewer for learning purpose, based on OpenGL, Assimp,
 
 ## Screenshots
 
-![](https://img.masterliu.net/atview/rock.png)
+![](screenshots/screenshot1.jpg)
 
-![](https://img.masterliu.net/atview/chair.png)
+![](screenshots/screenshot2.jpg)
 
-![](https://img.masterliu.net/atview/nanosuit.png)
+![](screenshots/screenshot3.jpg)
 
 ## How to use
 
