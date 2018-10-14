@@ -17,13 +17,7 @@ An cross-platform 3D model viewer for learning purpose, based on OpenGL, Assimp,
 
 ## Screenshots
 
-On Microsoft Windows 10 Pro:
-
-![](https://img.masterliu.net/atview/atview-win.jpg)
-
-On Apple macOS 10.13:
-
-![](https://img.masterliu.net/atview/atview-macos.jpg)
+![](screenshots/screenshot.jpg)
 
 ## How to use
 
