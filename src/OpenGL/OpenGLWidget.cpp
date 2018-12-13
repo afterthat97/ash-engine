@@ -22,7 +22,7 @@ QMatrix4x4 OpenGLWidget::getProjectionMatrix() {
 void OpenGLWidget::initializeGL() {
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
-    renderer->loadShader(":/resources/shaders/mesh.vert", ":/resources/shaders/mesh.frag");
+    renderer->loadShader(":/resources/shaders/phong.vert", ":/resources/shaders/phong.frag");
 }
 
 void OpenGLWidget::paintGL() {
