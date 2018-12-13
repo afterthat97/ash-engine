@@ -1,20 +1,29 @@
-*.o
-*.d
+# OS generated files #
+######################
 .DS_Store
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-totlines.sh
-=======
->>>>>>> bugfix
-=======
->>>>>>> bugfix
-=======
->>>>>>> bugfix
-=======
->>>>>>> bugfix
-=======
->>>>>>> bugfix
-bin/
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Compiled source #
+###################
+debug
+release
+x64
+
+# Qt generated files #
+######################
+masterEngine.pro.user
+GeneratedFiles
+.qmake.stash
+
+# VS project files #
+####################
+masterEngine.sln
+masterEngine.vcxproj
+masterEngine.vcxproj.filters
+masterEngine.vcxproj.user
+.vs

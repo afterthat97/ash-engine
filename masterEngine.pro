@@ -4,7 +4,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = masterEngine
 TEMPLATE = app
-VERSION = v1.0.0
+VERSION = v1.0.0-rc1
 
 DEFINES += \
     QT_DEPRECATED_WARNINGS \
