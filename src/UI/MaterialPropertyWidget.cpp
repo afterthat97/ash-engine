@@ -3,19 +3,19 @@
 MaterialPropertyWidget::MaterialPropertyWidget(Material* _material, QWidget *parent): QWidget(parent) {
     material = _material;
 
-    ambientColorWidget = new Vector3DWidget(QStringLiteral("环境颜色"), true, this);
+    ambientColorWidget = new Vector3DWidget("Ambient Color", true, this);
     ambientColorWidget->setLabelText("R", "G", "B");
     ambientColorWidget->setRange(0.0, 1.0);
     ambientColorWidget->setSingleStep(0.01);
     ambientColorWidget->setValue(material->getAmbientColor());
 
-    diffuseColorWidget = new Vector3DWidget(QStringLiteral("漫反射颜色"), true, this);
+    diffuseColorWidget = new Vector3DWidget("Diffuse Color", true, this);
     diffuseColorWidget->setLabelText("R", "G", "B");
     diffuseColorWidget->setRange(0.0, 1.0);
     diffuseColorWidget->setSingleStep(0.01);
     diffuseColorWidget->setValue(material->getDiffuseColor());
 
-    specularColorWidget = new Vector3DWidget(QStringLiteral("镜面反射颜色"), true, this);
+    specularColorWidget = new Vector3DWidget("Specular Color", true, this);
     specularColorWidget->setLabelText("R", "G", "B");
     specularColorWidget->setRange(0.0, 1.0);
     specularColorWidget->setSingleStep(0.01);
@@ -70,9 +70,9 @@ void MaterialPropertyWidget::setShininess(double value) {
 
 
 ShininessWidget::ShininessWidget(QWidget *parent): QGroupBox(parent) {
-    setTitle(QStringLiteral("反光度"));
+    setTitle("Shininess");
 
-    label = new QLabel(QStringLiteral("反光度："), this);
+    label = new QLabel(QStringLiteral("Shininess:"), this);
     spinBox = new QDoubleSpinBox(this);
     spinBox->setRange(0.0, 1000000.0);
     spinBox->setSingleStep(1.0);

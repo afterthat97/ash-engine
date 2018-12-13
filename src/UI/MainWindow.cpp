@@ -48,7 +48,7 @@ void MainWindow::dropEvent(QDropEvent * event) {
 
 QWidget * MainWindow::createEmptyPropertyWidget() {
     QWidget * emptyPropertyWidget = new QWidget(this);
-    QLabel * label = new QLabel(QStringLiteral("空属性页面"), this);
+    QLabel * label = new QLabel("Empty property page", this);
 
     QVBoxLayout * mainLayout = new QVBoxLayout;
     mainLayout->setAlignment(Qt::AlignCenter);

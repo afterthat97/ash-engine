@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 
     MainWindow w;
     w.resize(960, 540);
-    w.setWindowTitle(APP_NAME);
+    w.setWindowTitle("masterEngine");
     w.show();
 
     return a.exec();

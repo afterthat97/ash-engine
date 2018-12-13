@@ -18,8 +18,9 @@ void OpenGLManager::cleanOpenGLTexture() {
     texture_map.clear();
 }
 
+// Convert generic Mesh to OpenGLMesh
 OpenGLMesh * OpenGLManager::getOpenGLMesh(Mesh * mesh) {
-    if (mesh_map.find(mesh->getID()) == mesh_map.end()) {
+    if (mesh_map.find(mesh->getID()) == mesh_map.end()) { // Not found
         OpenGLMesh* openGLMesh = new OpenGLMesh(mesh);
         vector<ShaderAttributeConfig> config = OpenGLConfig::getShaderAttributeConfig();
         for (uint32_t i = 0; i < config.size(); i++)
@@ -29,8 +30,9 @@ OpenGLMesh * OpenGLManager::getOpenGLMesh(Mesh * mesh) {
     return mesh_map[mesh->getID()];
 }
 
+// Convert generic Texture to OpenGLTexture
 OpenGLTexture * OpenGLManager::getOpenGLTexture(Texture * texture) {
-    if (texture_map.find(texture->getID()) == texture_map.end()) {
+    if (texture_map.find(texture->getID()) == texture_map.end()) { // Not found
         OpenGLTexture* openGLTexture = new OpenGLTexture(texture);
         texture_map[texture->getID()] = openGLTexture;
     }

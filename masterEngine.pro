@@ -8,8 +8,7 @@ VERSION = v1.0.0-rc1
 
 DEFINES += \
     QT_DEPRECATED_WARNINGS \
-    APP_VERSION=\"\\\"$${VERSION}\\\"\" \
-    APP_NAME=\"\\\"$${TARGET}\\\"\"
+    APP_VERSION=\\\"$${VERSION}\\\"
 
 INCLUDEPATH += \
     include \

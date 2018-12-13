@@ -3,16 +3,16 @@
 TexturePropertyWidget::TexturePropertyWidget(Texture* _texture, QWidget *parent): QWidget(parent) {
     texture = _texture;
 
-    enableTextureCheckBox = new QCheckBox(QStringLiteral("启用贴图"), this);
+    enableTextureCheckBox = new QCheckBox("Enabled", this);
     enableTextureCheckBox->setChecked(texture->isEnabled());
 
     typeLabel = new QLabel(this);
     if (texture->getType() == Texture::Diffuse) {
-        typeLabel->setText(QStringLiteral("贴图类型：漫反射贴图"));
+        typeLabel->setText("Texture type: Diffuse map");
     } else if (texture->getType() == Texture::Specular) {
-        typeLabel->setText(QStringLiteral("贴图类型：镜面反射贴图"));
+        typeLabel->setText("Texture type: Specular map");
     } else if (texture->getType() == Texture::Normal) {
-        typeLabel->setText(QStringLiteral("贴图类型：法线贴图"));
+        typeLabel->setText("Texture type: Normal map");
     }
 
     imageLabel = new QLabel(this);

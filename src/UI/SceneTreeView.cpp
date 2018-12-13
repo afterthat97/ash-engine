@@ -17,15 +17,15 @@ QVariant SceneTreeModel::data(const QModelIndex &index, int role) const {
 
     Object * pointer = static_cast<Object*>(index.internalPointer());
     if (Model* item = dynamic_cast<Model*>(pointer)) {
-        return QVariant(QStringLiteral("模型: ") + item->getName());
+        return QVariant("Model: " + item->getName());
     } else if (Light* item = dynamic_cast<Light*>(pointer)) {
-        return QVariant(QStringLiteral("光源: ") + item->getName());
+        return QVariant("Light: " + item->getName());
     } else if (Mesh* item = dynamic_cast<Mesh*>(pointer)) {
-        return QVariant(QStringLiteral("网格: ") + item->getName());
+        return QVariant("Mesh: " + item->getName());
     } else if (Material* item = dynamic_cast<Material*>(pointer)) {
-        return QVariant(QStringLiteral("材质: ") + item->getName());
+        return QVariant("Material: " + item->getName());
     } else if (Texture* item = dynamic_cast<Texture*>(pointer)) {
-        return QVariant(QStringLiteral("贴图: ") + item->getName());
+        return QVariant("Texture: " + item->getName());
     }
 }
 

@@ -3,13 +3,13 @@
 LightPropertyWidget::LightPropertyWidget(Light* _light, QWidget *parent): QWidget(parent) {
     light = _light;
 
-    lightPositionWidget = new Vector3DWidget(QStringLiteral("光源位置"), false, this);
+    lightPositionWidget = new Vector3DWidget("Light Position", false, this);
     lightPositionWidget->setLabelText("X", "Y", "Z");
     lightPositionWidget->setRange(-1000000.0, 1000000.0);
     lightPositionWidget->setSingleStep(1.0);
     lightPositionWidget->setValue(light->getPosition());
 
-    lightColorWidget = new Vector3DWidget(QStringLiteral("光源颜色"), true, this);
+    lightColorWidget = new Vector3DWidget("Light Color", true, this);
     lightColorWidget->setLabelText("R", "G", "B");
     lightColorWidget->setRange(0.0, 1.0);
     lightColorWidget->setSingleStep(0.01);
@@ -75,13 +75,13 @@ void LightPropertyWidget::setLightAttenuationConstant(double value) {
 
 
 AttenuationWidget::AttenuationWidget(QWidget *parent): QGroupBox(parent) {
-    setTitle(QStringLiteral("衰减"));
+    setTitle("Attenuation");
 
-    enableAttenuationCheckBox = new QCheckBox(QStringLiteral("启用衰减"), this);
+    enableAttenuationCheckBox = new QCheckBox("Enabled", this);
 
-    quadraticLabel = new QLabel(QStringLiteral("二次项："), this);
-    linearLabel = new QLabel(QStringLiteral("一次项："), this);
-    constantLabel = new QLabel(QStringLiteral("常数项："), this);
+    quadraticLabel = new QLabel("Quadratic value:", this);
+    linearLabel = new QLabel("Linear value:", this);
+    constantLabel = new QLabel("Constant value:", this);
 
     quadraticSpinBox = new QDoubleSpinBox(this);
     quadraticSpinBox->setSingleStep(0.000001);

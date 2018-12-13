@@ -3,19 +3,19 @@
 MeshPropertyWidget::MeshPropertyWidget(Mesh* _mesh, QWidget *parent): QWidget(parent) {
     mesh = _mesh;
 
-    meshPositionWidget = new Vector3DWidget(QStringLiteral("位置"), false, this);
+    meshPositionWidget = new Vector3DWidget("Position", false, this);
     meshPositionWidget->setLabelText("X", "Y", "Z");
     meshPositionWidget->setRange(-1000000.0, 1000000.0);
     meshPositionWidget->setSingleStep(1.0);
     meshPositionWidget->setValue(mesh->getPosition());
 
-    meshRotationWidget = new Vector3DWidget(QStringLiteral("旋转"), true, this);
+    meshRotationWidget = new Vector3DWidget("Rotation", true, this);
     meshRotationWidget->setLabelText("X", "Y", "Z");
     meshRotationWidget->setRange(0.0, 360.0);
     meshRotationWidget->setSingleStep(1.0);
     meshRotationWidget->setValue(mesh->getRotation());
 
-    meshScalingWidget = new Vector3DWidget(QStringLiteral("缩放"), false, this);
+    meshScalingWidget = new Vector3DWidget("Scaling", false, this);
     meshScalingWidget->setLabelText("X", "Y", "Z");
     meshScalingWidget->setRange(0.0, 1000000.0);
     meshScalingWidget->setSingleStep(1.0);
