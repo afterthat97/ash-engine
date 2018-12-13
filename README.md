@@ -1,101 +1,59 @@
 # masterEngine
 
-A cross-platform 3D Engine for learning purpose, based on OpenGL, Bullet, Assimp, FreeImage, and AntTweakBar.
+masterEngine 是一个跨平台的 3D 引擎，基于 Qt、OpenGL 和 Assimp，仅用于学习用途。
 
-## 公告
-
-由于当前版本在最初设计时就存在缺陷，导致代码臃肿，含义混乱。新版本（`v1.0.0`）开发进行中，所有类、UI 将重新设计，届时老版代码将不再维护。
-
-最后补充一句，新版本的 README、Release 更新日志等将全部使用**中文**表达。原因有二：
-
-1. 关心这个项目的大部分（全部）都是中国人
-2. 用英文表达太累了。我写的累，你读也累。何必相互折磨？
-
-### 版本迭代一览
-
-* `v0.1.x`：传统 OpenGL（固定渲染管线）
-* `v0.2.x`：在 `v0.1.x` 基础上，将渲染函数替换为现代 OpenGL（OpenGL 3.3）
-* `v0.3.x`：在 `v0.2.x` 基础上，加入了鼠标拾取功能（基于 bullet 物理引擎），支持对模型平移、旋转、缩放。
-* `v0.4.x`：在 `v0.3.x` 基础上，加入了实时阴影功能（基于深度贴图）。
-* `v0.5.0`：在 `v0.4.x` 基础上，调整了部分 UI 以方便使用。
-
-### 已知 BUG
-
-1. 在 macOS Mojave (10.14) 上编译运行后黑屏，手动调整窗口大小后可以正常使用。
- * 影响范围：`v0.2.0` - `v0.5.0`
- * BUG 定位：`GLFW` 库
-
-2. 在对模型进行缩放变换时，可能出现缩放前的模型和缩放后的模型同时存在的情况。（随机发生）
- * 影响范围：未知
- * BUG 定位：未知 
-
-## Requirements
-
-* macOS 10.12+ or Windows x86 / x64
-* A graphics card which supports OpenGL 3.3+
-
-> If you are using Windows, extra Visual C++ redistributable packages (VC2017 and VC2013) are required. You can download them from [this page](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads).
-
-## Features
-
-* Supports reading 40+ 3D file formats, including FBX, DXF, Collada, Obj, X, PLY, 3DS.
-* Supports diffuse map, specular map, normal map and parallax map, along with popular texture formats like PNG, BMP, JPEG, TGA.
-* Supports up to 8 point lights with real-time shadow (depth map)
-* Supports translation, rotation and scaling.
-* Import your model easily: just drag and drop them onto the window.
-
-## Screenshots
+## 截图
 
 ![](screenshots/screenshot0.jpg)
 
 ![](screenshots/screenshot1.jpg)
 
-## Usage
+## 版本迭代一览
 
-### Import
+### `v0.x.x` 系列
 
-How to import your models? Drag and Drop them onto the window!
+* `v0.1.x`：GLUT + 传统 OpenGL（固定渲染管线）+ Assimp。
+* `v0.2.x`：在 `v0.1.x` 基础上，将渲染函数替换为**现代 OpenGL**（OpenGL 3.3），并支持**法线贴图**和自定义**天空盒**。
+* `v0.3.x`：在 `v0.2.x` 基础上，加入了**鼠标拾取**功能（基于 bullet 物理引擎），支持对模型**平移、旋转、缩放**，并支持最多 16 个光源。
+* `v0.4.x`：在 `v0.3.x` 基础上，加入了**实时阴影**功能（基于深度贴图），并支持**视差贴图**（凹凸贴图）、**光强衰减**和**伽马矫正**。
+* `v0.5.0`：在 `v0.4.x` 基础上，调整了部分 UI 以方便使用。
 
-### Move around
+**注意**：`v0.x.x` 在最初设计时就存在缺陷，导致代码臃肿、含义混乱，因此不建议阅读源码。
 
-* Press `W` and `S` to move forward or backward
-* Press `A` and `D` to move left ot right
-* Press `E` and `Q` to move up or down
-* Press `SHIFT` to shift moving speed (5X faster)
-* Click and hold your left mouse button and drag to change viewport
+### `v1.x.x` 系列
 
-### Transform
+* `v1.0.0-rc1`：即将发布。
 
-1. Select a mesh or light;
-2. Use function keys to switch mode:
- * `<F1>` = translation (default)
- * `<F2>` = rotation
- * `<F3>` = scaling.
-3. Click on the axis and drag your mouse to perform transformation.
+## 先决条件
 
-### Add a light
+* 需要 macOS 10.12+ 或 Windows x64 操作系统。
+* 需要一张支持 OpenGL 3.3 或以上版本的图形卡，并安装好最新的驱动程序。
 
-**There is no light in the scene at the begining**, you need to add lights by the `Add new light` button on the left bar. You can also press `L` to add one quickly.
+## 特点
 
-### Copy & Paste
+* 支持读取 40 多种格式的 3D 模型文件，包括 FBX, DXF, Collada, Obj, X, PLY, 3DS 等。
+* 支持漫反射贴图、镜面反射贴图和法线贴图。
+* 支持最多 8 个点光源，可对光源的颜色、位置、衰减进行调整。
+* 友好、简洁、方便的用户界面。
 
-1. Select a mesh or light;
-2. Press `Ctrl + C` to copy the selected item;
-3. Press `Ctrl + V` to paste it.
+## 用法
 
-### Delete
+### 加载模型
 
-1. Select a mesh or light;
-2. Press `BACKSPACE` to delete the selected item.
+在菜单中选择 `文件` --> `打开`，或者直接将模型文件拖放到本程序的窗口中。
 
-### Screenshots
+### 添加光源
 
-Press `<F10>` to take screenshots. (automatically saved as BMP on your desktop)
+由于初始场景中没有光源，你加载的模型可能看起来一片漆黑。在菜单中选择 `创建` --> `光源` 来添加点光源。
 
-## Build
+### 移动
 
-All the pre-compiled dependencies are placed in the `lib` directory.
+* 使用 `W` 和 `S` 键来前进和后退
+* 使用 `A` 和 `D` 键来左移或右移
+* 使用 `E` 和 `Q` 键来上升或下降
+* 使用 `Shift` 键来加速移动（5 倍速度）
+* 按下鼠标左键并移动鼠标来调整视角
 
-For macOS, clone this repository and type `make` to build.
+### 编辑属性
 
-For Windows, just download the VS2017 project from the "release" page and build it. All the dynamic libraries and the static libraries are included.
+在左侧的场景树状视图中选择某个对象，即可在右侧的属性栏中编辑其属性。目前支持对 `光源`，`网格`，`材质`，`贴图` 进行属性编辑。

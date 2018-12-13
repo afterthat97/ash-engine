@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/shaders/mesh.vert</file>
+        <file>resources/shaders/mesh.frag</file>
+        <file>resources/shapes/cube.fbx</file>
+        <file>resources/shapes/light.fbx</file>
+        <file>resources/shapes/plane.fbx</file>
+        <file>resources/shapes/sphere.fbx</file>
+    </qresource>
+</RCC>
