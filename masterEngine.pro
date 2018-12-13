@@ -1,14 +1,15 @@
-QT += core gui network
+QT += core gui network opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = masterEngine
 TEMPLATE = app
-VERSION = v1.0.0-rc1
+VERSION = 1.0.0
+PREVIEW = -rc1
 
 DEFINES += \
     QT_DEPRECATED_WARNINGS \
-    APP_VERSION=\\\"$${VERSION}\\\"
+    APP_VERSION=\\\"v$${VERSION}$${PREVIEW}\\\"
 
 INCLUDEPATH += \
     include \
@@ -24,6 +25,7 @@ macx {
 }
 
 win32 {
+    LIBS += -lopengl32
     LIBS += -L$$PWD/lib/win/ -lassimp-vc140-mt
     RC_ICONS = resources/win/AppIcon.ico
 }

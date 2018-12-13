@@ -26,4 +26,5 @@ masterEngine.sln
 masterEngine.vcxproj
 masterEngine.vcxproj.filters
 masterEngine.vcxproj.user
+masterEngine_resource.rc
 .vs

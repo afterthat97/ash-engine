@@ -30,7 +30,7 @@ void OpenGLRenderer::render(Scene* scene) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(OpenGLConfig::getBackgroundColor()[0], OpenGLConfig::getBackgroundColor()[1], OpenGLConfig::getBackgroundColor()[2], 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, OpenGLConfig::isWireFrameEnabled() ? GL_LINE : GL_FILL);
-    
+
     QMatrix4x4 projMat = targetWidget->getProjectionMatrix();
     QMatrix4x4 viewMat = scene->getCamera()->getViewMatrix();
 
