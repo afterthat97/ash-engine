@@ -22,7 +22,11 @@ macx {
     ICON = resources/mac/AppIcon.icns
     QMAKE_INFO_PLIST = resources/mac/Info.plist
 }
-win32: LIBS += -L$$PWD/lib/win/ -lassimp-vc140-mt
+
+win32 {
+    LIBS += -L$$PWD/lib/win/ -lassimp-vc140-mt
+    RC_ICONS = resources/win/AppIcon.ico
+}
 
 HEADERS += \
     include/Generic/Allocator.h \
