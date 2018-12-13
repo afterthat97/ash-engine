@@ -16,7 +16,7 @@ x64
 
 # Qt generated files #
 ######################
-masterEngine.pro.user
+#masterEngine.pro.user
 GeneratedFiles
 .qmake.stash
 
