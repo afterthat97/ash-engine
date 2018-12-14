@@ -24,5 +24,7 @@ private:
     OpenGLRenderer * renderer;
     map<int, bool> keyPressed;
     QPoint lastCursorPos;
+    QTime timer;
+    uint32_t totFrames;
     void processInput();
 };

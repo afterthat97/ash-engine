@@ -4,8 +4,10 @@
 
 OpenGLWidget::OpenGLWidget(QWidget* parent): QOpenGLWidget(parent) {
     setFocusPolicy(Qt::StrongFocus);
-    lastCursorPos = QCursor::pos();
     renderer = new OpenGLRenderer(this);
+    lastCursorPos = QCursor::pos();
+    timer.restart();
+    totFrames = 0;
 }
 
 OpenGLWidget::~OpenGLWidget() {
@@ -26,6 +28,12 @@ void OpenGLWidget::initializeGL() {
 }
 
 void OpenGLWidget::paintGL() {
+    totFrames++;
+    if (timer.elapsed() >= 1000) {
+        cout << totFrames << endl;
+        timer.restart();
+        totFrames = 0;
+    }
     processInput();
     renderer->render(Scene::currentScene());
     update();

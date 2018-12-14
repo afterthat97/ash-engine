@@ -3,13 +3,17 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <iostream>
 
 using std::vector;
 using std::map;
 using std::string;
 using std::to_string;
 using std::pair;
+using std::cout;
+using std::endl;
 
+#include <QTime>
 #include <QString>
 #include <QImage>
 #include <QVector2D>
