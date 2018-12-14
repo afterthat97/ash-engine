@@ -51,16 +51,18 @@ HEADERS += \
     include/OpenGL/OpenGLMesh.h \
     include/OpenGL/OpenGLRenderer.h \
     include/OpenGL/OpenGLTexture.h \
-    include/OpenGL/OpenGLWidget.h \
+    include/UI/CentralWidget/PropertyWidget/EmptyPropertyWidget.h \
+    include/UI/CentralWidget/PropertyWidget/LightPropertyWidget.h \
+    include/UI/CentralWidget/PropertyWidget/MaterialPropertyWidget.h \
+    include/UI/CentralWidget/PropertyWidget/MeshPropertyWidget.h \
+    include/UI/CentralWidget/PropertyWidget/TexturePropertyWidget.h \
+    include/UI/CentralWidget/PropertyWidget/Vector3DWidget.h \
+    include/UI/CentralWidget/CentralWidget.h \
+    include/UI/CentralWidget/OpenGLWidget.h \
+    include/UI/CentralWidget/SceneTreeView.h \
     include/UI/Common.h \
-    include/UI/LightPropertyWidget.h \
     include/UI/MainMenuBar.h \
-    include/UI/MainWindow.h \
-    include/UI/MaterialPropertyWidget.h \
-    include/UI/MeshPropertyWidget.h \
-    include/UI/SceneTreeView.h \
-    include/UI/TexturePropertyWidget.h \
-    include/UI/Vector3DWidget.h \
+    include/UI/MainWindow.h
 
 SOURCES += \
     src/Generic/Allocator.cpp \
@@ -80,13 +82,15 @@ SOURCES += \
     src/OpenGL/OpenGLMesh.cpp \
     src/OpenGL/OpenGLRenderer.cpp \
     src/OpenGL/OpenGLTexture.cpp \
-    src/OpenGL/OpenGLWidget.cpp \
-    src/UI/LightPropertyWidget.cpp \
+    src/UI/CentralWidget/PropertyWidget/EmptyPropertyWidget.cpp \
+    src/UI/CentralWidget/PropertyWidget/LightPropertyWidget.cpp \
+    src/UI/CentralWidget/PropertyWidget/MaterialPropertyWidget.cpp \
+    src/UI/CentralWidget/PropertyWidget/MeshPropertyWidget.cpp \
+    src/UI/CentralWidget/PropertyWidget/TexturePropertyWidget.cpp \
+    src/UI/CentralWidget/PropertyWidget/Vector3DWidget.cpp \
+    src/UI/CentralWidget/CentralWidget.cpp \
+    src/UI/CentralWidget/OpenGLWidget.cpp \
+    src/UI/CentralWidget/SceneTreeView.cpp \
     src/UI/MainMenuBar.cpp \
     src/UI/MainWindow.cpp \
-    src/UI/MaterialPropertyWidget.cpp \
-    src/UI/MeshPropertyWidget.cpp \
-    src/UI/SceneTreeView.cpp \
-    src/UI/TexturePropertyWidget.cpp \
-    src/UI/Vector3DWidget.cpp \
     src/masterEngine.cpp
