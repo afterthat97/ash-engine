@@ -1,8 +1,4 @@
 #include <UI/MainWindow.h>
-#include <UI/MeshPropertyWidget.h>
-#include <UI/LightPropertyWidget.h>
-#include <UI/MaterialPropertyWidget.h>
-#include <UI/TexturePropertyWidget.h>
 #include <Generic/Scene.h>
 #include <Generic/Helper.h>
 #include <IO/Loader.h>
@@ -10,15 +6,22 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
-    menuBar = new MainMenuBar(this);
-    connect(menuBar, SIGNAL(sceneChanged()), this, SLOT(resetUI()));
-    propertyWidget = createEmptyPropertyWidget();
-
     setAcceptDrops(true);
     setFocusPolicy(Qt::StrongFocus);
+
+    menuBar = new MainMenuBar(this);
+    centralWidget = new CentralWidget(this);
+    statusBar = new QStatusBar(this);
+
     setMenuBar(menuBar);
-    setCentralWidget(createCentralWidget());
-    setStatusBar(createStatusBar());
+    setCentralWidget(centralWidget);
+    setStatusBar(statusBar);
+
+    connect(centralWidget->sceneTreeView, SIGNAL(modelSelected(Model*, bool)), this, SLOT(modelSelected(Model*, bool)));
+    connect(centralWidget->sceneTreeView, SIGNAL(lightSelected(Light*, bool)), this, SLOT(lightSelected(Light*, bool)));
+    connect(centralWidget->sceneTreeView, SIGNAL(meshSelected(Mesh*, bool)), this, SLOT(meshSelected(Mesh*, bool)));
+    connect(centralWidget->sceneTreeView, SIGNAL(materialSelected(Material*, bool)), this, SLOT(materialSelected(Material*, bool)));
+    connect(centralWidget->sceneTreeView, SIGNAL(textureSelected(Texture*, bool)), this, SLOT(textureSelected(Texture*, bool)));
 }
 
 MainWindow::~MainWindow() {
@@ -42,72 +45,36 @@ void MainWindow::dropEvent(QDropEvent * event) {
         QString str = url.toLocalFile();
         Model* newModel = Loader::loadFromFile(url.toLocalFile());
         Scene::currentScene()->addModel(newModel);
-        sceneTreeView->reset();
+        centralWidget->sceneTreeView->reset();
     }
 }
 
-QWidget * MainWindow::createEmptyPropertyWidget() {
-    QWidget * emptyPropertyWidget = new QWidget(this);
-    QLabel * label = new QLabel("Empty property page", this);
-
-    QVBoxLayout * mainLayout = new QVBoxLayout;
-    mainLayout->setAlignment(Qt::AlignCenter);
-    mainLayout->addWidget(label);
-
-    emptyPropertyWidget->setLayout(mainLayout);
-    return emptyPropertyWidget;
-}
-
-QStatusBar * MainWindow::createStatusBar() {
-    return new QStatusBar(this);
-}
-
-QWidget * MainWindow::createCentralWidget() {
-    QWidget * centralWidget = new QWidget(this);
-    openGLWidget = new OpenGLWidget(centralWidget);
-    sceneTreeView = new SceneTreeView(centralWidget);
-
-    SceneTreeModel * sceneTreeModel = new SceneTreeModel;
-    sceneTreeView->setModel(sceneTreeModel);
-    connect(sceneTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(reloadPropertyWidget(QModelIndex, QModelIndex)));
-
-    splitter = new QSplitter(centralWidget);
-    splitter->addWidget(sceneTreeView);
-    splitter->addWidget(openGLWidget);
-    splitter->addWidget(propertyWidget);
-    splitter->setSizes(QList<int>{200, 500, 260});
-
-    QHBoxLayout * mainLayout = new QHBoxLayout;
-    mainLayout->addWidget(splitter);
-    centralWidget->setLayout(mainLayout);
-
-    return centralWidget;
-}
-
-void MainWindow::resetUI() {
-    sceneTreeView->selectionModel()->clearSelection();
-    sceneTreeView->reset();
-    delete propertyWidget;
-    propertyWidget = createEmptyPropertyWidget();
-    splitter->addWidget(propertyWidget);
-    splitter->setSizes(QList<int>{200, 500, 260});
-}
-
-void MainWindow::reloadPropertyWidget(const QModelIndex & current, const QModelIndex &) {
-    if (!current.isValid()) return;
-    delete propertyWidget;
-    Object * currentPointer = static_cast<Object*>(current.internalPointer());
-    if (Model* currentItem = dynamic_cast<Model*>(currentPointer)) {
-        propertyWidget = createEmptyPropertyWidget();
-    } else if (Light* currentItem = dynamic_cast<Light*>(currentPointer)) {
-        propertyWidget = new LightPropertyWidget(currentItem, this);
-    } else if (Mesh* currentItem = dynamic_cast<Mesh*>(currentPointer)) {
-        propertyWidget = new MeshPropertyWidget(currentItem, this);
-    } else if (Material* currentItem = dynamic_cast<Material*>(currentPointer)) {
-        propertyWidget = new MaterialPropertyWidget(currentItem, this);
-    } else if (Texture* currentItem = dynamic_cast<Texture*>(currentPointer)) {
-        propertyWidget = new TexturePropertyWidget(currentItem, this);
+void MainWindow::modelSelected(Model* model, bool selected) {
+    if (selected) {
+        centralWidget->setPropertyWidget(model);
     }
-    splitter->addWidget(propertyWidget);
-    splitter->setSizes(QList<int>{200, 500, 260});
+}
+
+void MainWindow::lightSelected(Light * light, bool selected) {
+    if (selected) {
+        centralWidget->setPropertyWidget(light);
+    }
+}
+
+void MainWindow::meshSelected(Mesh * mesh, bool selected) {
+    if (selected) {
+        centralWidget->setPropertyWidget(mesh);
+    }
+}
+
+void MainWindow::materialSelected(Material * material, bool selected) {
+    if (selected) {
+        centralWidget->setPropertyWidget(material);
+    }
+}
+
+void MainWindow::textureSelected(Texture * texture, bool selected) {
+    if (selected) {
+        centralWidget->setPropertyWidget(texture);
+    }
 }

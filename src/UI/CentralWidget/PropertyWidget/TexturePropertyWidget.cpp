@@ -1,4 +1,4 @@
-#include <UI/TexturePropertyWidget.h>
+#include <UI/CentralWidget/PropertyWidget/TexturePropertyWidget.h>
 
 TexturePropertyWidget::TexturePropertyWidget(Texture* _texture, QWidget *parent): QWidget(parent) {
     texture = _texture;
@@ -26,10 +26,11 @@ TexturePropertyWidget::~TexturePropertyWidget() {
     delete enableTextureCheckBox;
     delete typeLabel;
     delete imageLabel;
+    delete mainLayout;
 }
 
 void TexturePropertyWidget::setupLayout() {
-    QVBoxLayout * mainLayout = new QVBoxLayout;
+    mainLayout = new QVBoxLayout;
     mainLayout->setAlignment(Qt::AlignTop);
     mainLayout->addWidget(enableTextureCheckBox);
     mainLayout->addWidget(typeLabel);

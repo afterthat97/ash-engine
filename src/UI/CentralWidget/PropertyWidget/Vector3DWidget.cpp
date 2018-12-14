@@ -1,13 +1,16 @@
-#include <UI/Vector3DWidget.h>
+#include <UI/CentralWidget/PropertyWidget/Vector3DWidget.h>
 
 Vector3DWidget::Vector3DWidget(QString title, bool showSlider, QWidget * parent): QGroupBox(parent) {
     setTitle(title);
+
     label0 = new QLabel("Label0", this);
     label1 = new QLabel("Label1", this);
     label2 = new QLabel("Label2", this);
+
     spinBox0 = new QDoubleSpinBox(this);
     spinBox1 = new QDoubleSpinBox(this);
     spinBox2 = new QDoubleSpinBox(this);
+
     if (showSlider) {
         slider0 = new QSlider(Qt::Horizontal, this);
         slider1 = new QSlider(Qt::Horizontal, this);
@@ -17,6 +20,7 @@ Vector3DWidget::Vector3DWidget(QString title, bool showSlider, QWidget * parent)
         slider2->setRange(0, 360);
     } else
         slider0 = slider1 = slider2 = NULL;
+
     setupLayout();
     setupSignals();
 }
@@ -31,6 +35,10 @@ Vector3DWidget::~Vector3DWidget() {
     if (slider0) delete slider0;
     if (slider1) delete slider1;
     if (slider2) delete slider2;
+    delete labelLayout;
+    delete spinBoxLayout;
+    if (sliderLayout) delete sliderLayout;
+    delete mainLayout;
 }
 
 void Vector3DWidget::setLabelText(QString text0, QString text1, QString text2) {
@@ -65,28 +73,29 @@ QVector3D Vector3DWidget::getValue() {
 }
 
 void Vector3DWidget::setupLayout() {
-    QVBoxLayout * mainLayout = new QVBoxLayout;
+    mainLayout = new QVBoxLayout;
     mainLayout->setAlignment(Qt::AlignTop);
 
-    QHBoxLayout * labelLayout = new QHBoxLayout;
+    labelLayout = new QHBoxLayout;
     labelLayout->addWidget(label0);
     labelLayout->addWidget(label1);
     labelLayout->addWidget(label2);
     mainLayout->addLayout(labelLayout);
 
-    QHBoxLayout * spinBoxLayout = new QHBoxLayout;
+    spinBoxLayout = new QHBoxLayout;
     spinBoxLayout->addWidget(spinBox0);
     spinBoxLayout->addWidget(spinBox1);
     spinBoxLayout->addWidget(spinBox2);
     mainLayout->addLayout(spinBoxLayout);
 
     if (slider0 && slider1 && slider2) {
-        QHBoxLayout * sliderLayout = new QHBoxLayout;
+        sliderLayout = new QHBoxLayout;
         sliderLayout->addWidget(slider0);
         sliderLayout->addWidget(slider1);
         sliderLayout->addWidget(slider2);
         mainLayout->addLayout(sliderLayout);
-    }
+    } else
+        sliderLayout = NULL;
     setLayout(mainLayout);
 }
 

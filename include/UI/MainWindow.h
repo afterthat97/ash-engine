@@ -1,8 +1,7 @@
 #pragma once
 
-#include <OpenGL/OpenGLWidget.h>
-#include <UI/SceneTreeView.h>
 #include <UI/MainMenuBar.h>
+#include <UI/CentralWidget/CentralWidget.h>
 
 class MainWindow: public QMainWindow {
     Q_OBJECT
@@ -11,25 +10,24 @@ public:
     MainWindow(QWidget *parent = Q_NULLPTR);
     ~MainWindow();
 
+    friend class MainMenuBar;
+    friend class SceneTreeView;
+    friend class OpenGLWidget;
+
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dragMoveEvent(QDragMoveEvent *event) override;
     void dropEvent(QDropEvent *event) override;
 
+private slots:
+    void modelSelected(Model* model, bool selected);
+    void lightSelected(Light* light, bool selected);
+    void meshSelected(Mesh* mesh, bool selected);
+    void materialSelected(Material* material, bool selected);
+    void textureSelected(Texture* texture, bool selected);
+
 private:
     MainMenuBar * menuBar;
-    QWidget * centralWidget;
-    QSplitter * splitter;
-    SceneTreeView * sceneTreeView;
-    OpenGLWidget * openGLWidget;
-    QWidget * propertyWidget;
+    CentralWidget * centralWidget;
     QStatusBar * statusBar;
-
-    QWidget * createEmptyPropertyWidget();
-    QWidget * createCentralWidget();
-    QStatusBar * createStatusBar();
-
-private slots:
-    void resetUI();
-    void reloadPropertyWidget(const QModelIndex & current, const QModelIndex & previous);
 };

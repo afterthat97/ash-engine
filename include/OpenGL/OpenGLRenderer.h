@@ -7,7 +7,7 @@ class OpenGLWidget;
 
 class OpenGLRenderer {
 public:
-    OpenGLRenderer(OpenGLWidget* _targetWidget);
+    OpenGLRenderer(QWidget* _targetWidget);
     ~OpenGLRenderer();
 
     void loadShader(QString vertexShaderCode, QString fragmentShaderCode);
@@ -16,7 +16,7 @@ public:
 private:
     QOpenGLFunctions * glFuncs;
     QOpenGLShaderProgram * shader;
-    OpenGLWidget * targetWidget;
+    QWidget * targetWidget;
 
     void renderModel(Model* model);
     void renderMesh(Mesh* mesh);

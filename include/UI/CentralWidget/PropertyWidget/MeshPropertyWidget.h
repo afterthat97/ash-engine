@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Generic/Mesh.h>
-#include <UI/Vector3DWidget.h>
+#include <UI/CentralWidget/PropertyWidget/Vector3DWidget.h>
 
 class MeshPropertyWidget: public QWidget {
     Q_OBJECT
@@ -14,6 +14,7 @@ private:
     Mesh * mesh;
     QCheckBox * meshVisibleCheckbox;
     Vector3DWidget * meshPositionWidget, *meshRotationWidget, *meshScalingWidget;
+    QVBoxLayout * mainLayout;
 
     void setupLayout();
     void setupSignals();

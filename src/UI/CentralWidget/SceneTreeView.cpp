@@ -1,8 +1,48 @@
-#include <UI/SceneTreeView.h>
+#include <UI/CentralWidget/SceneTreeView.h>
+#include <UI/MainWindow.h>
 
-SceneTreeView::SceneTreeView(QWidget* parent): QTreeView(parent) {}
+SceneTreeView::SceneTreeView(MainWindow* _mainWindow, QWidget* parent)
+    : QTreeView(parent), mainWindow(_mainWindow) {
+    sceneTreeModel = new SceneTreeModel;
+    setModel(sceneTreeModel);
+    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(selectionChanged(QModelIndex, QModelIndex)));
+}
 
-SceneTreeView::~SceneTreeView() {}
+SceneTreeView::~SceneTreeView() {
+    delete sceneTreeModel;
+}
+
+void SceneTreeView::selectionChanged(const QModelIndex & cntIndex, const QModelIndex & prevIndex) {
+    if (prevIndex.isValid()) {
+        Object * pointer = static_cast<Object*>(prevIndex.internalPointer());
+        if (Model* model = dynamic_cast<Model*>(pointer)) {
+            modelSelected(model, false);
+        } else if (Light* light = dynamic_cast<Light*>(pointer)) {
+            lightSelected(light, false);
+        } else if (Mesh* mesh = dynamic_cast<Mesh*>(pointer)) {
+            meshSelected(mesh, false);
+        } else if (Material* material = dynamic_cast<Material*>(pointer)) {
+            materialSelected(material, false);
+        } else if (Texture* texture = dynamic_cast<Texture*>(pointer)) {
+            textureSelected(texture, false);
+        }
+    }
+    if (cntIndex.isValid()) {
+        Object * pointer = static_cast<Object*>(cntIndex.internalPointer());
+        if (Model* model = dynamic_cast<Model*>(pointer)) {
+            modelSelected(model, true);
+        } else if (Light* light = dynamic_cast<Light*>(pointer)) {
+            lightSelected(light, true);
+        } else if (Mesh* mesh = dynamic_cast<Mesh*>(pointer)) {
+            meshSelected(mesh, true);
+        } else if (Material* material = dynamic_cast<Material*>(pointer)) {
+            materialSelected(material, true);
+        } else if (Texture* texture = dynamic_cast<Texture*>(pointer)) {
+            textureSelected(texture, true);
+        }
+    }
+}
+
 
 SceneTreeModel::SceneTreeModel(QObject *parent): QAbstractItemModel(parent) {}
 

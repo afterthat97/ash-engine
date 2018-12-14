@@ -1,4 +1,4 @@
-#include <UI/MaterialPropertyWidget.h>
+#include <UI/CentralWidget/PropertyWidget/MaterialPropertyWidget.h>
 
 MaterialPropertyWidget::MaterialPropertyWidget(Material* _material, QWidget *parent): QWidget(parent) {
     material = _material;
@@ -33,10 +33,11 @@ MaterialPropertyWidget::~MaterialPropertyWidget() {
     delete diffuseColorWidget;
     delete specularColorWidget;
     delete shininessWidget;
+    delete mainLayout;
 }
 
 void MaterialPropertyWidget::setupLayout() {
-    QVBoxLayout * mainLayout = new QVBoxLayout;
+    mainLayout = new QVBoxLayout;
     mainLayout->setAlignment(Qt::AlignTop);
     mainLayout->addWidget(ambientColorWidget);
     mainLayout->addWidget(diffuseColorWidget);
@@ -73,6 +74,7 @@ ShininessWidget::ShininessWidget(QWidget *parent): QGroupBox(parent) {
     setTitle("Shininess");
 
     label = new QLabel(QStringLiteral("Shininess:"), this);
+
     spinBox = new QDoubleSpinBox(this);
     spinBox->setRange(0.0, 1000000.0);
     spinBox->setSingleStep(1.0);
@@ -84,6 +86,7 @@ ShininessWidget::ShininessWidget(QWidget *parent): QGroupBox(parent) {
 ShininessWidget::~ShininessWidget() {
     delete label;
     delete spinBox;
+    delete mainLayout;
 }
 
 void ShininessWidget::setShininess(float value) {
@@ -91,7 +94,7 @@ void ShininessWidget::setShininess(float value) {
 }
 
 void ShininessWidget::setupLayout() {
-    QVBoxLayout * mainLayout = new QVBoxLayout;
+    mainLayout = new QVBoxLayout;
     mainLayout->setAlignment(Qt::AlignTop);
     mainLayout->addWidget(label);
     mainLayout->addWidget(spinBox);

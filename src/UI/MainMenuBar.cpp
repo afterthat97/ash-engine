@@ -1,11 +1,12 @@
 #include <UI/MainMenuBar.h>
+#include <UI/MainWindow.h>
 #include <Generic/Scene.h>
 #include <Generic/Helper.h>
 #include <IO/Loader.h>
 #include <OpenGL/OpenGLManager.h>
 #include <OpenGL/OpenGLConfig.h>
 
-MainMenuBar::MainMenuBar(QWidget *_parent): QMenuBar(_parent) {
+MainMenuBar::MainMenuBar(MainWindow *parent): QMenuBar(parent), mainWindow(parent) {
     createActions();
     createMenus();
     helpCheckForUpdates();
@@ -14,7 +15,6 @@ MainMenuBar::MainMenuBar(QWidget *_parent): QMenuBar(_parent) {
 MainMenuBar::~MainMenuBar() {
     delete menuFile;
     delete menuCreate;
-    delete menuCreateBasicShapes;
     delete menuHelp;
 
     delete actionFileNew;
@@ -99,21 +99,22 @@ void MainMenuBar::createMenus() {
 }
 
 void MainMenuBar::fileNew() {
-    sceneChanged();
+    mainWindow->centralWidget->sceneTreeView->selectionModel()->clearSelection();
     Scene::currentScene()->clean();
     OpenGLManager::cleanOpenGLMesh();
     OpenGLManager::cleanOpenGLTexture();
-    sceneChanged();
+    mainWindow->centralWidget->sceneTreeView->reset();
+    mainWindow->centralWidget->resetPropertyWidget();
 }
 
 void MainMenuBar::fileOpen() {
     QString filepath = QFileDialog::getOpenFileName(this, "Load Model(s)", "", "All Files (*)");
     Scene::currentScene()->addModel(Loader::loadFromFile(filepath));
-    sceneChanged();
+    mainWindow->centralWidget->sceneTreeView->reset();
 }
 
 void MainMenuBar::fileExit() {
-    exit(0);
+    QApplication::quit();
 }
 
 void MainMenuBar::createLight() {
@@ -122,22 +123,22 @@ void MainMenuBar::createLight() {
         return;
     }
     Scene::currentScene()->addLight(new Light(QVector3D(0, 100, 0)));
-    sceneChanged();
+    mainWindow->centralWidget->sceneTreeView->reset();
 }
 
 void MainMenuBar::createBasicCube() {
     Scene::currentScene()->addModel(Helper::createCubeModel());
-    sceneChanged();
+    mainWindow->centralWidget->sceneTreeView->reset();
 }
 
 void MainMenuBar::createBasicSphere() {
     Scene::currentScene()->addModel(Helper::createSphereModel());
-    sceneChanged();
+    mainWindow->centralWidget->sceneTreeView->reset();
 }
 
 void MainMenuBar::createBasicPlane() {
     Scene::currentScene()->addModel(Helper::createPlaneModel());
-    sceneChanged();
+    mainWindow->centralWidget->sceneTreeView->reset();
 }
 
 void MainMenuBar::optionLighting(bool enabled) {

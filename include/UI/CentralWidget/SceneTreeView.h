@@ -3,10 +3,29 @@
 #include <UI/Common.h>
 #include <Generic/Scene.h>
 
+class MainWindow;
+class SceneTreeModel;
+
 class SceneTreeView: public QTreeView {
+    Q_OBJECT
+
 public:
-    SceneTreeView(QWidget* parent = Q_NULLPTR);
+    SceneTreeView(MainWindow* mainWindow, QWidget* parent = Q_NULLPTR);
     ~SceneTreeView();
+
+signals:
+    void modelSelected(Model* model, bool selected);
+    void lightSelected(Light* light, bool selected);
+    void meshSelected(Mesh* mesh, bool selected);
+    void materialSelected(Material* material, bool selected);
+    void textureSelected(Texture* texture, bool selected);
+
+private slots:
+    void selectionChanged(const QModelIndex & cnt, const QModelIndex & prev);
+
+private:
+    MainWindow * mainWindow;
+    SceneTreeModel * sceneTreeModel;
 };
 
 class SceneTreeModel: public QAbstractItemModel {

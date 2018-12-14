@@ -4,13 +4,14 @@
 #include <OpenGL/OpenGLRenderer.h>
 #include <Generic/Scene.h>
 
+class MainWindow;
+
 class OpenGLWidget: public QOpenGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
 
 public:
-    OpenGLWidget(QWidget* parent = Q_NULLPTR);
+    OpenGLWidget(MainWindow* mainWindow, QWidget * parent = Q_NULLPTR);
     ~OpenGLWidget();
-    QMatrix4x4 getProjectionMatrix();
 
 protected:
     void initializeGL() override;
@@ -21,10 +22,14 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
+    MainWindow * mainWindow;
     OpenGLRenderer * renderer;
+
+    QTime time;
+    QTimer *timer;
+    uint32_t totFrames;
     map<int, bool> keyPressed;
     QPoint lastCursorPos;
-    QTime timer;
-    uint32_t totFrames;
-    void processInput();
+
+    void processUserInput();
 };

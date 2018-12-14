@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Generic/Light.h>
-#include <UI/Vector3DWidget.h>
+#include <UI/CentralWidget/PropertyWidget/Vector3DWidget.h>
 
 class AttenuationWidget;
 
@@ -14,8 +14,9 @@ public:
 
 private:
     Light* light;
-    AttenuationWidget * attenuationWidget;
     Vector3DWidget * lightPositionWidget, * lightColorWidget;
+    AttenuationWidget * attenuationWidget;
+    QVBoxLayout * mainLayout;
 
     void setupLayout();
     void setupSignals();
@@ -46,6 +47,7 @@ private:
     QCheckBox * enableAttenuationCheckBox;
     QLabel * quadraticLabel, *linearLabel, *constantLabel;
     QDoubleSpinBox * quadraticSpinBox, *linearSpinBox, *constantSpinBox;
+    QVBoxLayout * mainLayout;
 
     void setupLayout();
     void setupSignals();

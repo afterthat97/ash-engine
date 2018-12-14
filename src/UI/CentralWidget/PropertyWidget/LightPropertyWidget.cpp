@@ -1,4 +1,4 @@
-#include <UI/LightPropertyWidget.h>
+#include <UI/CentralWidget/PropertyWidget/LightPropertyWidget.h>
 
 LightPropertyWidget::LightPropertyWidget(Light* _light, QWidget *parent): QWidget(parent) {
     light = _light;
@@ -26,13 +26,14 @@ LightPropertyWidget::LightPropertyWidget(Light* _light, QWidget *parent): QWidge
 }
 
 LightPropertyWidget::~LightPropertyWidget() {
-    delete attenuationWidget;
     delete lightPositionWidget;
     delete lightColorWidget;
+    delete attenuationWidget;
+    delete mainLayout;
 }
 
 void LightPropertyWidget::setupLayout() {
-    QVBoxLayout * mainLayout = new QVBoxLayout;
+    mainLayout = new QVBoxLayout;
     mainLayout->setAlignment(Qt::AlignTop);
     mainLayout->addWidget(lightPositionWidget);
     mainLayout->addWidget(lightColorWidget);
@@ -101,12 +102,16 @@ AttenuationWidget::AttenuationWidget(QWidget *parent): QGroupBox(parent) {
 
 AttenuationWidget::~AttenuationWidget() {
     delete enableAttenuationCheckBox;
+
     delete quadraticLabel;
     delete linearLabel;
     delete constantLabel;
+    
     delete quadraticSpinBox;
     delete linearSpinBox;
     delete constantSpinBox;
+
+    delete mainLayout;
 }
 
 void AttenuationWidget::setEnableAttenuation(bool enabled) {
@@ -126,7 +131,7 @@ void AttenuationWidget::setConstantValue(float value) {
 }
 
 void AttenuationWidget::setupLayout() {
-    QVBoxLayout * mainLayout = new QVBoxLayout;
+    mainLayout = new QVBoxLayout;
     mainLayout->setAlignment(Qt::AlignTop);
     mainLayout->addWidget(enableAttenuationCheckBox);
     mainLayout->addWidget(quadraticLabel);

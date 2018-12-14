@@ -19,6 +19,8 @@ private:
     QLabel *label0, *label1, *label2;
     QDoubleSpinBox *spinBox0, *spinBox1, *spinBox2;
     QSlider *slider0, *slider1, *slider2;
+    QVBoxLayout * mainLayout;
+    QHBoxLayout * labelLayout, *spinBoxLayout, *sliderLayout;
 
     void setupLayout();
     void setupSignals();

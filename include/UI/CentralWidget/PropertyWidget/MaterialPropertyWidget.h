@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Generic/Material.h>
-#include <UI/Vector3DWidget.h>
+#include <UI/CentralWidget/PropertyWidget/Vector3DWidget.h>
 
 class ShininessWidget;
 
@@ -16,6 +16,7 @@ private:
     Material * material;
     Vector3DWidget * ambientColorWidget, *diffuseColorWidget, *specularColorWidget;
     ShininessWidget * shininessWidget;
+    QVBoxLayout * mainLayout;
 
     void setupLayout();
     void setupSignals();
@@ -39,6 +40,7 @@ public:
 private:
     QLabel * label;
     QDoubleSpinBox * spinBox;
+    QVBoxLayout * mainLayout;
 
     void setupLayout();
     void setupSignals();

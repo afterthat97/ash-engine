@@ -2,14 +2,17 @@
 
 #include <UI/Common.h>
 
+class MainWindow;
+
 class MainMenuBar: public QMenuBar {
     Q_OBJECT
 
 public:
-    MainMenuBar(QWidget *parent = Q_NULLPTR);
+    MainMenuBar(MainWindow *parent);
     ~MainMenuBar();
 
 private:
+    MainWindow * mainWindow;
     QMenu *menuFile, *menuCreate, *menuCreateBasicShapes, *menuOptions, *menuHelp;
     QAction * actionFileNew, *actionFileOpen, *actionFileExit;
     QAction *actionCreateLight, *actionCreateBasicCube, *actionCreateBasicSphere, *actionCreateBasicPlane;
@@ -18,9 +21,6 @@ private:
 
     void createActions();
     void createMenus();
-
-signals:
-    void sceneChanged();
 
 private slots:
     void fileNew();

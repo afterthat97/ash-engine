@@ -1,10 +1,10 @@
 #include <OpenGL/OpenGLRenderer.h>
-#include <OpenGL/OpenGLWidget.h>
 #include <OpenGL/OpenGLManager.h>
 #include <OpenGL/OpenGLConfig.h>
 #include <Generic/Gridline.h>
+#include <UI/Common.h>
 
-OpenGLRenderer::OpenGLRenderer(OpenGLWidget* _targetWidget) {
+OpenGLRenderer::OpenGLRenderer(QWidget* _targetWidget) {
     shader = NULL;
     targetWidget = _targetWidget;
 }
@@ -33,7 +33,8 @@ void OpenGLRenderer::render(Scene* scene) {
     glClearColor(OpenGLConfig::getBackgroundColor()[0], OpenGLConfig::getBackgroundColor()[1], OpenGLConfig::getBackgroundColor()[2], 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, OpenGLConfig::isWireFrameEnabled() ? GL_LINE : GL_FILL);
 
-    QMatrix4x4 projMat = targetWidget->getProjectionMatrix();
+    QMatrix4x4 projMat;
+    projMat.perspective(45.0f, float(targetWidget->width()) / targetWidget->height(), 0.1f, 100000.0f);
     QMatrix4x4 viewMat = scene->getCamera()->getViewMatrix();
 
     shader->bind();

@@ -1,4 +1,4 @@
-#include <UI/MeshPropertyWidget.h>
+#include <UI/CentralWidget/PropertyWidget/MeshPropertyWidget.h>
 
 MeshPropertyWidget::MeshPropertyWidget(Mesh* _mesh, QWidget *parent): QWidget(parent) {
     mesh = _mesh;
@@ -33,10 +33,11 @@ MeshPropertyWidget::~MeshPropertyWidget() {
     delete meshPositionWidget;
     delete meshRotationWidget;
     delete meshScalingWidget;
+    delete mainLayout;
 }
 
 void MeshPropertyWidget::setupLayout() {
-    QVBoxLayout * mainLayout = new QVBoxLayout;
+    mainLayout = new QVBoxLayout;
     mainLayout->setAlignment(Qt::AlignTop);
     mainLayout->addWidget(meshVisibleCheckbox);
     mainLayout->addWidget(meshPositionWidget);

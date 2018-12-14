@@ -5,7 +5,7 @@ Light::Light(QVector3D _position): Object() {
     lightBulbModel = Loader::loadFromFile(":/resources/shapes/light.fbx");
 
     initID();
-    name = "Light " + QString(to_string(id).c_str());
+    name = "Light " + QString::number(id);
     setColor(QVector3D(1.0f, 1.0f, 1.0f));
     setPosition(_position);
     setEnableAttenuation(true);

@@ -14,6 +14,7 @@ using std::cout;
 using std::endl;
 
 #include <QTime>
+#include <QTimer>
 #include <QString>
 #include <QImage>
 #include <QVector2D>

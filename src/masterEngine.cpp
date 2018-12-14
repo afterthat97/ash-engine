@@ -9,10 +9,10 @@ int main(int argc, char *argv[]) {
 
     QApplication a(argc, argv);
 
-    QSurfaceFormat glFormat;
-    glFormat.setVersion(3, 3);
-    glFormat.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(glFormat);
+    QSurfaceFormat openGLFormat;
+    openGLFormat.setVersion(3, 3);
+    openGLFormat.setProfile(QSurfaceFormat::CoreProfile);
+    QSurfaceFormat::setDefaultFormat(openGLFormat);
 
     MainWindow w;
     w.resize(960, 540);
