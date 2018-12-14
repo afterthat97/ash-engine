@@ -24,6 +24,5 @@ private:
     float shininess;
     vector<Texture*> textures;
 
-    void initName() override;
     void initID() override;
 };

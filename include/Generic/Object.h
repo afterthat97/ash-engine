@@ -19,6 +19,5 @@ protected:
     uint32_t id;
     Object* parent;
 
-    virtual void initName();
     virtual void initID();
 };

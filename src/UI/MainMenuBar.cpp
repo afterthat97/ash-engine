@@ -172,8 +172,8 @@ void MainMenuBar::replyOfUpdates(QNetworkReply* reply) {
     QJsonObject jsonObject = QJsonDocument::fromJson(strReply.toUtf8()).object();
 
     QString latestVersion = jsonObject["tag_name"].toString();
-    if (latestVersion != APP_VERSION) {
-        QString info = "A new version has been released, do you want to update?\n\n";
+    if (latestVersion != APP_VERSION && latestVersion != "") {
+        QString info = "A new version has been released, do you want to upgrade?\n\n";
         info += "Current version: " + QString(APP_VERSION) + "\n";
         info += "Latest version: " + latestVersion;
         if (QMessageBox::question(this, "Update", info, QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes) {

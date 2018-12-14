@@ -2,7 +2,7 @@
 
 Material::Material(): Object() {
     initID();
-    initName();
+    name = "Untitled Material";
     ambientColor = QVector3D(0.2f, 0.2f, 0.2f);
     diffuseColor = QVector3D(0.8f, 0.8f, 0.8f);
     specularColor = QVector3D(0.5f, 0.5f, 0.5f);
@@ -54,10 +54,6 @@ QVector3D Material::getSpecularColor() {
 
 float Material::getShininess() {
     return shininess;
-}
-
-void Material::initName() {
-    name = "Untitled Material";
 }
 
 void Material::initID() {

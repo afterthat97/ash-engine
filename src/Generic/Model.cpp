@@ -2,7 +2,7 @@
 
 Model::Model(): Object() {
     initID();
-    initName();
+    name = "Untitled Model";
 }
 
 Model::~Model() {
@@ -30,10 +30,6 @@ vector<Mesh*> Model::getMeshes() {
 
 vector<Model*> Model::getChildren() {
     return children;
-}
-
-void Model::initName() {
-    name = "Untitled Model";
 }
 
 void Model::initID() {

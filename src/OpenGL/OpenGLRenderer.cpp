@@ -13,6 +13,7 @@ OpenGLRenderer::~OpenGLRenderer() {
     if (shader) delete shader;
 }
 
+// Load, compile and link shaders
 void OpenGLRenderer::loadShader(QString vertexShaderFile, QString fragmentShaderFile) {
     shader = new QOpenGLShaderProgram;
     if (!shader->addShaderFromSourceFile(QOpenGLShader::Vertex, vertexShaderFile))
@@ -26,6 +27,7 @@ void OpenGLRenderer::loadShader(QString vertexShaderFile, QString fragmentShader
         shader->bindAttributeLocation(config[i].name.c_str(), config[i].indx);
 }
 
+// Render a generic scene
 void OpenGLRenderer::render(Scene* scene) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(OpenGLConfig::getBackgroundColor()[0], OpenGLConfig::getBackgroundColor()[1], OpenGLConfig::getBackgroundColor()[2], 1.0f);
@@ -40,22 +42,26 @@ void OpenGLRenderer::render(Scene* scene) {
     shader->setUniformValue("viewPos", scene->getCamera()->getPosition());
 
     if (OpenGLConfig::isGridlineEnabled()) {
+        // "enableLighting" must be set to false when rendering gridline
         shader->setUniformValue("enableLighting", false);
         renderMesh(Gridline::getGridlineMesh());
     }
 
     if (OpenGLConfig::isLightingEnabled()) {
+        // "enableLighting" must be set to false when rendering lights
         shader->setUniformValue("enableLighting", false);
         shader->setUniformValue("lightNum", (GLint) scene->getLights().size());
         for (uint32_t i = 0; i < scene->getLights().size(); i++)
             renderLight(scene->getLights()[i], i);
     }
     
+    // Set "enableLighting" according to the configuration
     shader->setUniformValue("enableLighting", OpenGLConfig::isLightingEnabled());
     for (uint32_t i = 0; i < scene->getModels().size(); i++)
         renderModel(scene->getModels()[i]);
 }
 
+// Render a generic model
 void OpenGLRenderer::renderModel(Model * model) {
     for (uint32_t i = 0; i < model->getChildren().size(); i++)
         renderModel(model->getChildren()[i]);
@@ -63,15 +69,21 @@ void OpenGLRenderer::renderModel(Model * model) {
         renderMesh(model->getMeshes()[i]);
 }
 
+// Render a generic mesh
 void OpenGLRenderer::renderMesh(Mesh * mesh) {
     renderMaterial(mesh->getMaterial());
+
+    // Convert generic mesh to specific OpenGLMesh
     OpenGLMesh* openGLMesh = OpenGLManager::getOpenGLMesh(mesh);
     shader->setUniformValue("modelMat", openGLMesh->getModelMatrix());
+
+    // Bind OpenGLMesh(VAO, VBO...) and render it
     openGLMesh->bind();
     openGLMesh->render();
     openGLMesh->release();
 }
 
+// Render a generic material
 void OpenGLRenderer::renderMaterial(Material * material) {
     shader->setUniformValue("material.hasDiffuseMap", false);
     shader->setUniformValue("material.hasSpecularMap", false);
@@ -84,7 +96,9 @@ void OpenGLRenderer::renderMaterial(Material * material) {
         renderTexture(material->getTextures()[i]);
 }
 
+// Render a generic texture
 void OpenGLRenderer::renderTexture(Texture * texture) {
+    // Convert generic texture to specific OpenGLTexture
     OpenGLTexture* openGLTexture = OpenGLManager::getOpenGLTexture(texture);
     if (texture->getType() == Texture::Diffuse && texture->isEnabled()) { // Diffuse map
         openGLTexture->bind(0);
@@ -102,11 +116,14 @@ void OpenGLRenderer::renderTexture(Texture * texture) {
 }
 
 void OpenGLRenderer::renderLight(Light * light, uint32_t indx) {
+    // Set light properties
     shader->setUniformValue(("lights[" + to_string(indx) + "].pos").c_str(), light->getPosition());
     shader->setUniformValue(("lights[" + to_string(indx) + "].color").c_str(), light->getColor());
     shader->setUniformValue(("lights[" + to_string(indx) + "].enableAttenuation").c_str(), light->isAttenuationEnabled());
     shader->setUniformValue(("lights[" + to_string(indx) + "].attenuationQuadratic").c_str(), light->getAttenuationQuadratic());
     shader->setUniformValue(("lights[" + to_string(indx) + "].attenuationLinear").c_str(), light->getAttenuationLinear());
     shader->setUniformValue(("lights[" + to_string(indx) + "].attenuationConstant").c_str(), light->getAttenuationConstant());
+
+    // Render the mesh shape of light (a light bulb)
     renderModel(light->getLightBulbModel());
 }

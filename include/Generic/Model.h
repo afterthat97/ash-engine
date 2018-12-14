@@ -17,6 +17,5 @@ private:
     vector<Mesh*> meshes;
     vector<Model*> children;
 
-    void initName() override;
     void initID() override;
 };

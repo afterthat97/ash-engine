@@ -1,7 +1,6 @@
 #include <Generic/Object.h>
 
 Object::Object() {
-    initName();
     parent = NULL;
 }
 
@@ -26,10 +25,6 @@ Object * Object::getParent() {
 
 uint32_t Object::getID() {
     return id;
-}
-
-void Object::initName() {
-    name = "Untitled Object";
 }
 
 void Object::initID() {

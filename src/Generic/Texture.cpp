@@ -2,7 +2,6 @@
 
 Texture::Texture(TextureType _textureType): Object() {
     initID();
-    initName();
     enabled = true;
     image = NULL;
     textureType = _textureType;
@@ -35,10 +34,6 @@ QImage * Texture::getImage() {
 
 Texture::TextureType Texture::getType() {
     return textureType;
-}
-
-void Texture::initName() {
-    name = "Untitled Texture";
 }
 
 void Texture::initID() {

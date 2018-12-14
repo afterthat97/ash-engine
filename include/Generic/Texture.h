@@ -26,6 +26,5 @@ private:
     QImage *image;
     TextureType textureType;
 
-    void initName() override;
     void initID() override;
 };

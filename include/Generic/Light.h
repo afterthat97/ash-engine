@@ -31,6 +31,5 @@ private:
     bool enableAttenuation;
     float attenuationQuadratic, attenuationLinear, attenuationConstant;
 
-    void initName() override;
     void initID() override;
 };

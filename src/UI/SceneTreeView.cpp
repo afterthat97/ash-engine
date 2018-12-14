@@ -8,7 +8,7 @@ SceneTreeModel::SceneTreeModel(QObject *parent): QAbstractItemModel(parent) {}
 
 SceneTreeModel::~SceneTreeModel() {}
 
-int SceneTreeModel::columnCount(const QModelIndex &parent) const {
+int SceneTreeModel::columnCount(const QModelIndex &) const {
     return 1;
 }
 
@@ -27,6 +27,7 @@ QVariant SceneTreeModel::data(const QModelIndex &index, int role) const {
     } else if (Texture* item = dynamic_cast<Texture*>(pointer)) {
         return QVariant("Texture: " + item->getName());
     }
+    return QVariant();
 }
 
 Qt::ItemFlags SceneTreeModel::flags(const QModelIndex &index) const {
@@ -34,7 +35,7 @@ Qt::ItemFlags SceneTreeModel::flags(const QModelIndex &index) const {
     return QAbstractItemModel::flags(index);
 }
 
-QVariant SceneTreeModel::headerData(int section, Qt::Orientation orientation, int role) const {
+QVariant SceneTreeModel::headerData(int, Qt::Orientation orientation, int role) const {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
         return QVariant(Scene::currentScene()->getName());
     return QVariant();

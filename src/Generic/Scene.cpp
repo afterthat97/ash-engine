@@ -2,7 +2,7 @@
 
 Scene::Scene(): Object() {
     initID();
-    initName();
+    name = "Untitled Scene";
     camera = new Camera;
 }
 
@@ -43,10 +43,10 @@ void Scene::clean() {
         delete models[i];
     for (uint32_t i = 0; i < lights.size(); i++)
         delete lights[i];
+    name = "Untitled Scene";
     models.clear();
     lights.clear();
     camera->reset();
-    initName();
 }
 
 Scene * Scene::currentScene() {
@@ -54,11 +54,6 @@ Scene * Scene::currentScene() {
     return scene;
 }
 
-void Scene::initName() {
-    name = "Untitled Scene";
-}
-
 void Scene::initID() {
     id = Allocator::allocateSceneID();
 }
-

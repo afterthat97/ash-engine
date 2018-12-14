@@ -2,7 +2,7 @@
 
 Mesh::Mesh(MeshType _meshType): Object() {
     initID();
-    initName();
+    name = "Untitled Mesh";
     meshType = _meshType;
     visible = true;
     material = new Material;
@@ -99,10 +99,6 @@ QMatrix4x4 Mesh::getModelMatrix() {
     model.rotate(rotation);
     model.scale(scaling);
     return model;
-}
-
-void Mesh::initName() {
-    name = "Untitled Mesh";
 }
 
 void Mesh::initID() {

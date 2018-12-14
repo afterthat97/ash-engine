@@ -3,6 +3,9 @@
 MeshPropertyWidget::MeshPropertyWidget(Mesh* _mesh, QWidget *parent): QWidget(parent) {
     mesh = _mesh;
 
+    meshVisibleCheckbox = new QCheckBox("Visible", this);
+    meshVisibleCheckbox->setChecked(mesh->isVisible());
+
     meshPositionWidget = new Vector3DWidget("Position", false, this);
     meshPositionWidget->setLabelText("X", "Y", "Z");
     meshPositionWidget->setRange(-1000000.0, 1000000.0);
@@ -26,6 +29,7 @@ MeshPropertyWidget::MeshPropertyWidget(Mesh* _mesh, QWidget *parent): QWidget(pa
 }
 
 MeshPropertyWidget::~MeshPropertyWidget() {
+    delete meshVisibleCheckbox;
     delete meshPositionWidget;
     delete meshRotationWidget;
     delete meshScalingWidget;
@@ -34,6 +38,7 @@ MeshPropertyWidget::~MeshPropertyWidget() {
 void MeshPropertyWidget::setupLayout() {
     QVBoxLayout * mainLayout = new QVBoxLayout;
     mainLayout->setAlignment(Qt::AlignTop);
+    mainLayout->addWidget(meshVisibleCheckbox);
     mainLayout->addWidget(meshPositionWidget);
     mainLayout->addWidget(meshRotationWidget);
     mainLayout->addWidget(meshScalingWidget);
@@ -41,9 +46,14 @@ void MeshPropertyWidget::setupLayout() {
 }
 
 void MeshPropertyWidget::setupSignals() {
+    connect(meshVisibleCheckbox, SIGNAL(stateChanged(int)), this, SLOT(setMeshVisible(int)));
     connect(meshPositionWidget, SIGNAL(valueChanged(QVector3D)), this, SLOT(setMeshPosition(QVector3D)));
     connect(meshRotationWidget, SIGNAL(valueChanged(QVector3D)), this, SLOT(setMeshRotation(QVector3D)));
     connect(meshScalingWidget, SIGNAL(valueChanged(QVector3D)), this, SLOT(setMeshScaling(QVector3D)));
+}
+
+void MeshPropertyWidget::setMeshVisible(int state) {
+    mesh->setVisible(state == Qt::Checked);
 }
 
 void MeshPropertyWidget::setMeshPosition(QVector3D value) {

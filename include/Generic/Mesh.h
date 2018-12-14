@@ -49,6 +49,5 @@ private:
     vector<uint32_t> indices;
     Material *material;
 
-    void initName() override;
     void initID() override;
 };

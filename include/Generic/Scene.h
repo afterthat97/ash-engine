@@ -24,6 +24,5 @@ private:
     vector<Model*> models;
     vector<Light*> lights;
 
-    void initName() override;
     void initID() override;
 };

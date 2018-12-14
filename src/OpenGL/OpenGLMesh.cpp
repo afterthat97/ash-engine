@@ -41,6 +41,7 @@ void OpenGLMesh::bind() {
 }
 
 void OpenGLMesh::render() {
+    if (!genericMesh->isVisible()) return;
     QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
     if (genericMesh->getType() == Mesh::Triangle)
         glFuncs->glDrawElements(GL_TRIANGLES, (GLsizei) genericMesh->getIndices().size(), GL_UNSIGNED_INT, 0);
