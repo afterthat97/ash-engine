@@ -3,6 +3,8 @@
 #include <Generic/Common.h>
 #include <OpenGL/Common.h>
 
+#include <QApplication>
+#include <QSurfaceFormat>
 #include <QMenuBar>
 #include <QTreeView>
 #include <QStatusBar>
@@ -22,10 +24,9 @@
 #include <QSlider>
 #include <QSpinBox>
 #include <QLabel>
-#include <QApplication>
-#include <QSurfaceFormat>
 #include <QGroupBox>
 #include <QCheckBox>
+#include <QLineEdit>
 
 #include <QNetworkAccessManager>
 #include <QJsonDocument>

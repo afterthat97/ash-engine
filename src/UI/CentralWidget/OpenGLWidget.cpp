@@ -3,13 +3,13 @@
 #include <OpenGL/OpenGLConfig.h>
 #include <Generic/Helper.h>
 
-OpenGLWidget::OpenGLWidget(MainWindow* _mainWindow, QWidget * parent)
-    : QOpenGLWidget(parent), mainWindow(_mainWindow) {
+OpenGLWidget::OpenGLWidget(QWidget * parent): QOpenGLWidget(parent) {
     setFocusPolicy(Qt::StrongFocus);
 
+    renderer = new OpenGLRenderer;
+    timer = new QTimer;
+    
     totFrames = 0;
-    renderer = new OpenGLRenderer(this);
-    timer = new QTimer();
     lastCursorPos = QCursor::pos();
 }
 
@@ -34,11 +34,15 @@ void OpenGLWidget::paintGL() {
     renderer->render(Scene::currentScene());
 
     totFrames++;
-    if (time.elapsed() >= 1000) { // 1s
-        mainWindow->statusBar->showMessage("FPS: " + QString::number(totFrames));
+    if (time.elapsed() >= 1000) { // 1000ms = 1s
+        FPSChanged(totFrames);
         time.restart();
         totFrames = 0;
     }
+}
+
+void OpenGLWidget::resizeGL(int width, int height) {
+    Scene::currentScene()->getCamera()->setAspectRatio(1.0 * width / height);
 }
 
 void OpenGLWidget::keyPressEvent(QKeyEvent * event) {
@@ -59,14 +63,14 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent * event) {
 }
 
 void OpenGLWidget::processUserInput() {
-    float shift = 1.0f, moveSpeed = 1.0f;
+    float shift = 1.0f;
     if (keyPressed[Qt::Key_Shift]) shift *= 5.0f;
-    if (keyPressed[Qt::Key_W]) Scene::currentScene()->getCamera()->moveForward(moveSpeed * shift);
-    if (keyPressed[Qt::Key_S]) Scene::currentScene()->getCamera()->moveForward(-moveSpeed * shift);
-    if (keyPressed[Qt::Key_A]) Scene::currentScene()->getCamera()->moveRight(-moveSpeed * shift);
-    if (keyPressed[Qt::Key_D]) Scene::currentScene()->getCamera()->moveRight(moveSpeed * shift);
-    if (keyPressed[Qt::Key_Q]) Scene::currentScene()->getCamera()->moveUp(-moveSpeed * shift);
-    if (keyPressed[Qt::Key_E]) Scene::currentScene()->getCamera()->moveUp(moveSpeed * shift);
+    if (keyPressed[Qt::Key_W]) Scene::currentScene()->getCamera()->moveForward(shift);
+    if (keyPressed[Qt::Key_S]) Scene::currentScene()->getCamera()->moveForward(-shift);
+    if (keyPressed[Qt::Key_A]) Scene::currentScene()->getCamera()->moveRight(-shift);
+    if (keyPressed[Qt::Key_D]) Scene::currentScene()->getCamera()->moveRight(shift);
+    if (keyPressed[Qt::Key_Q]) Scene::currentScene()->getCamera()->moveUp(-shift);
+    if (keyPressed[Qt::Key_E]) Scene::currentScene()->getCamera()->moveUp(shift);
 
     if (keyPressed[Qt::LeftButton]) {
         QPoint cntCursorPos = QCursor::pos();

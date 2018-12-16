@@ -4,9 +4,9 @@
 #include <Generic/Model.h>
 #include <Generic/Light.h>
 
-class Scene: public Object {
+class Scene: public QObject {
 public:
-    Scene();
+    Scene(QObject * parent = 0);
     ~Scene();
 
     void clean();
@@ -23,6 +23,4 @@ private:
     Camera * camera;
     vector<Model*> models;
     vector<Light*> lights;
-
-    void initID() override;
 };

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Generic/Mesh.h>
-#include <UI/CentralWidget/PropertyWidget/Vector3DWidget.h>
+#include <UI/CentralWidget/PropertyWidget/Vector3DEditWidget.h>
 
 class MeshPropertyWidget: public QWidget {
     Q_OBJECT
@@ -12,8 +12,8 @@ public:
 
 private:
     Mesh * mesh;
-    QCheckBox * meshVisibleCheckbox;
-    Vector3DWidget * meshPositionWidget, *meshRotationWidget, *meshScalingWidget;
+    QCheckBox * meshVisibleCheckbox, *meshReverseNormalCheckBox;
+    Vector3DEditWidget * meshPositionWidget, *meshRotationWidget, *meshScalingWidget;
     QVBoxLayout * mainLayout;
 
     void setupLayout();
@@ -21,7 +21,5 @@ private:
 
 private slots:
     void setMeshVisible(int state);
-    void setMeshPosition(QVector3D value);
-    void setMeshRotation(QVector3D value);
-    void setMeshScaling(QVector3D value);
+    void setMeshReverseNormal(int state);
 };

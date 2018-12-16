@@ -4,6 +4,7 @@
 
 class Allocator {
 public:
+    static void resetLightIDCounter();
     static uint32_t allocateMeshID();
     static uint32_t allocateLightID();
     static uint32_t allocateTextureID();

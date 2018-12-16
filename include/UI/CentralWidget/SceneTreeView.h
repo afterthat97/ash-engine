@@ -3,14 +3,13 @@
 #include <UI/Common.h>
 #include <Generic/Scene.h>
 
-class MainWindow;
 class SceneTreeModel;
 
 class SceneTreeView: public QTreeView {
     Q_OBJECT
 
 public:
-    SceneTreeView(MainWindow* mainWindow, QWidget* parent = Q_NULLPTR);
+    SceneTreeView(QWidget* parent = Q_NULLPTR);
     ~SceneTreeView();
 
 signals:
@@ -24,7 +23,6 @@ private slots:
     void selectionChanged(const QModelIndex & cnt, const QModelIndex & prev);
 
 private:
-    MainWindow * mainWindow;
     SceneTreeModel * sceneTreeModel;
 };
 

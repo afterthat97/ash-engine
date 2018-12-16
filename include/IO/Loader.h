@@ -12,8 +12,9 @@ public:
     static Model* loadFromFile(QString filepath);
 private:
     static QString dir;
-    static Model* loadModel(const aiScene* aiScenePtr, const aiNode* aiNodePtr);
-    static Mesh* loadMesh(const aiScene* aiScenePtr, const aiMesh* aiMeshPtr);
+    static const aiScene* aiScenePtr;
+    static Model* loadModel(const aiNode* aiNodePtr);
+    static Mesh* loadMesh(const aiMesh* aiMeshPtr);
     static Material* loadMaterial(const aiMaterial* aiMaterialPtr);
     static Texture* loadTexture(Texture::TextureType textureType, QString filename);
 };

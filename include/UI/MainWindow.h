@@ -11,23 +11,14 @@ public:
     ~MainWindow();
 
     friend class MainMenuBar;
-    friend class SceneTreeView;
-    friend class OpenGLWidget;
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dragMoveEvent(QDragMoveEvent *event) override;
     void dropEvent(QDropEvent *event) override;
 
-private slots:
-    void modelSelected(Model* model, bool selected);
-    void lightSelected(Light* light, bool selected);
-    void meshSelected(Mesh* mesh, bool selected);
-    void materialSelected(Material* material, bool selected);
-    void textureSelected(Texture* texture, bool selected);
-
 private:
-    MainMenuBar * menuBar;
-    CentralWidget * centralWidget;
-    QStatusBar * statusBar;
+    MainMenuBar * m_menuBar;
+    CentralWidget * m_centralWidget;
+    QStatusBar * m_statusBar;
 };

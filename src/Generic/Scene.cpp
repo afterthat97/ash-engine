@@ -1,9 +1,8 @@
 #include <Generic/Scene.h>
 
-Scene::Scene(): Object() {
-    initID();
-    name = "Untitled Scene";
-    camera = new Camera;
+Scene::Scene(QObject * parent): QObject(parent) {
+    setObjectName("Untitled Scene");
+    camera = new Camera(QVector3D(0, 2, 10), QVector3D(0, 0, -1), this);
 }
 
 Scene::~Scene() {
@@ -43,7 +42,7 @@ void Scene::clean() {
         delete models[i];
     for (uint32_t i = 0; i < lights.size(); i++)
         delete lights[i];
-    name = "Untitled Scene";
+    setObjectName("Untitled Scene");
     models.clear();
     lights.clear();
     camera->reset();
@@ -52,8 +51,4 @@ void Scene::clean() {
 Scene * Scene::currentScene() {
     static Scene* scene = new Scene;
     return scene;
-}
-
-void Scene::initID() {
-    id = Allocator::allocateSceneID();
 }

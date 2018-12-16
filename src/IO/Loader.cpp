@@ -2,11 +2,11 @@
 #include <UI/Common.h>
 
 QString Loader::dir = "";
+const aiScene* Loader::aiScenePtr = 0;
 
 Model * Loader::loadFromFile(QString filepath) {
     if (filepath == "") return NULL;
 
-    const aiScene* aiScenePtr = NULL;
     Assimp::Importer importer;
     unsigned int flags = aiProcess_Triangulate |
                          aiProcess_CalcTangentSpace |
@@ -33,20 +33,20 @@ Model * Loader::loadFromFile(QString filepath) {
         QMessageBox::critical(NULL, "Error", importer.GetErrorString());
         return NULL;
     }
-    return loadModel(aiScenePtr, aiScenePtr->mRootNode);
+    return loadModel(aiScenePtr->mRootNode);
 }
 
-Model * Loader::loadModel(const aiScene* aiScenePtr, const aiNode * aiNodePtr) {
+Model * Loader::loadModel(const aiNode * aiNodePtr) {
     Model* newModel = new Model();
-    newModel->setName(aiNodePtr->mName.C_Str());
+    newModel->setObjectName(aiNodePtr->mName.length ? aiNodePtr->mName.C_Str() : "Untitled");
     for (uint32_t i = 0; i < aiNodePtr->mNumMeshes; i++)
-        newModel->addMesh(loadMesh(aiScenePtr, aiScenePtr->mMeshes[aiNodePtr->mMeshes[i]]));
+        newModel->addMesh(loadMesh(aiScenePtr->mMeshes[aiNodePtr->mMeshes[i]]));
     for (uint32_t i = 0; i < aiNodePtr->mNumChildren; i++)
-        newModel->addChildren(loadModel(aiScenePtr, aiNodePtr->mChildren[i]));
+        newModel->addChildren(loadModel(aiNodePtr->mChildren[i]));
     return newModel;
 }
 
-Mesh * Loader::loadMesh(const aiScene* aiScenePtr, const aiMesh * aiMeshPtr) {
+Mesh * Loader::loadMesh(const aiMesh * aiMeshPtr) {
     vector<Vertex> vertices;
     for (uint32_t i = 0; i < aiMeshPtr->mNumVertices; i++) {
         Vertex vertex;
@@ -67,7 +67,7 @@ Mesh * Loader::loadMesh(const aiScene* aiScenePtr, const aiMesh * aiMeshPtr) {
             indices.push_back(aiMeshPtr->mFaces[i].mIndices[j]);
 
     Mesh* newMesh = new Mesh;
-    newMesh->setName(aiMeshPtr->mName.C_Str());
+    newMesh->setObjectName(aiMeshPtr->mName.length ? aiMeshPtr->mName.C_Str() : "Untitled");
     newMesh->setVertices(vertices);
     newMesh->setIndices(indices);
     newMesh->setMaterial(loadMaterial(aiScenePtr->mMaterials[aiMeshPtr->mMaterialIndex]));
@@ -80,7 +80,7 @@ Material * Loader::loadMaterial(const aiMaterial * aiMaterialPtr) {
     aiColor4D color; float value; aiString aiStr;
 
     if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_NAME, aiStr))
-        newMaterial->setName(aiStr.C_Str());
+        newMaterial->setObjectName(aiStr.length ? aiStr.C_Str() : "Untitled");
     if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_COLOR_AMBIENT, color))
         newMaterial->setAmbientColor(QVector3D(color.r, color.g, color.b));
     if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_COLOR_DIFFUSE, color))
@@ -111,7 +111,7 @@ Texture * Loader::loadTexture(Texture::TextureType textureType, QString filename
         return NULL;
     }
 
-    newTexture->setName(filepath);
+    newTexture->setObjectName(filepath);
     newTexture->setImage(image);
 
     return newTexture;

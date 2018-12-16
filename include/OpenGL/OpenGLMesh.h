@@ -15,7 +15,6 @@ public:
     void release();
     
     void setVertexAttribPointer(GLuint indx, GLuint size, GLsizei stride, const void* ptr);
-    QMatrix4x4 getModelMatrix();
 
 private:
     Mesh* genericMesh;

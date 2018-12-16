@@ -9,25 +9,19 @@ MainWindow::MainWindow(QWidget *parent)
     setAcceptDrops(true);
     setFocusPolicy(Qt::StrongFocus);
 
-    menuBar = new MainMenuBar(this);
-    centralWidget = new CentralWidget(this);
-    statusBar = new QStatusBar(this);
+    m_menuBar = new MainMenuBar(this);
+    m_centralWidget = new CentralWidget(this);
+    m_statusBar = new QStatusBar(this);
 
-    setMenuBar(menuBar);
-    setCentralWidget(centralWidget);
-    setStatusBar(statusBar);
-
-    connect(centralWidget->sceneTreeView, SIGNAL(modelSelected(Model*, bool)), this, SLOT(modelSelected(Model*, bool)));
-    connect(centralWidget->sceneTreeView, SIGNAL(lightSelected(Light*, bool)), this, SLOT(lightSelected(Light*, bool)));
-    connect(centralWidget->sceneTreeView, SIGNAL(meshSelected(Mesh*, bool)), this, SLOT(meshSelected(Mesh*, bool)));
-    connect(centralWidget->sceneTreeView, SIGNAL(materialSelected(Material*, bool)), this, SLOT(materialSelected(Material*, bool)));
-    connect(centralWidget->sceneTreeView, SIGNAL(textureSelected(Texture*, bool)), this, SLOT(textureSelected(Texture*, bool)));
+    setMenuBar(m_menuBar);
+    setCentralWidget(m_centralWidget);
+    setStatusBar(m_statusBar);
 }
 
 MainWindow::~MainWindow() {
-    delete menuBar;
-    delete centralWidget;
-    delete statusBar;
+    delete m_menuBar;
+    delete m_centralWidget;
+    delete m_statusBar;
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent * event) {
@@ -45,36 +39,6 @@ void MainWindow::dropEvent(QDropEvent * event) {
         QString str = url.toLocalFile();
         Model* newModel = Loader::loadFromFile(url.toLocalFile());
         Scene::currentScene()->addModel(newModel);
-        centralWidget->sceneTreeView->reset();
-    }
-}
-
-void MainWindow::modelSelected(Model* model, bool selected) {
-    if (selected) {
-        centralWidget->setPropertyWidget(model);
-    }
-}
-
-void MainWindow::lightSelected(Light * light, bool selected) {
-    if (selected) {
-        centralWidget->setPropertyWidget(light);
-    }
-}
-
-void MainWindow::meshSelected(Mesh * mesh, bool selected) {
-    if (selected) {
-        centralWidget->setPropertyWidget(mesh);
-    }
-}
-
-void MainWindow::materialSelected(Material * material, bool selected) {
-    if (selected) {
-        centralWidget->setPropertyWidget(material);
-    }
-}
-
-void MainWindow::textureSelected(Texture * texture, bool selected) {
-    if (selected) {
-        centralWidget->setPropertyWidget(texture);
+        m_centralWidget->sceneTreeView->reset();
     }
 }

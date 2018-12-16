@@ -7,6 +7,10 @@ uint32_t Allocator::materialIDCounter = 0;
 uint32_t Allocator::modelIDCounter = 0;
 uint32_t Allocator::sceneIDCounter = 0;
 
+void Allocator::resetLightIDCounter() {
+    lightIDCounter = 0;
+}
+
 uint32_t Allocator::allocateMeshID() {
     return meshIDCounter++;
 }

@@ -99,18 +99,19 @@ void MainMenuBar::createMenus() {
 }
 
 void MainMenuBar::fileNew() {
-    mainWindow->centralWidget->sceneTreeView->selectionModel()->clearSelection();
+    mainWindow->m_centralWidget->sceneTreeView->selectionModel()->clearSelection();
+    Allocator::resetLightIDCounter();
     Scene::currentScene()->clean();
     OpenGLManager::cleanOpenGLMesh();
     OpenGLManager::cleanOpenGLTexture();
-    mainWindow->centralWidget->sceneTreeView->reset();
-    mainWindow->centralWidget->resetPropertyWidget();
+    mainWindow->m_centralWidget->sceneTreeView->reset();
+    mainWindow->m_centralWidget->resetPropertyWidget();
 }
 
 void MainMenuBar::fileOpen() {
     QString filepath = QFileDialog::getOpenFileName(this, "Load Model(s)", "", "All Files (*)");
     Scene::currentScene()->addModel(Loader::loadFromFile(filepath));
-    mainWindow->centralWidget->sceneTreeView->reset();
+    mainWindow->m_centralWidget->sceneTreeView->reset();
 }
 
 void MainMenuBar::fileExit() {
@@ -122,23 +123,23 @@ void MainMenuBar::createLight() {
         QMessageBox::critical(0, "Error", "The number of lights has reached the upper limit.");
         return;
     }
-    Scene::currentScene()->addLight(new Light(QVector3D(0, 100, 0)));
-    mainWindow->centralWidget->sceneTreeView->reset();
+    Scene::currentScene()->addLight(new Light(QVector3D(0, 3, 0)));
+    mainWindow->m_centralWidget->sceneTreeView->reset();
 }
 
 void MainMenuBar::createBasicCube() {
     Scene::currentScene()->addModel(Helper::createCubeModel());
-    mainWindow->centralWidget->sceneTreeView->reset();
+    mainWindow->m_centralWidget->sceneTreeView->reset();
 }
 
 void MainMenuBar::createBasicSphere() {
     Scene::currentScene()->addModel(Helper::createSphereModel());
-    mainWindow->centralWidget->sceneTreeView->reset();
+    mainWindow->m_centralWidget->sceneTreeView->reset();
 }
 
 void MainMenuBar::createBasicPlane() {
     Scene::currentScene()->addModel(Helper::createPlaneModel());
-    mainWindow->centralWidget->sceneTreeView->reset();
+    mainWindow->m_centralWidget->sceneTreeView->reset();
 }
 
 void MainMenuBar::optionLighting(bool enabled) {

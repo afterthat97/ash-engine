@@ -1,9 +1,9 @@
 #include <Generic/Gridline.h>
 
-pair<float, float> Gridline::xRange(-1000.0f, 1000.0f);
-pair<float, float> Gridline::zRange(-1000.0f, 1000.0f);
+pair<float, float> Gridline::xRange(-100.0f, 100.0f);
+pair<float, float> Gridline::zRange(-100.0f, 100.0f);
 float Gridline::yValue = 0.0f;
-float Gridline::stride = 50.0f;
+float Gridline::stride = 4.0f;
 QVector3D Gridline::color(0.4f, 0.4f, 0.4f);
 Mesh* Gridline::gridlineMesh = NULL;
 
@@ -64,7 +64,7 @@ void Gridline::generateMesh() {
     material->setDiffuseColor(color);
 
     gridlineMesh = new Mesh(Mesh::Line);
-    gridlineMesh->setName("Gridline");
+    gridlineMesh->setObjectName("Gridline");
     gridlineMesh->setVertices(vertices);
     gridlineMesh->setIndices(indices);
     gridlineMesh->setMaterial(material);

@@ -1,8 +1,7 @@
 #include <Generic/Material.h>
 
-Material::Material(): Object() {
-    initID();
-    name = "Untitled Material";
+Material::Material(QObject * parent): QObject(parent) {
+    setObjectName("Untitled");
     ambientColor = QVector3D(0.2f, 0.2f, 0.2f);
     diffuseColor = QVector3D(0.8f, 0.8f, 0.8f);
     specularColor = QVector3D(0.5f, 0.5f, 0.5f);
@@ -14,27 +13,7 @@ Material::~Material() {
         delete textures[i];
 }
 
-void Material::addTexture(Texture * newTexture) {
-    if (!newTexture) return;
-    textures.push_back(newTexture);
-    newTexture->setParent(this);
-}
-
-void Material::setAmbientColor(QVector3D color) {
-    ambientColor = color;
-}
-
-void Material::setDiffuseColor(QVector3D color) {
-    diffuseColor = color;
-}
-
-void Material::setSpecularColor(QVector3D color) {
-    specularColor = color;
-}
-
-void Material::setShininess(float value) {
-    shininess = value;
-}
+// Get properties
 
 vector<Texture*> Material::getTextures() {
     return textures;
@@ -56,6 +35,26 @@ float Material::getShininess() {
     return shininess;
 }
 
-void Material::initID() {
-    id = Allocator::allocateMaterialID();
+// Public slots
+
+void Material::addTexture(Texture * newTexture) {
+    if (!newTexture) return;
+    textures.push_back(newTexture);
+    newTexture->setParent(this);
+}
+
+void Material::setAmbientColor(QVector3D color) {
+    ambientColor = color;
+}
+
+void Material::setDiffuseColor(QVector3D color) {
+    diffuseColor = color;
+}
+
+void Material::setSpecularColor(QVector3D color) {
+    specularColor = color;
+}
+
+void Material::setShininess(float value) {
+    shininess = value;
 }

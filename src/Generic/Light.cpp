@@ -1,11 +1,11 @@
 #include <Generic/Light.h>
 #include <IO/Loader.h>
 
-Light::Light(QVector3D _position): Object() {
+Light::Light(QVector3D _position, QObject * parent): QObject(parent) {
     lightBulbModel = Loader::loadFromFile(":/resources/shapes/light.fbx");
 
-    initID();
-    name = "Light " + QString::number(id);
+    id = Allocator::allocateLightID();
+    setObjectName("Light " + QString::number(id));
     setColor(QVector3D(1.0f, 1.0f, 1.0f));
     setPosition(_position);
     setEnableAttenuation(true);
@@ -18,32 +18,7 @@ Light::~Light() {
     delete lightBulbModel;
 }
 
-void Light::setColor(QVector3D newColor) {
-    color = newColor;
-    lightBulbModel->getMeshes()[1]->getMaterial()->setDiffuseColor(color);
-}
-
-void Light::setPosition(QVector3D newPosition) {
-    position = newPosition;
-    lightBulbModel->getMeshes()[0]->setPosition(position);
-    lightBulbModel->getMeshes()[1]->setPosition(position);
-}
-
-void Light::setEnableAttenuation(bool enabled) {
-    enableAttenuation = enabled;
-}
-
-void Light::setAttenuationQuadratic(float value) {
-    attenuationQuadratic = value;
-}
-
-void Light::setAttenuationLinear(float value) {
-    attenuationLinear = value;
-}
-
-void Light::setAttenuationConstant(float value) {
-    attenuationConstant = value;
-}
+// Get properties
 
 QVector3D Light::getColor() {
     return color;
@@ -73,6 +48,43 @@ Model * Light::getLightBulbModel() {
     return lightBulbModel;
 }
 
-void Light::initID() {
-    id = Allocator::allocateLightID();
+// Transform functions
+
+void Light::translate(QVector3D delta) {
+    setPosition(position + delta);
+    positionChanged(position);
+}
+
+// Public slots
+
+void Light::setColor(QVector3D newColor) {
+    color = newColor;
+    lightBulbModel->getMeshes()[1]->getMaterial()->setDiffuseColor(color);
+}
+
+void Light::setPosition(QVector3D newPosition) {
+    position = newPosition;
+    lightBulbModel->setPosition(position);
+}
+
+void Light::setEnableAttenuation(bool enabled) {
+    enableAttenuation = enabled;
+}
+
+void Light::setAttenuationValue(QVector3D value) {
+    setAttenuationQuadratic(value[0]);
+    setAttenuationLinear(value[1]);
+    setAttenuationConstant(value[2]);
+}
+
+void Light::setAttenuationQuadratic(float value) {
+    attenuationQuadratic = value;
+}
+
+void Light::setAttenuationLinear(float value) {
+    attenuationLinear = value;
+}
+
+void Light::setAttenuationConstant(float value) {
+    attenuationConstant = value;
 }

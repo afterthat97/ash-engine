@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     QSurfaceFormat::setDefaultFormat(openGLFormat);
 
     MainWindow w;
-    w.resize(960, 540);
+    w.resize(1000, 540);
     w.setWindowTitle("masterEngine");
     w.show();
 

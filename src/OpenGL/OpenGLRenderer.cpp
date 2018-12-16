@@ -4,9 +4,8 @@
 #include <Generic/Gridline.h>
 #include <UI/Common.h>
 
-OpenGLRenderer::OpenGLRenderer(QWidget* _targetWidget) {
+OpenGLRenderer::OpenGLRenderer() {
     shader = NULL;
-    targetWidget = _targetWidget;
 }
 
 OpenGLRenderer::~OpenGLRenderer() {
@@ -29,17 +28,18 @@ void OpenGLRenderer::loadShader(QString vertexShaderFile, QString fragmentShader
 
 // Render a generic scene
 void OpenGLRenderer::render(Scene* scene) {
+    if (!shader) {
+        QMessageBox::critical(0, "Error", "Shader is not loaded.");
+        return;
+    }
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(OpenGLConfig::getBackgroundColor()[0], OpenGLConfig::getBackgroundColor()[1], OpenGLConfig::getBackgroundColor()[2], 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, OpenGLConfig::isWireFrameEnabled() ? GL_LINE : GL_FILL);
 
-    QMatrix4x4 projMat;
-    projMat.perspective(45.0f, float(targetWidget->width()) / targetWidget->height(), 0.1f, 100000.0f);
-    QMatrix4x4 viewMat = scene->getCamera()->getViewMatrix();
-
     shader->bind();
-    shader->setUniformValue("projMat", projMat);
-    shader->setUniformValue("viewMat", viewMat);
+    shader->setUniformValue("projMat", scene->getCamera()->getProjectionMatrix());
+    shader->setUniformValue("viewMat", scene->getCamera()->getViewMatrix());
     shader->setUniformValue("viewPos", scene->getCamera()->getPosition());
 
     if (OpenGLConfig::isGridlineEnabled()) {
@@ -74,9 +74,11 @@ void OpenGLRenderer::renderModel(Model * model) {
 void OpenGLRenderer::renderMesh(Mesh * mesh) {
     renderMaterial(mesh->getMaterial());
 
+    shader->setUniformValue("reverseNormal", mesh->isNormalReversed());
+    shader->setUniformValue("modelMat", mesh->getModelMatrix());
+    
     // Convert generic mesh to specific OpenGLMesh
     OpenGLMesh* openGLMesh = OpenGLManager::getOpenGLMesh(mesh);
-    shader->setUniformValue("modelMat", openGLMesh->getModelMatrix());
 
     // Bind OpenGLMesh(VAO, VBO...) and render it
     openGLMesh->bind();

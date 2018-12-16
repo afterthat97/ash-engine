@@ -62,7 +62,3 @@ void OpenGLMesh::setVertexAttribPointer(GLuint indx, GLuint size, GLsizei stride
     glFuncs->glVertexAttribPointer(indx, size, GL_FLOAT, GL_FALSE, stride, ptr);
     release();
 }
-
-QMatrix4x4 OpenGLMesh::getModelMatrix() {
-    return genericMesh->getModelMatrix();
-}

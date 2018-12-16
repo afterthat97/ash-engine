@@ -54,7 +54,7 @@ void main() {
     vec3 diffuseColor = (material.hasDiffuseMap ? texture(material.diffuseMap, fragTexCoords).rgb : material.diffuseRGB);
     vec3 specularColor = (material.hasSpecularMap ? texture(material.specularMap, fragTexCoords).rgb : material.specularRGB);
     vec3 normal = (material.hasNormalMap ? texture(material.normalMap, fragTexCoords).rgb * 2.0f - 1.0f : vec3(0.0f, 0.0f, 1.0f));
-    normal = TBN * normalize(normal);
+	normal = TBN * normalize(normal);
 
     if (enableLighting) {
         fragColor = vec4(diffuseColor * material.ambientRGB, 1.0f);
