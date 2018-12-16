@@ -15,6 +15,7 @@ MainMenuBar::MainMenuBar(MainWindow *parent): QMenuBar(parent), mainWindow(paren
 MainMenuBar::~MainMenuBar() {
     delete menuFile;
     delete menuCreate;
+    delete menuOptions;
     delete menuHelp;
 
     delete actionFileNew;
@@ -26,9 +27,12 @@ MainMenuBar::~MainMenuBar() {
     delete actionCreateBasicSphere;
     delete actionCreateBasicPlane;
 
-    delete actionOptionEnableLighting;
-    delete actionOptionEnableGridline;
-    delete actionOptionEnableWireFrame;
+    delete actionEnableLighting;
+    delete actionEnableGridline;
+    delete actionEnableWireFrame;
+
+    delete actionSetFPS30;
+    delete actionSetFPS60;
 
     delete actionHelpAbout;
     delete actionHelpCheckUpdate;
@@ -44,15 +48,22 @@ void MainMenuBar::createActions() {
     actionCreateBasicSphere = new QAction("Sphere", this);
     actionCreateBasicPlane = new QAction("Plane", this);
 
-    actionOptionEnableLighting = new QAction("Enable Lighting", this);
-    actionOptionEnableGridline = new QAction("Enable Gridline", this);
-    actionOptionEnableWireFrame = new QAction("WireFrame Mode", this);
-    actionOptionEnableLighting->setCheckable(true);
-    actionOptionEnableGridline->setCheckable(true);
-    actionOptionEnableWireFrame->setCheckable(true);
-    actionOptionEnableLighting->setChecked(OpenGLConfig::isLightingEnabled());
-    actionOptionEnableGridline->setChecked(OpenGLConfig::isGridlineEnabled());
-    actionOptionEnableWireFrame->setChecked(OpenGLConfig::isWireFrameEnabled());
+    actionEnableLighting = new QAction("Enable Lighting", this);
+    actionEnableGridline = new QAction("Enable Gridline", this);
+    actionEnableWireFrame = new QAction("WireFrame Mode", this);
+    actionEnableLighting->setCheckable(true);
+    actionEnableGridline->setCheckable(true);
+    actionEnableWireFrame->setCheckable(true);
+    actionEnableLighting->setChecked(OpenGLConfig::isLightingEnabled());
+    actionEnableGridline->setChecked(OpenGLConfig::isGridlineEnabled());
+    actionEnableWireFrame->setChecked(OpenGLConfig::isWireFrameEnabled());
+
+    actionSetFPS30 = new QAction("30", this);
+    actionSetFPS60 = new QAction("60", this);
+    actionSetFPS30->setCheckable(true);
+    actionSetFPS60->setCheckable(true);
+    actionSetFPS30->setChecked(false);
+    actionSetFPS60->setChecked(true);
 
     actionHelpAbout = new QAction("About", this);
     actionHelpCheckUpdate = new QAction("Check for Update", this);
@@ -66,9 +77,12 @@ void MainMenuBar::createActions() {
     connect(actionCreateBasicSphere, SIGNAL(triggered(bool)), this, SLOT(createBasicSphere()));
     connect(actionCreateBasicPlane, SIGNAL(triggered(bool)), this, SLOT(createBasicPlane()));
 
-    connect(actionOptionEnableLighting, SIGNAL(triggered(bool)), this, SLOT(optionLighting(bool)));
-    connect(actionOptionEnableGridline, SIGNAL(triggered(bool)), this, SLOT(optionGridline(bool)));
-    connect(actionOptionEnableWireFrame, SIGNAL(triggered(bool)), this, SLOT(optionWireFrame(bool)));
+    connect(actionEnableLighting, SIGNAL(triggered(bool)), this, SLOT(optionLighting(bool)));
+    connect(actionEnableGridline, SIGNAL(triggered(bool)), this, SLOT(optionGridline(bool)));
+    connect(actionEnableWireFrame, SIGNAL(triggered(bool)), this, SLOT(optionWireFrame(bool)));
+
+    connect(actionSetFPS30, SIGNAL(triggered(bool)), this, SLOT(setFPS30()));
+    connect(actionSetFPS60, SIGNAL(triggered(bool)), this, SLOT(setFPS60()));
 
     connect(actionHelpAbout, SIGNAL(triggered(bool)), this, SLOT(helpAbout()));
     connect(actionHelpCheckUpdate, SIGNAL(triggered(bool)), this, SLOT(helpCheckForUpdates()));
@@ -89,9 +103,13 @@ void MainMenuBar::createMenus() {
     menuCreateBasicShapes->addAction(actionCreateBasicPlane);
 
     menuOptions = this->addMenu("Options");
-    menuOptions->addAction(actionOptionEnableLighting);
-    menuOptions->addAction(actionOptionEnableGridline);
-    menuOptions->addAction(actionOptionEnableWireFrame);
+    menuOptions->addAction(actionEnableLighting);
+    menuOptions->addAction(actionEnableGridline);
+    menuOptions->addAction(actionEnableWireFrame);
+
+    menuSetFPS = menuOptions->addMenu("Set FPS");
+    menuSetFPS->addAction(actionSetFPS30);
+    menuSetFPS->addAction(actionSetFPS60);
 
     menuHelp = this->addMenu("Help");
     menuHelp->addAction(actionHelpAbout);
@@ -105,7 +123,7 @@ void MainMenuBar::fileNew() {
     OpenGLManager::cleanOpenGLMesh();
     OpenGLManager::cleanOpenGLTexture();
     mainWindow->m_centralWidget->sceneTreeView->reset();
-    mainWindow->m_centralWidget->resetPropertyWidget();
+    mainWindow->m_centralWidget->cameraSelected(Scene::currentScene()->getCamera(), true);
 }
 
 void MainMenuBar::fileOpen() {
@@ -152,6 +170,18 @@ void MainMenuBar::optionGridline(bool enabled) {
 
 void MainMenuBar::optionWireFrame(bool enabled) {
     OpenGLConfig::setEnableWireFrame(enabled);
+}
+
+void MainMenuBar::setFPS30() {
+    actionSetFPS30->setChecked(true);
+    actionSetFPS60->setChecked(false);
+    mainWindow->m_centralWidget->openGLWidget->setFPSLimit(30);
+}
+
+void MainMenuBar::setFPS60() {
+    actionSetFPS30->setChecked(false);
+    actionSetFPS60->setChecked(true);
+    mainWindow->m_centralWidget->openGLWidget->setFPSLimit(60);
 }
 
 void MainMenuBar::helpAbout() {

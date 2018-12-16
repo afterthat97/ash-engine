@@ -2,7 +2,7 @@
 
 #include <UI/CentralWidget/SceneTreeView.h>
 #include <UI/CentralWidget/OpenGLWidget.h>
-#include <UI/CentralWidget/PropertyWidget/ScenePropertyWidget.h>
+#include <UI/CentralWidget/PropertyWidget/CameraPropertyWidget.h>
 #include <UI/CentralWidget/PropertyWidget/LightPropertyWidget.h>
 #include <UI/CentralWidget/PropertyWidget/MaterialPropertyWidget.h>
 #include <UI/CentralWidget/PropertyWidget/MeshPropertyWidget.h>
@@ -16,9 +16,6 @@ class CentralWidget: public QWidget {
 public:
     CentralWidget(MainWindow* parent);
     ~CentralWidget();
-
-    // MARK
-    void resetPropertyWidget();
 
     friend class MainWindow;
     friend class MainMenuBar;
@@ -36,6 +33,7 @@ private:
 
 private slots:
     void FPSChanged(uint32_t FPS);
+    void cameraSelected(Camera* camera, bool selected);
     void modelSelected(Model* model, bool selected);
     void lightSelected(Light* light, bool selected);
     void meshSelected(Mesh* mesh, bool selected);

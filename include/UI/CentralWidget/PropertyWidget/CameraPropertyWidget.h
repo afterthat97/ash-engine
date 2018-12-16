@@ -5,30 +5,7 @@
 #include <UI/CentralWidget/PropertyWidget/Vector3DEditWidget.h>
 #include <Generic/Scene.h>
 
-class CameraPropertyWidget;
-
-class ScenePropertyWidget: public QWidget {
-    Q_OBJECT
-
-public:
-    ScenePropertyWidget(Scene *scene, QWidget *parent = Q_NULLPTR);
-    ~ScenePropertyWidget();
-
-private:
-    Scene* scene;
-    StringEditWidget * nameEditWidget;
-    CameraPropertyWidget * cameraPropertyWidget;
-    QVBoxLayout * mainLayout;
-
-    void setupLayout();
-    void setupSignals();
-
-private slots:
-    void setSceneName(QString name);
-};
-
-
-class CameraPropertyWidget: public QGroupBox {
+class CameraPropertyWidget: public QWidget {
     Q_OBJECT
 
 public:

@@ -4,13 +4,12 @@
 #include <Generic/Helper.h>
 
 OpenGLWidget::OpenGLWidget(QWidget * parent): QOpenGLWidget(parent) {
-    setFocusPolicy(Qt::StrongFocus);
-
     renderer = new OpenGLRenderer;
     timer = new QTimer;
-    
     totFrames = 0;
     lastCursorPos = QCursor::pos();
+    setFocusPolicy(Qt::StrongFocus);
+    setFPSLimit(60);
 }
 
 OpenGLWidget::~OpenGLWidget() {
@@ -18,12 +17,15 @@ OpenGLWidget::~OpenGLWidget() {
     delete timer;
 }
 
+void OpenGLWidget::setFPSLimit(uint32_t limit) {
+    timer->setInterval(1000 / limit);
+}
+
 void OpenGLWidget::initializeGL() {
     initializeOpenGLFunctions();
     renderer->loadShader(":/resources/shaders/phong.vert", ":/resources/shaders/phong.frag");
     glEnable(GL_DEPTH_TEST);
 
-    timer->setInterval(16);
     connect(timer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
     timer->start();
     time.restart();

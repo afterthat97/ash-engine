@@ -40,7 +40,6 @@ HEADERS += \
     include/Generic/Material.h \
     include/Generic/Mesh.h \
     include/Generic/Model.h \
-    include/Generic/Object.h \
     include/Generic/Scene.h \
     include/Generic/Texture.h \
     include/Generic/Vertex.h \
@@ -51,18 +50,20 @@ HEADERS += \
     include/OpenGL/OpenGLMesh.h \
     include/OpenGL/OpenGLRenderer.h \
     include/OpenGL/OpenGLTexture.h \
-    include/UI/CentralWidget/PropertyWidget/EmptyPropertyWidget.h \
+    include/UI/CentralWidget/PropertyWidget/FloatEditWidget.h \
     include/UI/CentralWidget/PropertyWidget/LightPropertyWidget.h \
     include/UI/CentralWidget/PropertyWidget/MaterialPropertyWidget.h \
     include/UI/CentralWidget/PropertyWidget/MeshPropertyWidget.h \
+    include/UI/CentralWidget/PropertyWidget/StringEditWidget.h \
     include/UI/CentralWidget/PropertyWidget/TexturePropertyWidget.h \
-    include/UI/CentralWidget/PropertyWidget/Vector3DWidget.h \
+    include/UI/CentralWidget/PropertyWidget/Vector3DEditWidget.h \
     include/UI/CentralWidget/CentralWidget.h \
     include/UI/CentralWidget/OpenGLWidget.h \
     include/UI/CentralWidget/SceneTreeView.h \
     include/UI/Common.h \
     include/UI/MainMenuBar.h \
-    include/UI/MainWindow.h
+    include/UI/MainWindow.h \
+    include/UI/CentralWidget/PropertyWidget/CameraPropertyWidget.h
 
 SOURCES += \
     src/Generic/Allocator.cpp \
@@ -73,7 +74,6 @@ SOURCES += \
     src/Generic/Material.cpp \
     src/Generic/Mesh.cpp \
     src/Generic/Model.cpp \
-    src/Generic/Object.cpp \
     src/Generic/Scene.cpp \
     src/Generic/Texture.cpp \
     src/IO/Loader.cpp \
@@ -82,15 +82,18 @@ SOURCES += \
     src/OpenGL/OpenGLMesh.cpp \
     src/OpenGL/OpenGLRenderer.cpp \
     src/OpenGL/OpenGLTexture.cpp \
-    src/UI/CentralWidget/PropertyWidget/EmptyPropertyWidget.cpp \
+    src/UI/CentralWidget/PropertyWidget/FloatEditWidget.cpp \
     src/UI/CentralWidget/PropertyWidget/LightPropertyWidget.cpp \
     src/UI/CentralWidget/PropertyWidget/MaterialPropertyWidget.cpp \
     src/UI/CentralWidget/PropertyWidget/MeshPropertyWidget.cpp \
+    src/UI/CentralWidget/PropertyWidget/StringEditWidget.cpp \
     src/UI/CentralWidget/PropertyWidget/TexturePropertyWidget.cpp \
-    src/UI/CentralWidget/PropertyWidget/Vector3DWidget.cpp \
+    src/UI/CentralWidget/PropertyWidget/Vector3DEditWidget.cpp \
     src/UI/CentralWidget/CentralWidget.cpp \
     src/UI/CentralWidget/OpenGLWidget.cpp \
     src/UI/CentralWidget/SceneTreeView.cpp \
     src/UI/MainMenuBar.cpp \
     src/UI/MainWindow.cpp \
-    src/masterEngine.cpp
+    src/masterEngine.cpp \
+    src/UI/CentralWidget/PropertyWidget/CameraPropertyWidget.cpp
+

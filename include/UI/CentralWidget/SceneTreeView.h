@@ -9,10 +9,11 @@ class SceneTreeView: public QTreeView {
     Q_OBJECT
 
 public:
-    SceneTreeView(QWidget* parent = Q_NULLPTR);
+    SceneTreeView(QWidget* parent = 0);
     ~SceneTreeView();
 
 signals:
+    void cameraSelected(Camera* camera, bool selected);
     void modelSelected(Model* model, bool selected);
     void lightSelected(Light* light, bool selected);
     void meshSelected(Mesh* mesh, bool selected);
@@ -20,7 +21,7 @@ signals:
     void textureSelected(Texture* texture, bool selected);
 
 private slots:
-    void selectionChanged(const QModelIndex & cnt, const QModelIndex & prev);
+    void selectionModelChanged(const QModelIndex & cnt, const QModelIndex & prev);
 
 private:
     SceneTreeModel * sceneTreeModel;

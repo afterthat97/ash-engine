@@ -14,7 +14,6 @@ public:
     void render(Scene* scene);
 
 private:
-    QOpenGLFunctions * glFuncs;
     QOpenGLShaderProgram * shader;
 
     void renderModel(Model* model);

@@ -3,25 +3,25 @@
 MeshPropertyWidget::MeshPropertyWidget(Mesh* _mesh, QWidget *parent): QWidget(parent) {
     mesh = _mesh;
 
-    meshVisibleCheckbox = new QCheckBox("Visible", this);
+    meshVisibleCheckbox = new QCheckBox("Mesh Visible", this);
     meshVisibleCheckbox->setChecked(mesh->isVisible());
 
-    meshReverseNormalCheckBox = new QCheckBox("Reverse normal", this);
+    meshReverseNormalCheckBox = new QCheckBox("Reverse Normal", this);
     meshReverseNormalCheckBox->setChecked(mesh->isNormalReversed());
 
-    meshPositionWidget = new Vector3DEditWidget("Position", false, this);
+    meshPositionWidget = new Vector3DEditWidget("Mesh Position", false, this);
     meshPositionWidget->setLabelText("X", "Y", "Z");
     meshPositionWidget->setRange(-1000000.0, 1000000.0);
     meshPositionWidget->setSingleStep(1.0);
     meshPositionWidget->setValue(mesh->getPosition());
 
-    meshRotationWidget = new Vector3DEditWidget("Rotation", true, this);
+    meshRotationWidget = new Vector3DEditWidget("Mesh Rotation", true, this);
     meshRotationWidget->setLabelText("X", "Y", "Z");
     meshRotationWidget->setRange(0.0, 360.0);
     meshRotationWidget->setSingleStep(1.0);
     meshRotationWidget->setValue(mesh->getRotation());
 
-    meshScalingWidget = new Vector3DEditWidget("Scaling", false, this);
+    meshScalingWidget = new Vector3DEditWidget("Mesh Scaling", false, this);
     meshScalingWidget->setLabelText("X", "Y", "Z");
     meshScalingWidget->setRange(0.0, 1000000.0);
     meshScalingWidget->setSingleStep(1.0);

@@ -4,7 +4,7 @@
 CentralWidget::CentralWidget(MainWindow * parent): QWidget(parent), mainWindow(parent) {
     sceneTreeView = new SceneTreeView(this);
     openGLWidget = new OpenGLWidget(this);
-    propertyWidget = new ScenePropertyWidget(Scene::currentScene(), this);
+    propertyWidget = new QWidget(this);
 
     setupLayout();
     setupSignals();
@@ -16,12 +16,6 @@ CentralWidget::~CentralWidget() {
     delete propertyWidget;
     delete splitter;
     delete mainLayout;
-}
-
-// MARK
-void CentralWidget::resetPropertyWidget() {
-    propertyWidget = new ScenePropertyWidget(Scene::currentScene(), this);
-    delete splitter->replaceWidget(2, propertyWidget);
 }
 
 // Private functions
@@ -40,6 +34,7 @@ void CentralWidget::setupLayout() {
 
 void CentralWidget::setupSignals() {
     connect(openGLWidget, SIGNAL(FPSChanged(uint32_t)), this, SLOT(FPSChanged(uint32_t)));
+    connect(sceneTreeView, SIGNAL(cameraSelected(Camera*, bool)), this, SLOT(cameraSelected(Camera*,bool)));
     connect(sceneTreeView, SIGNAL(modelSelected(Model*, bool)), this, SLOT(modelSelected(Model*, bool)));
     connect(sceneTreeView, SIGNAL(lightSelected(Light*, bool)), this, SLOT(lightSelected(Light*, bool)));
     connect(sceneTreeView, SIGNAL(meshSelected(Mesh*, bool)), this, SLOT(meshSelected(Mesh*, bool)));
@@ -53,9 +48,16 @@ void CentralWidget::FPSChanged(uint32_t FPS) {
     mainWindow->statusBar()->showMessage("FPS: " + QString::number(FPS));
 }
 
+void CentralWidget::cameraSelected(Camera* camera, bool selected) {
+    if (selected) {
+        propertyWidget = new CameraPropertyWidget(camera, this);
+        delete splitter->replaceWidget(2, propertyWidget);
+    }
+}
+
 void CentralWidget::modelSelected(Model* model, bool selected) {
     if (selected) {
-        propertyWidget = new ScenePropertyWidget(Scene::currentScene(), this);
+        propertyWidget = new CameraPropertyWidget(Scene::currentScene()->getCamera(), this);
         delete splitter->replaceWidget(2, propertyWidget);
     }
 }

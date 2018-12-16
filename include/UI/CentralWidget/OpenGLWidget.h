@@ -10,6 +10,7 @@ class OpenGLWidget: public QOpenGLWidget, protected QOpenGLFunctions {
 public:
     OpenGLWidget(QWidget * parent = Q_NULLPTR);
     ~OpenGLWidget();
+    void setFPSLimit(uint32_t limit);
 
 protected:
     void initializeGL() override;

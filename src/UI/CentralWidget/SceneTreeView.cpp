@@ -4,17 +4,19 @@
 SceneTreeView::SceneTreeView(QWidget* parent): QTreeView(parent) {
     sceneTreeModel = new SceneTreeModel;
     setModel(sceneTreeModel);
-    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(selectionChanged(QModelIndex, QModelIndex)));
+    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(selectionModelChanged(QModelIndex, QModelIndex)));
 }
 
 SceneTreeView::~SceneTreeView() {
     delete sceneTreeModel;
 }
 
-void SceneTreeView::selectionChanged(const QModelIndex & cntIndex, const QModelIndex & prevIndex) {
+void SceneTreeView::selectionModelChanged(const QModelIndex & cntIndex, const QModelIndex & prevIndex) {
     if (prevIndex.isValid()) {
         QObject * pointer = static_cast<QObject*>(prevIndex.internalPointer());
-        if (Model* model = dynamic_cast<Model*>(pointer)) {
+        if (Camera* camera = dynamic_cast<Camera*>(pointer)) {
+            cameraSelected(camera, false);
+        } else if (Model* model = dynamic_cast<Model*>(pointer)) {
             modelSelected(model, false);
         } else if (Light* light = dynamic_cast<Light*>(pointer)) {
             lightSelected(light, false);
@@ -28,7 +30,9 @@ void SceneTreeView::selectionChanged(const QModelIndex & cntIndex, const QModelI
     }
     if (cntIndex.isValid()) {
         QObject * pointer = static_cast<QObject*>(cntIndex.internalPointer());
-        if (Model* model = dynamic_cast<Model*>(pointer)) {
+        if (Camera* camera = dynamic_cast<Camera*>(pointer)) {
+            cameraSelected(camera, true);
+        } else if (Model* model = dynamic_cast<Model*>(pointer)) {
             modelSelected(model, true);
         } else if (Light* light = dynamic_cast<Light*>(pointer)) {
             lightSelected(light, true);
@@ -51,11 +55,14 @@ int SceneTreeModel::columnCount(const QModelIndex &) const {
     return 1;
 }
 
+// Return data for display
 QVariant SceneTreeModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid() || role != Qt::DisplayRole) return QVariant();
 
     QObject * pointer = static_cast<QObject*>(index.internalPointer());
-    if (Model* item = dynamic_cast<Model*>(pointer)) {
+    if (Camera* camera = dynamic_cast<Camera*>(pointer)) {
+        return QVariant("Camera");
+    } else if (Model* item = dynamic_cast<Model*>(pointer)) {
         return QVariant("Model: " + item->objectName());
     } else if (Light* item = dynamic_cast<Light*>(pointer)) {
         return QVariant("Light: " + item->objectName());
@@ -74,79 +81,85 @@ Qt::ItemFlags SceneTreeModel::flags(const QModelIndex &index) const {
     return QAbstractItemModel::flags(index);
 }
 
+// Return header data
 QVariant SceneTreeModel::headerData(int, Qt::Orientation orientation, int role) const {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
         return QVariant(Scene::currentScene()->objectName());
     return QVariant();
 }
 
+// Get the row(th) child of parentModelIndex
 QModelIndex SceneTreeModel::index(int row, int column, const QModelIndex &parentModelIndex) const {
     if (!hasIndex(row, column, parentModelIndex)) return QModelIndex();
 
     QObject * parentPointer = static_cast<QObject*>(parentModelIndex.internalPointer());
     if (!parentModelIndex.isValid()) {
         Scene* parentItem = Scene::currentScene();
-        if (row < parentItem->getLights().size())
-            return createIndex(row, column, parentItem->getLights()[row]);
-        else
-            return createIndex(row, column, parentItem->getModels()[row - parentItem->getLights().size()]);
+        if (row == 0) // Camera
+            return createIndex(row, column, parentItem->getCamera());
+        else if (row <= (int) parentItem->getLights().size()) // Lights
+            return createIndex(row, column, parentItem->getLights()[row - 1]);
+        else // Models
+            return createIndex(row, column, parentItem->getModels()[row - parentItem->getLights().size() - 1]);
     } else if (Model* parentItem = dynamic_cast<Model*>(parentPointer)) {
-        if (row < parentItem->getMeshes().size())
+        if (row < (int) parentItem->getMeshes().size()) // Meshes
             return createIndex(row, column, parentItem->getMeshes()[row]);
-        else
+        else // Child models
             return createIndex(row, column, parentItem->getChildren()[row - parentItem->getMeshes().size()]);
     } else if (Mesh* parentItem = dynamic_cast<Mesh*>(parentPointer)) {
-        return createIndex(row, column, parentItem->getMaterial());
+        return createIndex(row, column, parentItem->getMaterial()); // Material
     } else if (Material* parentItem = dynamic_cast<Material*>(parentPointer)) {
-        return createIndex(row, column, parentItem->getTextures()[row]);
+        return createIndex(row, column, parentItem->getTextures()[row]); // Textures
     }
     return QModelIndex();
 }
 
+// Return the ModelIndex of parent
 QModelIndex SceneTreeModel::parent(const QModelIndex &index) const {
     if (!index.isValid()) return QModelIndex();
 
-    QObject * childPointer = static_cast<QObject*>(index.internalPointer())->parent();
-    if (!childPointer || !childPointer->parent())
-        return QModelIndex();
+    QObject * parentPointer = static_cast<QObject*>(index.internalPointer())->parent();
+    if (!parentPointer || parentPointer == Scene::currentScene()) return QModelIndex();
 
-    QObject * parentPointer = childPointer->parent();
-    if (Scene* parentItem = dynamic_cast<Scene*>(parentPointer)) {
-        for (uint32_t i = 0; i < parentItem->getLights().size(); i++)
-            if (parentItem->getLights()[i] == childPointer)
-                return createIndex(i, 0, childPointer);
-        for (uint32_t i = 0; i < parentItem->getModels().size(); i++)
-            if (parentItem->getModels()[i] == childPointer)
-                return createIndex(i + parentItem->getLights().size(), 0, childPointer);
-    } else if (Model* parentItem = dynamic_cast<Model*>(parentPointer)) {
-        for (uint32_t i = 0; i < parentItem->getMeshes().size(); i++)
-            if (parentItem->getMeshes()[i] == childPointer)
-                return createIndex(i, 0, childPointer);
-        for (uint32_t i = 0; i < parentItem->getChildren().size(); i++)
-            if (parentItem->getChildren()[i] == childPointer)
-                return createIndex(i + parentItem->getMeshes().size(), 0, childPointer);
-    } else if (Mesh* parentItem = dynamic_cast<Mesh*>(parentPointer)) {
-        return createIndex(0, 0, childPointer);
-    } else if (Material* parentItem = dynamic_cast<Material*>(parentPointer)) {
-        for (uint32_t i = 0; i < parentItem->getTextures().size(); i++)
-            if (parentItem->getTextures()[i] == childPointer)
-                return createIndex(i, 0, childPointer);
+    QObject * grandParentPointer = parentPointer->parent();
+    if (Scene* scene = dynamic_cast<Scene*>(grandParentPointer)) {
+        // Parent pointer must be Model*
+        for (uint32_t i = 0; i < scene->getModels().size(); i++)
+            if (scene->getModels()[i] == parentPointer)
+                return createIndex(i + scene->getLights().size() + 1, 0, parentPointer);
+    } else if (Model* model = dynamic_cast<Model*>(grandParentPointer)) {
+        // Parent pointer could be Mesh* or Model*
+        for (uint32_t i = 0; i < model->getMeshes().size(); i++)
+            if (model->getMeshes()[i] == parentPointer)
+                return createIndex(i, 0, parentPointer);
+        for (uint32_t i = 0; i < model->getChildren().size(); i++)
+            if (model->getChildren()[i] == parentPointer)
+                return createIndex(i + model->getMeshes().size(), 0, parentPointer);
+    } else if (Mesh* mesh = dynamic_cast<Mesh*>(grandParentPointer)) {
+        // Parent pointer must be Material*
+        return createIndex(0, 0, parentPointer);
     }
     return QModelIndex();
 }
 
+// Return the number of children
 int SceneTreeModel::rowCount(const QModelIndex &parentModelIndex) const {
     QObject * parentPointer = static_cast<QObject*>(parentModelIndex.internalPointer());
-    if (!parentModelIndex.isValid()) { // root
+    if (!parentModelIndex.isValid()) { // Scene
+        // Num = Camera + Lights + Models
         Scene* parentItem = Scene::currentScene();
-        return parentItem->getLights().size() + parentItem->getModels().size();
+        return parentItem->getLights().size() + parentItem->getModels().size() + 1;
     } else if (Model* parentItem = dynamic_cast<Model*>(parentPointer)) {
+        // Num = Child models + Meshes
         return parentItem->getChildren().size() + parentItem->getMeshes().size();
     } else if (Light* parentItem = dynamic_cast<Light*>(parentPointer)) {
+        // Light has no children
         return 0;
     } else if (Mesh* parentItem = dynamic_cast<Mesh*>(parentPointer)) {
+        // Num = 1 (if it has Material)
         return parentItem->getMaterial() != NULL;
     } else if (Material* parentItem = dynamic_cast<Material*>(parentPointer)) {
+        // Num = Textures
         return parentItem->getTextures().size();
     }
     return 0;
