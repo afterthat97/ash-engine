@@ -10,6 +10,7 @@ public:
     ~FloatEditWidget();
 
     void setLabelText(QString text);
+    void setLabelWidget(int width);
     void setRange(double minv, double maxv);
     void setSingleStep(double step);
     void setDecimals(int num);

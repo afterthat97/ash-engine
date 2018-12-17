@@ -23,7 +23,7 @@ signals:
     void valueChanged(QVector3D value);
 
 private:
-    double range;
+    float range, minv;
     FloatEditWidget * floatEdit0, *floatEdit1, *floatEdit2;
     QSlider *slider0, *slider1, *slider2;
     QVBoxLayout * mainLayout;

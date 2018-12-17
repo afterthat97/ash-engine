@@ -1,8 +1,10 @@
 #include <Generic/Model.h>
+#include <Generic/Scene.h>
 
 Model::Model(QObject * parent): QObject(parent) {
     setObjectName("Untitled");
     visible = true;
+    topLevel = false;
     position = QVector3D();
     rotation = QVector3D();
     scaling = QVector3D(1.0f, 1.0f, 1.0f);
@@ -21,16 +23,42 @@ bool Model::isVisible() {
     return visible;
 }
 
-QVector3D Model::getPosition() {
+bool Model::isTopLevel() {
+    return topLevel;
+}
+
+QVector3D Model::getLocalPosition() {
     return position;
 }
 
-QVector3D Model::getRotation() {
+QVector3D Model::getLocalRotation() {
     return rotation;
 }
 
-QVector3D Model::getScaling() {
+QVector3D Model::getLocalScaling() {
     return scaling;
+}
+
+QMatrix4x4 Model::getLocalModelMatrix() {
+    QMatrix4x4 model;
+    model.translate(position);
+    model.rotate(QQuaternion::fromEulerAngles(rotation));
+    model.scale(scaling);
+    return model;
+}
+
+QMatrix4x4 Model::getGlobalModelMatrix() {
+    if (topLevel || parent() == 0)
+        return getLocalModelMatrix();
+    else
+        return static_cast<Model*>(parent())->getGlobalModelMatrix() * getLocalModelMatrix();
+}
+
+QVector3D Model::getGlobalPosition() {
+    if (topLevel || parent() == 0)
+        return getLocalPosition();
+    else
+        return getGlobalModelMatrix() * getLocalPosition();
 }
 
 vector<Mesh*> Model::getMeshes() {
@@ -48,13 +76,18 @@ void Model::translate(QVector3D delta) {
     positionChanged(position); // Send signals
 }
 
-void Model::rotate(QVector3D delta) {
-    setRotation(rotation + delta);
+void Model::rotate(QQuaternion _rotation) {
+    setRotation(_rotation * rotation);
     rotationChanged(rotation); // Send signals
 }
 
-void Model::scale(QVector3D delta) {
-    setScaling(scaling * delta);
+void Model::rotate(QVector3D _rotation) {
+    setRotation(QQuaternion::fromEulerAngles(_rotation) * rotation);
+    rotationChanged(rotation); // Send signals
+}
+
+void Model::scale(QVector3D _scaling) {
+    setScaling(scaling * _scaling);
     scalingChanged(scaling); // Send signals
 }
 
@@ -64,35 +97,38 @@ void Model::setVisible(bool _visible) {
     visible = _visible;
 }
 
-void Model::setPosition(QVector3D _position) {
+void Model::setTopLevel(bool _topLevel) {
+    topLevel = _topLevel;
+}
+
+void Model::resetTransformation() {
+    position = QVector3D();
+    rotation = QVector3D();
+    scaling = QVector3D(1.0f, 1.0f, 1.0f);
+}
+
+void Model::resetChildrenTransformation() {
     for (uint32_t i = 0; i < meshes.size(); i++)
-        meshes[i]->translate(_position - position);
-    for (uint32_t i = 0; i < children.size(); i++)
-        children[i]->translate(_position - position);
+        meshes[i]->resetTransformation();
+    for (uint32_t i = 0; i < children.size(); i++) {
+        children[i]->resetTransformation();
+        children[i]->resetChildrenTransformation();
+    }
+}
+
+void Model::setPosition(QVector3D _position) {
     position = _position;
 }
 
+void Model::setRotation(QQuaternion _rotation) {
+    rotation = _rotation.toEulerAngles();
+}
+
 void Model::setRotation(QVector3D _rotation) {
-    for (uint32_t i = 0; i < meshes.size(); i++) {
-        meshes[i]->setPosition(_rotation * (meshes[i]->getPosition() - position) + position);
-        meshes[i]->rotate(_rotation - rotation);
-    }
-    for (uint32_t i = 0; i < children.size(); i++) {
-        children[i]->setPosition(_rotation * (children[i]->getPosition() - position) + position);
-        children[i]->rotate(_rotation - rotation);
-    }
     rotation = _rotation;
 }
 
 void Model::setScaling(QVector3D _scaling) {
-    for (uint32_t i = 0; i < meshes.size(); i++) {
-        meshes[i]->setPosition(_scaling * (meshes[i]->getPosition() - position) + position);
-        meshes[i]->scale(_scaling / scaling);
-    }
-    for (uint32_t i = 0; i < children.size(); i++) {
-        children[i]->setPosition(_scaling * (meshes[i]->getPosition() - position) + position);
-        children[i]->scale(_scaling / scaling);
-    }
     scaling = _scaling;
 }
 

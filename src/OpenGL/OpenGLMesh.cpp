@@ -26,12 +26,12 @@ void OpenGLMesh::create(Mesh * mesh) {
     vbo = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
     vbo->create();
     vbo->bind();
-    vbo->allocate(&mesh->getVertices()[0], sizeof(Vertex) * mesh->getVertices().size());
+    vbo->allocate(&mesh->getVertices()[0], int(sizeof(Vertex) * mesh->getVertices().size()));
 
     ebo = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
     ebo->create();
     ebo->bind();
-    ebo->allocate(&mesh->getIndices()[0], sizeof(uint32_t) * mesh->getIndices().size());
+    ebo->allocate(&mesh->getIndices()[0], int(sizeof(uint32_t) * mesh->getIndices().size()));
 
     vao->release();
 }

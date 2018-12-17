@@ -57,7 +57,7 @@ void CentralWidget::cameraSelected(Camera* camera, bool selected) {
 
 void CentralWidget::modelSelected(Model* model, bool selected) {
     if (selected) {
-        propertyWidget = new CameraPropertyWidget(Scene::currentScene()->getCamera(), this);
+        propertyWidget = new ModelPropertyWidget(model, this);
         delete splitter->replaceWidget(2, propertyWidget);
     }
 }

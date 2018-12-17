@@ -1,4 +1,5 @@
 #include <Generic/Mesh.h>
+#include <Generic/Model.h>
 
 Mesh::Mesh(MeshType _meshType, QObject * parent): QObject(parent) {
     id = Allocator::allocateMeshID();
@@ -34,24 +35,35 @@ bool Mesh::isNormalReversed() {
     return reverseNormal;
 }
 
-QVector3D Mesh::getPosition() {
+QVector3D Mesh::getLocalPosition() {
     return position;
 }
 
-QVector3D Mesh::getRotation() {
+QVector3D Mesh::getLocalRotation() {
     return rotation;
 }
 
-QVector3D Mesh::getScaling() {
+QVector3D Mesh::getLocalScaling() {
     return scaling;
 }
 
-QMatrix4x4 Mesh::getModelMatrix() {
+QMatrix4x4 Mesh::getLocalModelMatrix() {
     QMatrix4x4 model;
     model.translate(position);
     model.rotate(QQuaternion::fromEulerAngles(rotation));
     model.scale(scaling);
     return model;
+}
+
+QMatrix4x4 Mesh::getGlobalModelMatrix() {
+    if (parent())
+        return static_cast<Model*>(parent())->getGlobalModelMatrix() * getLocalModelMatrix();
+    else
+        return getLocalModelMatrix();
+}
+
+QVector3D Mesh::getGlobalPosition() {
+    return getGlobalModelMatrix() * getLocalPosition();
 }
 
 vector<Vertex> Mesh::getVertices() {
@@ -69,17 +81,22 @@ Material * Mesh::getMaterial() {
 // Transform functions
 
 void Mesh::translate(QVector3D delta) {
-    position = position + delta;
+    setPosition(position + delta);
     positionChanged(position); // Send signals
 }
 
+void Mesh::rotate(QQuaternion _rotation) {
+    setRotation(_rotation * rotation);
+    rotationChanged(rotation); // Send signals
+}
+
 void Mesh::rotate(QVector3D _rotation) {
-    rotation = _rotation + rotation;
+    setRotation(QQuaternion::fromEulerAngles(_rotation) * rotation);
     rotationChanged(rotation); // Send signals
 }
 
 void Mesh::scale(QVector3D _scaling) {
-    scaling = scaling * _scaling;
+    setScaling(scaling * _scaling);
     scalingChanged(scaling); // Send signals
 }
 
@@ -93,8 +110,18 @@ void Mesh::setReverseNormal(bool _reverseNormal) {
     reverseNormal = _reverseNormal;
 }
 
+void Mesh::resetTransformation() {
+    position = QVector3D();
+    rotation = QVector3D();
+    scaling = QVector3D(1.0f, 1.0f, 1.0f);
+}
+
 void Mesh::setPosition(QVector3D newPosition) {
     position = newPosition;
+}
+
+void Mesh::setRotation(QQuaternion _rotation) {
+    rotation = _rotation.toEulerAngles();
 }
 
 void Mesh::setRotation(QVector3D _rotation) {

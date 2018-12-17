@@ -21,16 +21,20 @@ public:
     bool isVisible();
     bool isNormalReversed();
 
-    QVector3D getPosition();
-    QVector3D getRotation();
-    QVector3D getScaling();
-    QMatrix4x4 getModelMatrix();
-    
+    QVector3D getLocalPosition();
+    QVector3D getLocalRotation();
+    QVector3D getLocalScaling();
+    QMatrix4x4 getLocalModelMatrix();
+
+    QMatrix4x4 getGlobalModelMatrix();
+    QVector3D getGlobalPosition();
+
     vector<Vertex> getVertices();
     vector<uint32_t> getIndices();
     Material* getMaterial();
 
     void translate(QVector3D delta);
+    void rotate(QQuaternion rotation);
     void rotate(QVector3D rotation);
     void scale(QVector3D scaling);
 
@@ -38,7 +42,9 @@ public slots:
     void setVisible(bool visible);
     void setReverseNormal(bool reverseNormal);
     
+    void resetTransformation();
     void setPosition(QVector3D position);
+    void setRotation(QQuaternion rotation);
     void setRotation(QVector3D rotation);
     void setScaling(QVector3D scaling);
 

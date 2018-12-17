@@ -64,6 +64,7 @@ void OpenGLRenderer::render(Scene* scene) {
 
 // Render a generic model
 void OpenGLRenderer::renderModel(Model * model) {
+    if (!model->isVisible()) return;
     for (uint32_t i = 0; i < model->getChildren().size(); i++)
         renderModel(model->getChildren()[i]);
     for (uint32_t i = 0; i < model->getMeshes().size(); i++)
@@ -72,10 +73,11 @@ void OpenGLRenderer::renderModel(Model * model) {
 
 // Render a generic mesh
 void OpenGLRenderer::renderMesh(Mesh * mesh) {
+    if (!mesh->isVisible()) return;
     renderMaterial(mesh->getMaterial());
 
     shader->setUniformValue("reverseNormal", mesh->isNormalReversed());
-    shader->setUniformValue("modelMat", mesh->getModelMatrix());
+    shader->setUniformValue("modelMat", mesh->getGlobalModelMatrix());
     
     // Convert generic mesh to specific OpenGLMesh
     OpenGLMesh* openGLMesh = OpenGLManager::getOpenGLMesh(mesh);
@@ -101,17 +103,19 @@ void OpenGLRenderer::renderMaterial(Material * material) {
 
 // Render a generic texture
 void OpenGLRenderer::renderTexture(Texture * texture) {
+    if (!texture->isEnabled()) return;
+
     // Convert generic texture to specific OpenGLTexture
     OpenGLTexture* openGLTexture = OpenGLManager::getOpenGLTexture(texture);
-    if (texture->getType() == Texture::Diffuse && texture->isEnabled()) { // Diffuse map
+    if (texture->getType() == Texture::Diffuse) { // Diffuse map
         openGLTexture->bind(0);
         shader->setUniformValue("material.diffuseMap", 0);
         shader->setUniformValue("material.hasDiffuseMap", true);
-    } else if (texture->getType() == Texture::Specular && texture->isEnabled()) { // Specular map
+    } else if (texture->getType() == Texture::Specular) { // Specular map
         openGLTexture->bind(1);
         shader->setUniformValue("material.specularMap", 1);
         shader->setUniformValue("material.hasSpecularMap", true);
-    } else if (texture->getType() == Texture::Normal && texture->isEnabled()) { // Normal map
+    } else if (texture->getType() == Texture::Normal) { // Normal map
         openGLTexture->bind(2);
         shader->setUniformValue("material.normalMap", 2);
         shader->setUniformValue("material.hasNormalMap", true);

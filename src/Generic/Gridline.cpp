@@ -49,15 +49,15 @@ void Gridline::generateMesh() {
     for (float xValue = xRange.first; xValue < xRange.second + 0.001f; xValue += stride) {
         vertices.push_back(Vertex(QVector3D(xValue, yValue, zRange.first)));
         vertices.push_back(Vertex(QVector3D(xValue, yValue, zRange.second)));
-        indices.push_back(vertices.size() - 2);
-        indices.push_back(vertices.size() - 1);
+        indices.push_back((uint32_t) vertices.size() - 2);
+        indices.push_back((uint32_t) vertices.size() - 1);
     }
 
     for (float zValue = zRange.first; zValue < zRange.second + 0.001f; zValue += stride) {
         vertices.push_back(Vertex(QVector3D(xRange.first, yValue, zValue)));
         vertices.push_back(Vertex(QVector3D(xRange.second, yValue, zValue)));
-        indices.push_back(vertices.size() - 2);
-        indices.push_back(vertices.size() - 1);
+        indices.push_back((uint32_t) vertices.size() - 2);
+        indices.push_back((uint32_t) vertices.size() - 1);
     }
 
     Material* material = new Material;

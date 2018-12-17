@@ -14,7 +14,7 @@ public:
 
 private:
     Camera * camera;
-    FloatEditWidget * movingSpeedEditWidget;
+    FloatEditWidget * movingSpeedEditWidget, *fieldOfViewEditWidget, *nearPlaneEditWidget, *farPlaneEditWidget;
     Vector3DEditWidget * positionEditWidget, *directionEditWidget;
     QPushButton * resetButton;
     QVBoxLayout * mainLayout;

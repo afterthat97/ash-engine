@@ -17,6 +17,7 @@ void Scene::addModel(Model * newModel) {
     if (!newModel) return;
     models.push_back(newModel);
     newModel->setParent(this);
+    newModel->setTopLevel(true);
 }
 
 void Scene::addLight(Light * newLight) {

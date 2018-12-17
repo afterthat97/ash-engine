@@ -22,6 +22,10 @@ void FloatEditWidget::setLabelText(QString text) {
     label->setText(text);
 }
 
+void FloatEditWidget::setLabelWidget(int width) {
+    label->setFixedWidth(width);
+}
+
 void FloatEditWidget::setRange(double minv, double maxv) {
     spinBox->setRange(minv, maxv);
 }

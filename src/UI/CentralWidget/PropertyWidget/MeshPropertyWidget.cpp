@@ -13,20 +13,21 @@ MeshPropertyWidget::MeshPropertyWidget(Mesh* _mesh, QWidget *parent): QWidget(pa
     meshPositionWidget->setLabelText("X", "Y", "Z");
     meshPositionWidget->setRange(-1000000.0, 1000000.0);
     meshPositionWidget->setSingleStep(1.0);
-    meshPositionWidget->setValue(mesh->getPosition());
+    meshPositionWidget->setValue(mesh->getLocalPosition());
 
     meshRotationWidget = new Vector3DEditWidget("Mesh Rotation", true, this);
     meshRotationWidget->setLabelText("X", "Y", "Z");
-    meshRotationWidget->setRange(0.0, 360.0);
+    meshRotationWidget->setRange(-180, 180);
     meshRotationWidget->setSingleStep(1.0);
-    meshRotationWidget->setValue(mesh->getRotation());
+    meshRotationWidget->setValue(mesh->getLocalRotation());
 
     meshScalingWidget = new Vector3DEditWidget("Mesh Scaling", false, this);
     meshScalingWidget->setLabelText("X", "Y", "Z");
     meshScalingWidget->setRange(0.0, 1000000.0);
     meshScalingWidget->setSingleStep(1.0);
-    meshScalingWidget->setValue(mesh->getScaling());
+    meshScalingWidget->setValue(mesh->getLocalScaling());
 
+    resetTransformationButton = new QPushButton("Reset Transformation", this);
     setupLayout();
     setupSignals();
 }
@@ -37,6 +38,7 @@ MeshPropertyWidget::~MeshPropertyWidget() {
     delete meshPositionWidget;
     delete meshRotationWidget;
     delete meshScalingWidget;
+    delete resetTransformationButton;
     delete mainLayout;
 }
 
@@ -50,6 +52,7 @@ void MeshPropertyWidget::setupLayout() {
     mainLayout->addWidget(meshPositionWidget);
     mainLayout->addWidget(meshRotationWidget);
     mainLayout->addWidget(meshScalingWidget);
+    mainLayout->addWidget(resetTransformationButton);
     setLayout(mainLayout);
 }
 
@@ -59,6 +62,7 @@ void MeshPropertyWidget::setupSignals() {
     connect(meshPositionWidget, SIGNAL(valueChanged(QVector3D)), mesh, SLOT(setPosition(QVector3D)));
     connect(meshRotationWidget, SIGNAL(valueChanged(QVector3D)), mesh, SLOT(setRotation(QVector3D)));
     connect(meshScalingWidget, SIGNAL(valueChanged(QVector3D)), mesh, SLOT(setScaling(QVector3D)));
+    connect(resetTransformationButton, SIGNAL(clicked(bool)), this, SLOT(resetTransformationButtonClicked()));
 }
 
 // Private slots
@@ -69,4 +73,11 @@ void MeshPropertyWidget::setMeshVisible(int state) {
 
 void MeshPropertyWidget::setMeshReverseNormal(int state) {
     mesh->setReverseNormal(state == Qt::Checked);
+}
+
+void MeshPropertyWidget::resetTransformationButtonClicked() {
+    mesh->resetTransformation();
+    meshPositionWidget->setValue(mesh->getLocalPosition());
+    meshRotationWidget->setValue(mesh->getLocalRotation());
+    meshScalingWidget->setValue(mesh->getLocalScaling());
 }

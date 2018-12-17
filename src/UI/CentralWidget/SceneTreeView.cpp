@@ -126,15 +126,15 @@ QModelIndex SceneTreeModel::parent(const QModelIndex &index) const {
         // Parent pointer must be Model*
         for (uint32_t i = 0; i < scene->getModels().size(); i++)
             if (scene->getModels()[i] == parentPointer)
-                return createIndex(i + scene->getLights().size() + 1, 0, parentPointer);
+                return createIndex(int(i + scene->getLights().size() + 1), 0, parentPointer);
     } else if (Model* model = dynamic_cast<Model*>(grandParentPointer)) {
         // Parent pointer could be Mesh* or Model*
         for (uint32_t i = 0; i < model->getMeshes().size(); i++)
             if (model->getMeshes()[i] == parentPointer)
-                return createIndex(i, 0, parentPointer);
+                return createIndex(int(i), 0, parentPointer);
         for (uint32_t i = 0; i < model->getChildren().size(); i++)
             if (model->getChildren()[i] == parentPointer)
-                return createIndex(i + model->getMeshes().size(), 0, parentPointer);
+                return createIndex(int(i + model->getMeshes().size()), 0, parentPointer);
     } else if (Mesh* mesh = dynamic_cast<Mesh*>(grandParentPointer)) {
         // Parent pointer must be Material*
         return createIndex(0, 0, parentPointer);
@@ -148,19 +148,19 @@ int SceneTreeModel::rowCount(const QModelIndex &parentModelIndex) const {
     if (!parentModelIndex.isValid()) { // Scene
         // Num = Camera + Lights + Models
         Scene* parentItem = Scene::currentScene();
-        return parentItem->getLights().size() + parentItem->getModels().size() + 1;
+        return int(parentItem->getLights().size() + parentItem->getModels().size() + 1);
     } else if (Model* parentItem = dynamic_cast<Model*>(parentPointer)) {
         // Num = Child models + Meshes
-        return parentItem->getChildren().size() + parentItem->getMeshes().size();
+        return int(parentItem->getChildren().size() + parentItem->getMeshes().size());
     } else if (Light* parentItem = dynamic_cast<Light*>(parentPointer)) {
         // Light has no children
         return 0;
     } else if (Mesh* parentItem = dynamic_cast<Mesh*>(parentPointer)) {
         // Num = 1 (if it has Material)
-        return parentItem->getMaterial() != NULL;
+        return int(parentItem->getMaterial() != NULL);
     } else if (Material* parentItem = dynamic_cast<Material*>(parentPointer)) {
         // Num = Textures
-        return parentItem->getTextures().size();
+        return int(parentItem->getTextures().size());
     }
     return 0;
 }

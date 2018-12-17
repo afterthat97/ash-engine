@@ -1,6 +1,8 @@
 #include <UI/CentralWidget/PropertyWidget/Vector3DEditWidget.h>
 
 Vector3DEditWidget::Vector3DEditWidget(QString title, bool showSlider, QWidget * parent): QGroupBox(parent) {
+    minv = 0.0;
+    range = 1.0;
     setTitle(title);
 
     floatEdit0 = new FloatEditWidget("label0", true, this);
@@ -41,11 +43,16 @@ void Vector3DEditWidget::setLabelText(QString text0, QString text1, QString text
     floatEdit2->setLabelText(text2);
 }
 
-void Vector3DEditWidget::setRange(double minv, double maxv) {
-    range = maxv - minv;
-    floatEdit0->setRange(minv, maxv);
-    floatEdit1->setRange(minv, maxv);
-    floatEdit2->setRange(minv, maxv);
+void Vector3DEditWidget::setRange(double _minv, double _maxv) {
+    minv = _minv;
+    range = _maxv - _minv;
+    if (range < 0) {
+        QMessageBox::critical(0, "Error", "Invalid range setting for Vector3DWidget");
+        return;
+    }
+    floatEdit0->setRange(_minv, _maxv);
+    floatEdit1->setRange(_minv, _maxv);
+    floatEdit2->setRange(_minv, _maxv);
 }
 
 void Vector3DEditWidget::setSingleStep(double step) {
@@ -72,9 +79,9 @@ void Vector3DEditWidget::setValue(QVector3D value) {
     floatEdit0->setValue(value[0]);
     floatEdit1->setValue(value[1]);
     floatEdit2->setValue(value[2]);
-    if (slider0) slider0->setValue(int(value[0] * 360));
-    if (slider1) slider1->setValue(int(value[1] * 360));
-    if (slider2) slider2->setValue(int(value[2] * 360));
+    if (slider0) slider0->setValue(int((value[0] - minv) / range * 360.0));
+    if (slider1) slider1->setValue(int((value[1] - minv) / range * 360.0));
+    if (slider2) slider2->setValue(int((value[2] - minv) / range * 360.0));
 }
 
 // Private functions
@@ -104,39 +111,39 @@ void Vector3DEditWidget::setupSignals() {
     connect(floatEdit0, SIGNAL(valueChanged(float)), this, SLOT(floatEdit0ValueChanged(float)));
     connect(floatEdit1, SIGNAL(valueChanged(float)), this, SLOT(floatEdit1ValueChanged(float)));
     connect(floatEdit2, SIGNAL(valueChanged(float)), this, SLOT(floatEdit2ValueChanged(float)));
-    if (slider0) connect(slider0, SIGNAL(valueChanged(int)), this, SLOT(slider0ValueChanged(int)));
-    if (slider1) connect(slider1, SIGNAL(valueChanged(int)), this, SLOT(slider1ValueChanged(int)));
-    if (slider2) connect(slider2, SIGNAL(valueChanged(int)), this, SLOT(slider2ValueChanged(int)));
+    if (slider0) connect(slider0, SIGNAL(sliderMoved(int)), this, SLOT(slider0ValueChanged(int)));
+    if (slider1) connect(slider1, SIGNAL(sliderMoved(int)), this, SLOT(slider1ValueChanged(int)));
+    if (slider2) connect(slider2, SIGNAL(sliderMoved(int)), this, SLOT(slider2ValueChanged(int)));
 }
 
 // Private slots
 
 void Vector3DEditWidget::floatEdit0ValueChanged(float value) {
-    if (slider0) slider0->setValue(int(value * 360 / range));
+    if (slider0) slider0->setValue(int((value - minv) / range * 360.0));
     valueChanged(QVector3D(floatEdit0->getValue(), floatEdit1->getValue(), floatEdit2->getValue()));
 }
 
 void Vector3DEditWidget::floatEdit1ValueChanged(float value) {
-    if (slider1) slider1->setValue(int(value * 360 / range));
+    if (slider1) slider1->setValue(int((value - minv) / range * 360.0));
     valueChanged(QVector3D(floatEdit0->getValue(), floatEdit1->getValue(), floatEdit2->getValue()));
 }
 
 void Vector3DEditWidget::floatEdit2ValueChanged(float value) {
-    if (slider2) slider2->setValue(int(value * 360 / range));
+    if (slider2) slider2->setValue(int((value - minv) / range * 360.0));
     valueChanged(QVector3D(floatEdit0->getValue(), floatEdit1->getValue(), floatEdit2->getValue()));
 }
 
 void Vector3DEditWidget::slider0ValueChanged(int value) {
-    floatEdit0->setValue(value / 360.0 * range);
+    floatEdit0->setValue(value / 360.0 * range + minv);
     valueChanged(QVector3D(floatEdit0->getValue(), floatEdit1->getValue(), floatEdit2->getValue()));
 }
 
 void Vector3DEditWidget::slider1ValueChanged(int value) {
-    floatEdit1->setValue(value / 360.0 * range);
+    floatEdit1->setValue(value / 360.0 * range + minv);
     valueChanged(QVector3D(floatEdit0->getValue(), floatEdit1->getValue(), floatEdit2->getValue()));
 }
 
 void Vector3DEditWidget::slider2ValueChanged(int value) {
-    floatEdit2->setValue(value / 360.0 * range);
+    floatEdit2->setValue(value / 360.0 * range + minv);
     valueChanged(QVector3D(floatEdit0->getValue(), floatEdit1->getValue(), floatEdit2->getValue()));
 }
