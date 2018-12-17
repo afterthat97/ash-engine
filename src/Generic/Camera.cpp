@@ -94,8 +94,8 @@ QMatrix4x4 Camera::getViewMatrix() {
 
 void Camera::reset() {
     movingSpeed = 0.1f;
-    position = QVector3D(0.0f, 3.0f, 5.0f);
-    direction = QVector3D(0.0f, 0.0f, -1.0f);
+    position = QVector3D(0, 2, 10);
+    direction = QVector3D(0, 0, -1);
     setUpVector();
     positionChanged(position);
     directionChanged(direction);

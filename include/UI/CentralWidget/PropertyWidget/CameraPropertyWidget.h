@@ -16,6 +16,7 @@ private:
     Camera * camera;
     FloatEditWidget * movingSpeedEditWidget;
     Vector3DEditWidget * positionEditWidget, *directionEditWidget;
+    QPushButton * resetButton;
     QVBoxLayout * mainLayout;
 
     void setupLayout();

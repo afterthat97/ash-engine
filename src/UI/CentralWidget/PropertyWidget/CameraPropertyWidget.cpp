@@ -18,6 +18,8 @@ CameraPropertyWidget::CameraPropertyWidget(Camera * _camera, QWidget * parent): 
     directionEditWidget->setSingleStep(0.01);
     directionEditWidget->setValue(camera->getDirection());
 
+    resetButton = new QPushButton("Reset Camera", this);
+
     setupLayout();
     setupSignals();
 }
@@ -26,6 +28,7 @@ CameraPropertyWidget::~CameraPropertyWidget() {
     delete movingSpeedEditWidget;
     delete positionEditWidget;
     delete directionEditWidget;
+    delete resetButton;
     delete mainLayout;
 }
 
@@ -37,6 +40,7 @@ void CameraPropertyWidget::setupLayout() {
     mainLayout->addWidget(movingSpeedEditWidget);
     mainLayout->addWidget(positionEditWidget);
     mainLayout->addWidget(directionEditWidget);
+    mainLayout->addWidget(resetButton);
     setLayout(mainLayout);
 }
 
@@ -45,6 +49,8 @@ void CameraPropertyWidget::setupSignals() {
     connect(movingSpeedEditWidget, SIGNAL(valueChanged(float)), camera, SLOT(setMovingSpeed(float)));
     connect(positionEditWidget, SIGNAL(valueChanged(QVector3D)), camera, SLOT(setPosition(QVector3D)));
     connect(directionEditWidget, SIGNAL(valueChanged(QVector3D)), camera, SLOT(setDirection(QVector3D)));
+    connect(resetButton, SIGNAL(clicked(bool)), camera, SLOT(reset()));
+
     // Camera -> UI
     connect(camera, SIGNAL(positionChanged(QVector3D)), positionEditWidget, SLOT(setValue(QVector3D)));
     connect(camera, SIGNAL(directionChanged(QVector3D)), directionEditWidget, SLOT(setValue(QVector3D)));
