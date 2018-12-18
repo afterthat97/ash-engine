@@ -9,8 +9,8 @@ Light::Light(QVector3D _position, QObject * parent): QObject(parent) {
     setColor(QVector3D(1.0f, 1.0f, 1.0f));
     setPosition(_position);
     setEnableAttenuation(true);
-    setAttenuationQuadratic(0.000007f);
-    setAttenuationLinear(0.0014f);
+    setAttenuationQuadratic(0.0007f);
+    setAttenuationLinear(0.014f);
     setAttenuationConstant(1.0f);
 }
 

@@ -6,7 +6,7 @@ class StringEditWidget: public QWidget {
     Q_OBJECT
 
 public:
-    StringEditWidget(QString labelText, QWidget* parent = Q_NULLPTR);
+    StringEditWidget(QString labelText, QWidget* parent = 0);
     ~StringEditWidget();
 
     void setLabelText(QString text);

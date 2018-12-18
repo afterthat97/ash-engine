@@ -9,7 +9,7 @@ class CameraPropertyWidget: public QWidget {
     Q_OBJECT
 
 public:
-    CameraPropertyWidget(Camera* camera, QWidget *parent = Q_NULLPTR);
+    CameraPropertyWidget(Camera* camera, QWidget *parent = 0);
     ~CameraPropertyWidget();
 
 private:

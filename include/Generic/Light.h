@@ -7,7 +7,7 @@ class Light: public QObject {
     Q_OBJECT
 
 public:
-    Light(QVector3D position = QVector3D(), QObject * parent = Q_NULLPTR);
+    Light(QVector3D position = QVector3D(), QObject * parent = 0);
     ~Light();
 
     QVector3D getColor();

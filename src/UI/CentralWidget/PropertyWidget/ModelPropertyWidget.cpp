@@ -26,7 +26,7 @@ ModelPropertyWidget::ModelPropertyWidget(Model* _model, QWidget *parent): QWidge
 
     resetTransformationButton = new QPushButton("Reset Transformation", this);
     resetTransformationButton->setFixedWidth(240);
-    resetChildrenTransformationButton = new QPushButton("Reset Children's Tranformation", this);
+    resetChildrenTransformationButton = new QPushButton("Reset Children's Transformations", this);
     resetChildrenTransformationButton->setFixedWidth(240);
 
     setupLayout();

@@ -8,7 +8,7 @@ class OpenGLWidget: public QOpenGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
 
 public:
-    OpenGLWidget(QWidget * parent = Q_NULLPTR);
+    OpenGLWidget(QWidget * parent = 0);
     ~OpenGLWidget();
     void setFPSLimit(uint32_t limit);
 

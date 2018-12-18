@@ -7,7 +7,7 @@ class TexturePropertyWidget: public QWidget {
     Q_OBJECT
 
 public:
-    TexturePropertyWidget(Texture* texture, QWidget *parent = Q_NULLPTR);
+    TexturePropertyWidget(Texture* texture, QWidget *parent = 0);
     ~TexturePropertyWidget();
 
 private:

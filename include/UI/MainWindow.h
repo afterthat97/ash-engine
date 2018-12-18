@@ -7,7 +7,7 @@ class MainWindow: public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = Q_NULLPTR);
+    MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
     friend class MainMenuBar;

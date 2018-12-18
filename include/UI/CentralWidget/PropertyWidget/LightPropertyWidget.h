@@ -8,7 +8,7 @@ class LightPropertyWidget: public QWidget {
     Q_OBJECT
 
 public:
-    LightPropertyWidget(Light* light, QWidget *parent = Q_NULLPTR);
+    LightPropertyWidget(Light* light, QWidget *parent = 0);
     ~LightPropertyWidget();
 
 private:

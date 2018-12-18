@@ -7,7 +7,7 @@ class MaterialPropertyWidget: public QWidget {
     Q_OBJECT
 
 public:
-    MaterialPropertyWidget(Material* material, QWidget *parent = Q_NULLPTR);
+    MaterialPropertyWidget(Material* material, QWidget *parent = 0);
     ~MaterialPropertyWidget();
 
 private:

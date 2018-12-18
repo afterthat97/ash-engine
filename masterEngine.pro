@@ -5,7 +5,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = masterEngine
 TEMPLATE = app
 VERSION = 1.0.0
-PREVIEW = -rc1
+PREVIEW = -rc2
 
 DEFINES += \
     QT_DEPRECATED_WARNINGS \
@@ -50,6 +50,7 @@ HEADERS += \
     include/OpenGL/OpenGLMesh.h \
     include/OpenGL/OpenGLRenderer.h \
     include/OpenGL/OpenGLTexture.h \
+    include/UI/CentralWidget/PropertyWidget/CameraPropertyWidget.h \
     include/UI/CentralWidget/PropertyWidget/FloatEditWidget.h \
     include/UI/CentralWidget/PropertyWidget/LightPropertyWidget.h \
     include/UI/CentralWidget/PropertyWidget/MaterialPropertyWidget.h \
@@ -63,8 +64,7 @@ HEADERS += \
     include/UI/CentralWidget/SceneTreeView.h \
     include/UI/Common.h \
     include/UI/MainMenuBar.h \
-    include/UI/MainWindow.h \
-    include/UI/CentralWidget/PropertyWidget/CameraPropertyWidget.h
+    include/UI/MainWindow.h
 
 SOURCES += \
     src/Generic/Allocator.cpp \
@@ -83,6 +83,7 @@ SOURCES += \
     src/OpenGL/OpenGLMesh.cpp \
     src/OpenGL/OpenGLRenderer.cpp \
     src/OpenGL/OpenGLTexture.cpp \
+    src/UI/CentralWidget/PropertyWidget/CameraPropertyWidget.cpp \
     src/UI/CentralWidget/PropertyWidget/FloatEditWidget.cpp \
     src/UI/CentralWidget/PropertyWidget/LightPropertyWidget.cpp \
     src/UI/CentralWidget/PropertyWidget/MaterialPropertyWidget.cpp \
@@ -96,6 +97,5 @@ SOURCES += \
     src/UI/CentralWidget/SceneTreeView.cpp \
     src/UI/MainMenuBar.cpp \
     src/UI/MainWindow.cpp \
-    src/masterEngine.cpp \
-    src/UI/CentralWidget/PropertyWidget/CameraPropertyWidget.cpp
+    src/masterEngine.cpp
 

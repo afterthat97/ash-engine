@@ -6,7 +6,7 @@ class FloatEditWidget: public QWidget {
     Q_OBJECT
 
 public:
-    FloatEditWidget(QString labelText, bool vertical, QWidget* parent = Q_NULLPTR);
+    FloatEditWidget(QString labelText, bool vertical, QWidget* parent = 0);
     ~FloatEditWidget();
 
     void setLabelText(QString text);
