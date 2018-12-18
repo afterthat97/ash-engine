@@ -2,10 +2,12 @@
 #include <UI/Common.h>
 
 QString Loader::dir = "";
+vector<QString> Loader::errorFiles;
 const aiScene* Loader::aiScenePtr = 0;
 
 Model * Loader::loadFromFile(QString filepath) {
     if (filepath == "") return NULL;
+    errorFiles.clear();
 
     Assimp::Importer importer;
     unsigned int flags = aiProcess_Triangulate |
@@ -33,7 +35,18 @@ Model * Loader::loadFromFile(QString filepath) {
         QMessageBox::critical(NULL, "Error", importer.GetErrorString());
         return NULL;
     }
-    return loadModel(aiScenePtr->mRootNode);
+
+    Model* loadedModel = loadModel(aiScenePtr->mRootNode);
+
+    QString errorMsg = "Failed to load the following textures:\n";
+    for (uint32_t i = 0; i < errorFiles.size(); i++)
+        errorMsg += "\n" + errorFiles[i];
+    errorMsg += "\n\nThese textures will be ignored.";
+
+    if (errorFiles.size())
+        QMessageBox::warning(0, "Texture loading error", errorMsg);
+
+    return loadedModel;
 }
 
 Model * Loader::loadModel(const aiNode * aiNodePtr) {
@@ -106,8 +119,9 @@ Texture * Loader::loadTexture(Texture::TextureType textureType, QString filename
     QString filepath = dir + '/' + filename;
 
     QImage* image = new QImage(filepath);
+
     if (image->isNull()) {
-        QMessageBox::warning(NULL, "Warning", "Failed to load texture: " + filepath);
+        errorFiles.push_back(filepath);
         return NULL;
     }
 

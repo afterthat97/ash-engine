@@ -133,6 +133,7 @@ void Camera::setPosition(QVector3D _position) {
 
 void Camera::setDirection(QVector3D _direction) {
     direction = _direction;
+    direction.normalize();
     setUpVector();
     directionChanged(direction);
 }

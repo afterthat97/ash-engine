@@ -10,9 +10,12 @@
 class Loader {
 public:
     static Model* loadFromFile(QString filepath);
+
 private:
     static QString dir;
+    static vector<QString> errorFiles;
     static const aiScene* aiScenePtr;
+
     static Model* loadModel(const aiNode* aiNodePtr);
     static Mesh* loadMesh(const aiMesh* aiMeshPtr);
     static Material* loadMaterial(const aiMaterial* aiMaterialPtr);

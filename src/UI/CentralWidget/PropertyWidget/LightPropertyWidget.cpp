@@ -26,6 +26,10 @@ LightPropertyWidget::LightPropertyWidget(Light* _light, QWidget *parent): QWidge
                                               light->getAttenuationLinear(),
                                               light->getAttenuationConstant()));
 
+    enableAttenuationCheckBox = new QCheckBox("Enabled", attenuationEditWidget);
+    enableAttenuationCheckBox->setChecked(light->isAttenuationEnabled());
+    attenuationEditWidget->insertWidget(enableAttenuationCheckBox, 0);
+
     setupLayout();
     setupSignals();
 }
@@ -33,6 +37,7 @@ LightPropertyWidget::LightPropertyWidget(Light* _light, QWidget *parent): QWidge
 LightPropertyWidget::~LightPropertyWidget() {
     delete positionEditWidget;
     delete colorEditWidget;
+    delete enableAttenuationCheckBox;
     delete attenuationEditWidget;
     delete mainLayout;
 }
@@ -52,4 +57,11 @@ void LightPropertyWidget::setupSignals() {
     connect(positionEditWidget, SIGNAL(valueChanged(QVector3D)), light, SLOT(setPosition(QVector3D)));
     connect(colorEditWidget, SIGNAL(valueChanged(QVector3D)), light, SLOT(setColor(QVector3D)));
     connect(attenuationEditWidget, SIGNAL(valueChanged(QVector3D)), light, SLOT(setAttenuationValue(QVector3D)));
+    connect(enableAttenuationCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setEnableAttenuation(int)));
+}
+
+// Private slots
+
+void LightPropertyWidget::setEnableAttenuation(int state) {
+    light->setEnableAttenuation(state == Qt::Checked);
 }

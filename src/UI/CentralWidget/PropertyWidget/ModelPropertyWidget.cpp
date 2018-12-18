@@ -25,7 +25,9 @@ ModelPropertyWidget::ModelPropertyWidget(Model* _model, QWidget *parent): QWidge
     modelScalingWidget->setValue(model->getLocalScaling());
 
     resetTransformationButton = new QPushButton("Reset Transformation", this);
-    resetChildrenTransformationButton = new QPushButton("Reset All Children's Tranformation", this);
+    resetTransformationButton->setFixedWidth(240);
+    resetChildrenTransformationButton = new QPushButton("Reset Children's Tranformation", this);
+    resetChildrenTransformationButton->setFixedWidth(240);
 
     setupLayout();
     setupSignals();
@@ -50,8 +52,8 @@ void ModelPropertyWidget::setupLayout() {
     mainLayout->addWidget(modelPositionWidget);
     mainLayout->addWidget(modelRotationWidget);
     mainLayout->addWidget(modelScalingWidget);
-    mainLayout->addWidget(resetTransformationButton);
-    mainLayout->addWidget(resetChildrenTransformationButton);
+    mainLayout->addWidget(resetTransformationButton, 0, Qt::AlignCenter);
+    mainLayout->addWidget(resetChildrenTransformationButton, 0, Qt::AlignCenter);
     setLayout(mainLayout);
 }
 

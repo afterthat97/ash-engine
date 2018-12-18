@@ -20,6 +20,9 @@ public:
     QMatrix4x4 getGlobalModelMatrix();
     QVector3D getGlobalPosition();
 
+    QVector3D getCenterOfMass();
+    float getMass();
+
     vector<Mesh*> getMeshes();
     vector<Model*> getChildren();
 

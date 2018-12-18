@@ -37,6 +37,11 @@ Vector3DEditWidget::~Vector3DEditWidget() {
 
 // Set properties
 
+void Vector3DEditWidget::insertWidget(QWidget * widget, int pos) {
+    widget->setParent(this);
+    mainLayout->insertWidget(pos, widget);
+}
+
 void Vector3DEditWidget::setLabelText(QString text0, QString text1, QString text2) {
     floatEdit0->setLabelText(text0);
     floatEdit1->setLabelText(text1);

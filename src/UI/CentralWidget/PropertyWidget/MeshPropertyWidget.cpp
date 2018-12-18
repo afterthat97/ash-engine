@@ -28,6 +28,8 @@ MeshPropertyWidget::MeshPropertyWidget(Mesh* _mesh, QWidget *parent): QWidget(pa
     meshScalingWidget->setValue(mesh->getLocalScaling());
 
     resetTransformationButton = new QPushButton("Reset Transformation", this);
+    resetTransformationButton->setFixedWidth(240);
+
     setupLayout();
     setupSignals();
 }
@@ -52,7 +54,7 @@ void MeshPropertyWidget::setupLayout() {
     mainLayout->addWidget(meshPositionWidget);
     mainLayout->addWidget(meshRotationWidget);
     mainLayout->addWidget(meshScalingWidget);
-    mainLayout->addWidget(resetTransformationButton);
+    mainLayout->addWidget(resetTransformationButton, 0, Qt::AlignCenter);
     setLayout(mainLayout);
 }
 

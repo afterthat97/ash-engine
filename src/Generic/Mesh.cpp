@@ -66,6 +66,51 @@ QVector3D Mesh::getGlobalPosition() {
     return getGlobalModelMatrix() * getLocalPosition();
 }
 
+QVector3D Mesh::getCenterOfMass() {
+    QVector3D centerOfMass;
+    for (uint32_t i = 0; i < indices.size();) {
+        QVector3D centroid;
+        float mass = 0;
+        if (meshType == Point) {
+            centroid = vertices[indices[i]].position;
+            mass = 1.0f;
+            i += 1;
+        } else if (meshType == Line) {
+            centroid = (vertices[indices[i]].position +
+                        vertices[indices[i + 1]].position) / 2;
+            mass = vertices[indices[i]].position.distanceToPoint(vertices[indices[i + 1]].position);
+            i += 2;
+        } else if (meshType == Triangle) {
+            centroid = (vertices[indices[i]].position +
+                        vertices[indices[i + 1]].position +
+                        vertices[indices[i + 2]].position) / 3;
+            mass = QVector3D::crossProduct(vertices[indices[i + 1]].position - vertices[indices[i]].position,
+                                             vertices[indices[i + 2]].position - vertices[indices[i]].position).length() / 2.0f;
+            i += 3;
+        }
+        centerOfMass += centroid * mass;
+    }
+    return centerOfMass / getMass();
+}
+
+float Mesh::getMass() {
+    float totalMass = 0;
+    for (uint32_t i = 0; i < indices.size();) {
+        if (meshType == Point) {
+            totalMass += 1.0f;
+            i += 1;
+        } else if (meshType == Line) {
+            totalMass += vertices[indices[i]].position.distanceToPoint(vertices[indices[i + 1]].position);
+            i += 2;
+        } else if (meshType == Triangle) {
+            totalMass += QVector3D::crossProduct(vertices[indices[i + 1]].position - vertices[indices[i]].position,
+                                                 vertices[indices[i + 2]].position - vertices[indices[i]].position).length() / 2.0f;
+            i += 3;
+        }
+    }
+    return totalMass;
+}
+
 vector<Vertex> Mesh::getVertices() {
     return vertices;
 }

@@ -14,8 +14,12 @@ public:
 private:
     Light* light;
     Vector3DEditWidget * positionEditWidget, * colorEditWidget, * attenuationEditWidget;
+    QCheckBox * enableAttenuationCheckBox;
     QVBoxLayout * mainLayout;
 
     void setupLayout();
     void setupSignals();
+
+private slots:
+    void setEnableAttenuation(int state);
 };

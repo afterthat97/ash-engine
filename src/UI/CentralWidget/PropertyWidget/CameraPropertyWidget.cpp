@@ -40,6 +40,7 @@ CameraPropertyWidget::CameraPropertyWidget(Camera * _camera, QWidget * parent): 
     directionEditWidget->setValue(camera->getDirection());
 
     resetButton = new QPushButton("Reset Camera", this);
+    resetButton->setFixedWidth(240);
 
     setupLayout();
     setupSignals();
@@ -67,7 +68,7 @@ void CameraPropertyWidget::setupLayout() {
     mainLayout->addWidget(farPlaneEditWidget);
     mainLayout->addWidget(positionEditWidget);
     mainLayout->addWidget(directionEditWidget);
-    mainLayout->addWidget(resetButton);
+    mainLayout->addWidget(resetButton, 0, Qt::AlignCenter);
     setLayout(mainLayout);
 }
 

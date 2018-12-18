@@ -29,6 +29,9 @@ public:
     QMatrix4x4 getGlobalModelMatrix();
     QVector3D getGlobalPosition();
 
+    QVector3D getCenterOfMass();
+    float getMass();
+
     vector<Vertex> getVertices();
     vector<uint32_t> getIndices();
     Material* getMaterial();

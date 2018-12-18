@@ -23,9 +23,11 @@ MainMenuBar::~MainMenuBar() {
     delete actionFileExit;
 
     delete actionCreateLight;
+    delete actionCreateBasicCone;
     delete actionCreateBasicCube;
-    delete actionCreateBasicSphere;
+    delete actionCreateBasicCylinder;
     delete actionCreateBasicPlane;
+    delete actionCreateBasicSphere;
 
     delete actionEnableLighting;
     delete actionEnableGridline;
@@ -44,9 +46,11 @@ void MainMenuBar::createActions() {
     actionFileExit = new QAction("Exit", this);
 
     actionCreateLight = new QAction("Light", this);
+    actionCreateBasicCone = new QAction("Cone", this);
     actionCreateBasicCube = new QAction("Cube", this);
-    actionCreateBasicSphere = new QAction("Sphere", this);
+    actionCreateBasicCylinder = new QAction("Cylinder", this);
     actionCreateBasicPlane = new QAction("Plane", this);
+    actionCreateBasicSphere = new QAction("Sphere", this);
 
     actionEnableLighting = new QAction("Enable Lighting", this);
     actionEnableGridline = new QAction("Enable Gridline", this);
@@ -73,10 +77,12 @@ void MainMenuBar::createActions() {
     connect(actionFileExit, SIGNAL(triggered(bool)), this, SLOT(fileExit()));
 
     connect(actionCreateLight, SIGNAL(triggered(bool)), this, SLOT(createLight()));
+    connect(actionCreateBasicCone, SIGNAL(triggered(bool)), this, SLOT(createBasicCone()));
     connect(actionCreateBasicCube, SIGNAL(triggered(bool)), this, SLOT(createBasicCube()));
-    connect(actionCreateBasicSphere, SIGNAL(triggered(bool)), this, SLOT(createBasicSphere()));
+    connect(actionCreateBasicCylinder, SIGNAL(triggered(bool)), this, SLOT(createBasicCylinder()));
     connect(actionCreateBasicPlane, SIGNAL(triggered(bool)), this, SLOT(createBasicPlane()));
-
+    connect(actionCreateBasicSphere, SIGNAL(triggered(bool)), this, SLOT(createBasicSphere()));
+    
     connect(actionEnableLighting, SIGNAL(triggered(bool)), this, SLOT(optionLighting(bool)));
     connect(actionEnableGridline, SIGNAL(triggered(bool)), this, SLOT(optionGridline(bool)));
     connect(actionEnableWireFrame, SIGNAL(triggered(bool)), this, SLOT(optionWireFrame(bool)));
@@ -98,9 +104,11 @@ void MainMenuBar::createMenus() {
     menuCreate->addAction(actionCreateLight);
 
     menuCreateBasicShapes = menuCreate->addMenu("Basic Shapes");
+    menuCreateBasicShapes->addAction(actionCreateBasicCone);
     menuCreateBasicShapes->addAction(actionCreateBasicCube);
-    menuCreateBasicShapes->addAction(actionCreateBasicSphere);
+    menuCreateBasicShapes->addAction(actionCreateBasicCylinder);
     menuCreateBasicShapes->addAction(actionCreateBasicPlane);
+    menuCreateBasicShapes->addAction(actionCreateBasicSphere);
 
     menuOptions = this->addMenu("Options");
     menuOptions->addAction(actionEnableLighting);
@@ -128,7 +136,10 @@ void MainMenuBar::fileNew() {
 
 void MainMenuBar::fileOpen() {
     QString filepath = QFileDialog::getOpenFileName(this, "Load Model(s)", "", "All Files (*)");
-    Scene::currentScene()->addModel(Loader::loadFromFile(filepath));
+    Model* loadedModel = Loader::loadFromFile(filepath);
+    if (loadedModel == 0) return;
+    Scene::currentScene()->addModel(loadedModel);
+    Scene::currentScene()->getCamera()->setDirection(loadedModel->getCenterOfMass() - Scene::currentScene()->getCamera()->getPosition());
     mainWindow->m_centralWidget->sceneTreeView->reset();
 }
 
@@ -145,18 +156,28 @@ void MainMenuBar::createLight() {
     mainWindow->m_centralWidget->sceneTreeView->reset();
 }
 
+void MainMenuBar::createBasicCone() {
+    Scene::currentScene()->addModel(Helper::createConeModel());
+    mainWindow->m_centralWidget->sceneTreeView->reset();
+}
+
 void MainMenuBar::createBasicCube() {
     Scene::currentScene()->addModel(Helper::createCubeModel());
     mainWindow->m_centralWidget->sceneTreeView->reset();
 }
 
-void MainMenuBar::createBasicSphere() {
-    Scene::currentScene()->addModel(Helper::createSphereModel());
+void MainMenuBar::createBasicCylinder() {
+    Scene::currentScene()->addModel(Helper::createCylinderModel());
     mainWindow->m_centralWidget->sceneTreeView->reset();
 }
 
 void MainMenuBar::createBasicPlane() {
     Scene::currentScene()->addModel(Helper::createPlaneModel());
+    mainWindow->m_centralWidget->sceneTreeView->reset();
+}
+
+void MainMenuBar::createBasicSphere() {
+    Scene::currentScene()->addModel(Helper::createSphereModel());
     mainWindow->m_centralWidget->sceneTreeView->reset();
 }
 

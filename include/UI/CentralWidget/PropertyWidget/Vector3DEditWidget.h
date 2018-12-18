@@ -7,13 +7,15 @@ class Vector3DEditWidget: public QGroupBox {
     Q_OBJECT
 
 public:
-    Vector3DEditWidget(QString title, bool showSlider = false, QWidget* parent = Q_NULLPTR);
+    Vector3DEditWidget(QString title, bool showSlider = false, QWidget* parent = 0);
     ~Vector3DEditWidget();
 
+    void insertWidget(QWidget* widget, int pos);
     void setLabelText(QString text0, QString text1, QString text2);
     void setRange(double minv, double maxv);
     void setSingleStep(double step);
     void setDecimals(int num);
+
     QVector3D getValue();
 
 public slots:

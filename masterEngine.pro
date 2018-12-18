@@ -54,6 +54,7 @@ HEADERS += \
     include/UI/CentralWidget/PropertyWidget/LightPropertyWidget.h \
     include/UI/CentralWidget/PropertyWidget/MaterialPropertyWidget.h \
     include/UI/CentralWidget/PropertyWidget/MeshPropertyWidget.h \
+    include/UI/CentralWidget/PropertyWidget/ModelPropertyWidget.h \
     include/UI/CentralWidget/PropertyWidget/StringEditWidget.h \
     include/UI/CentralWidget/PropertyWidget/TexturePropertyWidget.h \
     include/UI/CentralWidget/PropertyWidget/Vector3DEditWidget.h \
@@ -86,6 +87,7 @@ SOURCES += \
     src/UI/CentralWidget/PropertyWidget/LightPropertyWidget.cpp \
     src/UI/CentralWidget/PropertyWidget/MaterialPropertyWidget.cpp \
     src/UI/CentralWidget/PropertyWidget/MeshPropertyWidget.cpp \
+    src/UI/CentralWidget/PropertyWidget/ModelPropertyWidget.cpp \
     src/UI/CentralWidget/PropertyWidget/StringEditWidget.cpp \
     src/UI/CentralWidget/PropertyWidget/TexturePropertyWidget.cpp \
     src/UI/CentralWidget/PropertyWidget/Vector3DEditWidget.cpp \

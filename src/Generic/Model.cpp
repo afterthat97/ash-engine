@@ -61,6 +61,24 @@ QVector3D Model::getGlobalPosition() {
         return getGlobalModelMatrix() * getLocalPosition();
 }
 
+QVector3D Model::getCenterOfMass() {
+    QVector3D centerOfMass;
+    for (uint32_t i = 0; i < meshes.size(); i++)
+        centerOfMass += meshes[i]->getCenterOfMass() * meshes[i]->getMass();
+    for (uint32_t i = 0; i < children.size(); i++)
+        centerOfMass += children[i]->getCenterOfMass() * children[i]->getMass();
+    return centerOfMass / getMass();
+}
+
+float Model::getMass() {
+    float totalMass = 0;
+    for (uint32_t i = 0; i < meshes.size(); i++)
+        totalMass += meshes[i]->getMass();
+    for (uint32_t i = 0; i < children.size(); i++)
+        totalMass += children[i]->getMass();
+    return totalMass;
+}
+
 vector<Mesh*> Model::getMeshes() {
     return meshes;
 }
