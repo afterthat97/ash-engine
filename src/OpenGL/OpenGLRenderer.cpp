@@ -1,136 +1,59 @@
 #include <OpenGL/OpenGLRenderer.h>
 #include <OpenGL/OpenGLManager.h>
 #include <OpenGL/OpenGLConfig.h>
-#include <Generic/Gridline.h>
-#include <UI/Common.h>
+#include <OpenGL/OpenGLScene.h>
 
-OpenGLRenderer::OpenGLRenderer() {
-    shader = NULL;
+OpenGLRenderer::OpenGLRenderer(QObject* parent): QObject(parent) {
+    basicShader = phongShader = 0;
 }
 
-OpenGLRenderer::~OpenGLRenderer() {
-    if (shader) delete shader;
+void OpenGLRenderer::loadShaders() {
+    basicShader = loadShaderFromFile(":/resources/shaders/basic.vert", ":/resources/shaders/basic.frag");
+    basicShader->bindAttributeLocation("position", 0);
+    phongShader = loadShaderFromFile(":/resources/shaders/phong.vert", ":/resources/shaders/phong.frag");
+    phongShader->bindAttributeLocation("position", 0);
+    phongShader->bindAttributeLocation("normal", 1);
+    phongShader->bindAttributeLocation("tangent", 2);
+    phongShader->bindAttributeLocation("bitangent", 3);
+    phongShader->bindAttributeLocation("texCoords", 4);
 }
 
-// Load, compile and link shaders
-void OpenGLRenderer::loadShader(QString vertexShaderFile, QString fragmentShaderFile) {
-    shader = new QOpenGLShaderProgram;
-    if (!shader->addShaderFromSourceFile(QOpenGLShader::Vertex, vertexShaderFile))
-        QMessageBox::critical(0, "Error compiling vertex shader", shader->log());
-    if (!shader->addShaderFromSourceFile(QOpenGLShader::Fragment, fragmentShaderFile))
-        QMessageBox::critical(0, "Error compiling fragment shader", shader->log());
-    if (!shader->link())
-        QMessageBox::critical(0, "Error linking shaders", shader->log());
-    vector<ShaderAttributeConfig> config = OpenGLConfig::getShaderAttributeConfig();
-    for (uint32_t i = 0; i < config.size(); i++)
-        shader->bindAttributeLocation(config[i].name.c_str(), config[i].indx);
-}
-
-// Render a generic scene
 void OpenGLRenderer::render(Scene* scene) {
-    if (!shader) {
-        QMessageBox::critical(0, "Error", "Shader is not loaded.");
-        return;
-    }
+    if (basicShader == 0 || phongShader == 0)
+        loadShaders();
+    OpenGLScene* openGLScene = OpenGLManager<Scene, OpenGLScene>::currentManager()->getOpenGLObject(scene);
+    openGLScene->bindCamera(basicShader);
+    openGLScene->bindCamera(phongShader);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(OpenGLConfig::getBackgroundColor()[0], OpenGLConfig::getBackgroundColor()[1], OpenGLConfig::getBackgroundColor()[2], 1.0f);
-    glPolygonMode(GL_FRONT_AND_BACK, OpenGLConfig::isWireFrameEnabled() ? GL_LINE : GL_FILL);
-
-    shader->bind();
-    shader->setUniformValue("projMat", scene->getCamera()->getProjectionMatrix());
-    shader->setUniformValue("viewMat", scene->getCamera()->getViewMatrix());
-    shader->setUniformValue("viewPos", scene->getCamera()->getPosition());
-
-    if (OpenGLConfig::isGridlineEnabled()) {
-        // "enableLighting" must be set to false when rendering gridline
-        shader->setUniformValue("enableLighting", false);
-        renderMesh(Gridline::getGridlineMesh());
-    }
-
-    if (OpenGLConfig::isLightingEnabled()) {
-        // "enableLighting" must be set to false when rendering lights
-        shader->setUniformValue("enableLighting", false);
-        shader->setUniformValue("lightNum", (GLint) scene->getLights().size());
-        for (uint32_t i = 0; i < scene->getLights().size(); i++)
-            renderLight(scene->getLights()[i], i);
-    }
     
-    // Set "enableLighting" according to the configuration
-    shader->setUniformValue("enableLighting", OpenGLConfig::isLightingEnabled());
-    for (uint32_t i = 0; i < scene->getModels().size(); i++)
-        renderModel(scene->getModels()[i]);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    openGLScene->renderGridlines(basicShader);
+    openGLScene->renderLights(basicShader);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    openGLScene->bindLights(phongShader);
+    openGLScene->renderModels(phongShader);
 }
 
-// Render a generic model
-void OpenGLRenderer::renderModel(Model * model) {
-    if (!model->isVisible()) return;
-    for (uint32_t i = 0; i < model->getChildren().size(); i++)
-        renderModel(model->getChildren()[i]);
-    for (uint32_t i = 0; i < model->getMeshes().size(); i++)
-        renderMesh(model->getMeshes()[i]);
-}
-
-// Render a generic mesh
-void OpenGLRenderer::renderMesh(Mesh * mesh) {
-    if (!mesh->isVisible()) return;
-    renderMaterial(mesh->getMaterial());
-
-    shader->setUniformValue("reverseNormal", mesh->isNormalReversed());
-    shader->setUniformValue("modelMat", mesh->getGlobalModelMatrix());
-    
-    // Convert generic mesh to specific OpenGLMesh
-    OpenGLMesh* openGLMesh = OpenGLManager::getOpenGLMesh(mesh);
-
-    // Bind OpenGLMesh(VAO, VBO...) and render it
-    openGLMesh->bind();
-    openGLMesh->render();
-    openGLMesh->release();
-}
-
-// Render a generic material
-void OpenGLRenderer::renderMaterial(Material * material) {
-    shader->setUniformValue("material.hasDiffuseMap", false);
-    shader->setUniformValue("material.hasSpecularMap", false);
-    shader->setUniformValue("material.hasNormalMap", false);
-    shader->setUniformValue("material.ambientRGB", material->getAmbientColor());
-    shader->setUniformValue("material.diffuseRGB", material->getDiffuseColor());
-    shader->setUniformValue("material.specularRGB", material->getSpecularColor());
-    shader->setUniformValue("material.shininess", material->getShininess());
-    for (uint32_t i = 0; i < material->getTextures().size(); i++)
-        renderTexture(material->getTextures()[i]);
-}
-
-// Render a generic texture
-void OpenGLRenderer::renderTexture(Texture * texture) {
-    if (!texture->isEnabled()) return;
-
-    // Convert generic texture to specific OpenGLTexture
-    OpenGLTexture* openGLTexture = OpenGLManager::getOpenGLTexture(texture);
-    if (texture->getType() == Texture::Diffuse) { // Diffuse map
-        openGLTexture->bind(0);
-        shader->setUniformValue("material.diffuseMap", 0);
-        shader->setUniformValue("material.hasDiffuseMap", true);
-    } else if (texture->getType() == Texture::Specular) { // Specular map
-        openGLTexture->bind(1);
-        shader->setUniformValue("material.specularMap", 1);
-        shader->setUniformValue("material.hasSpecularMap", true);
-    } else if (texture->getType() == Texture::Normal) { // Normal map
-        openGLTexture->bind(2);
-        shader->setUniformValue("material.normalMap", 2);
-        shader->setUniformValue("material.hasNormalMap", true);
+QOpenGLShaderProgram * OpenGLRenderer::loadShaderFromFile(QString vertexShaderFile, QString fragmentShaderFile, QString geometryShaderFile) {
+    QOpenGLShaderProgram* shader = new QOpenGLShaderProgram(this);
+    if (!shader->addShaderFromSourceFile(QOpenGLShader::Vertex, vertexShaderFile)) {
+        qWarning() << "Failed to compile vertex shader:" << shader->log();
+        return 0;
     }
-}
-
-void OpenGLRenderer::renderLight(Light * light, uint32_t indx) {
-    // Set light properties
-    shader->setUniformValue(("lights[" + to_string(indx) + "].pos").c_str(), light->getPosition());
-    shader->setUniformValue(("lights[" + to_string(indx) + "].color").c_str(), light->getColor());
-    shader->setUniformValue(("lights[" + to_string(indx) + "].enableAttenuation").c_str(), light->isAttenuationEnabled());
-    shader->setUniformValue(("lights[" + to_string(indx) + "].attenuationQuadratic").c_str(), light->getAttenuationQuadratic());
-    shader->setUniformValue(("lights[" + to_string(indx) + "].attenuationLinear").c_str(), light->getAttenuationLinear());
-    shader->setUniformValue(("lights[" + to_string(indx) + "].attenuationConstant").c_str(), light->getAttenuationConstant());
-
-    // Render the mesh shape of light (a light bulb)
-    renderModel(light->getLightBulbModel());
+    if (!shader->addShaderFromSourceFile(QOpenGLShader::Fragment, fragmentShaderFile)) {
+        qWarning() << "Failed to compile fragment shader:" << shader->log();
+        return 0;
+    }
+    if (geometryShaderFile != "" && !shader->addShaderFromSourceFile(QOpenGLShader::Geometry, geometryShaderFile)) {
+        qWarning() << "Failed to compile geometry shader:" << shader->log();
+        return 0;
+    }
+    if (!shader->link()) {
+        qWarning() << "Failed to link shaders:" << shader->log();
+        return 0;
+    }
+    return shader;
 }

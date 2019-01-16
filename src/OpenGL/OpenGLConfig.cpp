@@ -5,12 +5,13 @@ bool OpenGLConfig::enableLighting = true;
 bool OpenGLConfig::enableGridline = true;
 bool OpenGLConfig::enableWireFrame = false;
 
-vector<ShaderAttributeConfig> OpenGLConfig::getShaderAttributeConfig() {
-    vector<ShaderAttributeConfig> config;
+QVector<ShaderAttributeConfig> OpenGLConfig::getShaderAttributeConfig() {
+    QVector<ShaderAttributeConfig> config;
     config.push_back(ShaderAttributeConfig("position", 0, 3, sizeof(Vertex), (void*) offsetof(Vertex, position)));
     config.push_back(ShaderAttributeConfig("normal", 1, 3, sizeof(Vertex), (void*) offsetof(Vertex, normal)));
     config.push_back(ShaderAttributeConfig("tangent", 2, 3, sizeof(Vertex), (void*) offsetof(Vertex, tangent)));
-    config.push_back(ShaderAttributeConfig("texCoords", 3, 2, sizeof(Vertex), (void*) offsetof(Vertex, texCoords)));
+    config.push_back(ShaderAttributeConfig("bitangent", 3, 3, sizeof(Vertex), (void*) offsetof(Vertex, bitangent)));
+    config.push_back(ShaderAttributeConfig("texCoords", 4, 2, sizeof(Vertex), (void*) offsetof(Vertex, texCoords)));
     return config;
 }
 

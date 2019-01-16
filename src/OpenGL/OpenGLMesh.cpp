@@ -1,64 +1,93 @@
 #include <OpenGL/OpenGLMesh.h>
-#include <Generic/Mesh.h>
-
-OpenGLMesh::OpenGLMesh() {
-    vao = NULL;
-    vbo = NULL;
-    ebo = NULL;
-}
+#include <OpenGL/OpenGLMaterial.h>
+#include <OpenGL/OpenGLConfig.h>
+#include <OpenGL/OpenGLManager.h>
 
 OpenGLMesh::OpenGLMesh(Mesh * mesh) {
-    create(mesh);
+    m_host = mesh;
+
+    m_vao = new QOpenGLVertexArrayObject;
+    m_vao->create();
+    m_vao->bind();
+    m_vbo = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+    m_vbo->create();
+    m_vbo->bind();
+    m_vbo->allocate(&m_host->vertices()[0], int(sizeof(Vertex) * m_host->vertices().size()));
+    m_ebo = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
+    m_ebo->create();
+    m_ebo->bind();
+    m_ebo->allocate(&m_host->indices()[0], int(sizeof(uint32_t) * m_host->indices().size()));
+
+    QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
+    QVector<ShaderAttributeConfig> config = OpenGLConfig::getShaderAttributeConfig();
+    for (int i = 0; i < config.size(); i++) {
+        glFuncs->glEnableVertexAttribArray(config[i].indx);
+        glFuncs->glVertexAttribPointer(config[i].indx, config[i].size, GL_FLOAT, GL_FALSE, config[i].stride, config[i].offset);
+    }
+    m_vao->release();
+
+    connect(m_host, SIGNAL(geometryChanged(QVector<Vertex>, QVector<uint32_t>)),
+            this, SLOT(geometryChanged(QVector<Vertex>, QVector<uint32_t>)));
+    connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
 }
 
 OpenGLMesh::~OpenGLMesh() {
-    if (vao) delete vao;
-    if (vbo) delete vbo;
-    if (ebo) delete ebo;
+    delete m_vao;
+    delete m_vbo;
+    delete m_ebo;
 }
 
-void OpenGLMesh::create(Mesh * mesh) {
-    genericMesh = mesh;
-    vao = new QOpenGLVertexArrayObject;
-    vao->create();
-    vao->bind();
-
-    vbo = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-    vbo->create();
-    vbo->bind();
-    vbo->allocate(&mesh->getVertices()[0], int(sizeof(Vertex) * mesh->getVertices().size()));
-
-    ebo = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
-    ebo->create();
-    ebo->bind();
-    ebo->allocate(&mesh->getIndices()[0], int(sizeof(uint32_t) * mesh->getIndices().size()));
-
-    vao->release();
+Mesh * OpenGLMesh::host() const {
+    return m_host;
 }
 
-void OpenGLMesh::bind() {
-    vao->bind();
-}
-
-void OpenGLMesh::render() {
-    if (!genericMesh->isVisible()) return;
+void OpenGLMesh::render(QOpenGLShaderProgram* shader) {
+    if (!m_host->visible()) return;
+    if (m_host->material())
+        OpenGLManager<Material, OpenGLMaterial>::currentManager()->getOpenGLObject(m_host->material())->bind(shader);
+    shader->bind();
+    shader->setUniformValue("modelMat", m_host->globalModelMatrix());
+    m_vao->bind();
     QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
-    if (genericMesh->getType() == Mesh::Triangle)
-        glFuncs->glDrawElements(GL_TRIANGLES, (GLsizei) genericMesh->getIndices().size(), GL_UNSIGNED_INT, 0);
-    else if (genericMesh->getType() == Mesh::Line)
-        glFuncs->glDrawElements(GL_LINES, (GLsizei) genericMesh->getIndices().size(), GL_UNSIGNED_INT, 0);
+    if (m_host->meshType() == Mesh::Triangle)
+        glFuncs->glDrawElements(GL_TRIANGLES, (GLsizei) m_host->indices().size(), GL_UNSIGNED_INT, 0);
+    else if (m_host->meshType() == Mesh::Line)
+        glFuncs->glDrawElements(GL_LINES, (GLsizei) m_host->indices().size(), GL_UNSIGNED_INT, 0);
     else
-        glFuncs->glDrawElements(GL_POINTS, (GLsizei) genericMesh->getIndices().size(), GL_UNSIGNED_INT, 0);
+        glFuncs->glDrawElements(GL_POINTS, (GLsizei) m_host->indices().size(), GL_UNSIGNED_INT, 0);
+    m_vao->release();
+    if (m_host->material())
+        OpenGLManager<Material, OpenGLMaterial>::currentManager()->getOpenGLObject(m_host->material())->release();
 }
 
-void OpenGLMesh::release() {
-    vao->release();
-}
-
-void OpenGLMesh::setVertexAttribPointer(GLuint indx, GLuint size, GLsizei stride, const void * ptr) {
-    bind();
+void OpenGLMesh::geometryChanged(const QVector<Vertex>& vertices, const QVector<uint32_t>& indices) {
+    delete m_vao;
+    delete m_vbo;
+    delete m_ebo;
+    m_vao = new QOpenGLVertexArrayObject;
+    m_vao->create();
+    m_vao->bind();
+    m_vbo = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+    m_vbo->create();
+    m_vbo->bind();
+    m_vbo->allocate(&vertices[0], int(sizeof(Vertex) * vertices.size()));
+    m_ebo = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
+    m_ebo->create();
+    m_ebo->bind();
+    m_ebo->allocate(&indices[0], int(sizeof(uint32_t) * indices.size()));
     QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
-    glFuncs->glEnableVertexAttribArray(indx);
-    glFuncs->glVertexAttribPointer(indx, size, GL_FLOAT, GL_FALSE, stride, ptr);
-    release();
+    QVector<ShaderAttributeConfig> config = OpenGLConfig::getShaderAttributeConfig();
+    for (int i = 0; i < config.size(); i++) {
+        glFuncs->glEnableVertexAttribArray(config[i].indx);
+        glFuncs->glVertexAttribPointer(config[i].indx, config[i].size, GL_FLOAT, GL_FALSE, config[i].stride, config[i].offset);
+    }
+    m_vao->release();
+}
+
+void OpenGLMesh::hostDestroyed(QObject *) {
+    // Remove entry
+    OpenGLManager<Mesh, OpenGLMesh>::currentManager()->removeOpenGLObject(m_host);
+
+    // Commit suicide
+    delete this;
 }

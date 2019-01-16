@@ -1,15 +1,14 @@
 #pragma once
 
 #include <OpenGL/Common.h>
-#include <Generic/Vertex.h>
-#include <Generic/Texture.h>
 
 struct ShaderAttributeConfig {
-    string name;
+    QString name;
     GLuint indx, size;
     GLsizei stride;
     const void* offset;
-    ShaderAttributeConfig(string _name, GLuint _indx, GLuint _size, GLsizei _stride, const void * _offset) {
+    ShaderAttributeConfig() {}
+    ShaderAttributeConfig(QString _name, GLuint _indx, GLuint _size, GLsizei _stride, const void * _offset) {
         name = _name;
         indx = _indx;
         size = _size;
@@ -20,7 +19,7 @@ struct ShaderAttributeConfig {
 
 class OpenGLConfig {
 public:
-    static vector<ShaderAttributeConfig> getShaderAttributeConfig();
+    static QVector<ShaderAttributeConfig> getShaderAttributeConfig();
 
     static void setBackgroundColor(QVector3D color);
     static QVector3D getBackgroundColor();

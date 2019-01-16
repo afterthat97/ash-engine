@@ -30,72 +30,107 @@ win32 {
     RC_ICONS = resources/win/AppIcon.ico
 }
 
-HEADERS += \
-    include/Generic/Allocator.h \
-    include/Generic/Camera.h \
-    include/Generic/Common.h \
-    include/Generic/Gridline.h \
-    include/Generic/Helper.h \
-    include/Generic/Light.h \
-    include/Generic/Material.h \
-    include/Generic/Mesh.h \
-    include/Generic/Model.h \
-    include/Generic/Scene.h \
-    include/Generic/Texture.h \
-    include/Generic/Vertex.h \
-    include/IO/Loader.h \
+HEADERS += \ 
+    include/Core/Light/AbstractLight.h \
+    include/Core/Light/AmbientLight.h \
+    include/Core/Light/DirectionalLight.h \
+    include/Core/Light/PointLight.h \
+    include/Core/Light/SpotLight.h \
+    include/Core/Camera.h \
+    include/Core/Common.h \
+    include/Core/Core.h \
+    include/Core/Gridline.h \
+    include/Core/Material.h \
+    include/Core/Mesh.h \
+    include/Core/Model.h \
+    include/Core/Scene.h \
+    include/Core/Texture.h \
+    include/Core/Vertex.h \
+    include/IO/IO.h \
+    include/IO/ModelLoader.h \
+    include/IO/SceneLoader.h \
+    include/IO/TextureLoader.h \
     include/OpenGL/Common.h \
+    include/OpenGL/OpenGL.h \
+    include/OpenGL/OpenGLAmbientLight.h \
     include/OpenGL/OpenGLConfig.h \
+    include/OpenGL/OpenGLDirectionalLight.h \
+    include/OpenGL/OpenGLGridline.h \
     include/OpenGL/OpenGLManager.h \
+    include/OpenGL/OpenGLMaterial.h \
     include/OpenGL/OpenGLMesh.h \
+    include/OpenGL/OpenGLModel.h \
+    include/OpenGL/OpenGLPointLight.h \
     include/OpenGL/OpenGLRenderer.h \
+    include/OpenGL/OpenGLScene.h \
+    include/OpenGL/OpenGLSpotLight.h \
     include/OpenGL/OpenGLTexture.h \
-    include/UI/CentralWidget/PropertyWidget/CameraPropertyWidget.h \
-    include/UI/CentralWidget/PropertyWidget/FloatEditWidget.h \
-    include/UI/CentralWidget/PropertyWidget/LightPropertyWidget.h \
-    include/UI/CentralWidget/PropertyWidget/MaterialPropertyWidget.h \
-    include/UI/CentralWidget/PropertyWidget/MeshPropertyWidget.h \
-    include/UI/CentralWidget/PropertyWidget/ModelPropertyWidget.h \
-    include/UI/CentralWidget/PropertyWidget/StringEditWidget.h \
-    include/UI/CentralWidget/PropertyWidget/TexturePropertyWidget.h \
-    include/UI/CentralWidget/PropertyWidget/Vector3DEditWidget.h \
-    include/UI/CentralWidget/CentralWidget.h \
-    include/UI/CentralWidget/OpenGLWidget.h \
-    include/UI/CentralWidget/SceneTreeView.h \
+    include/OpenGL/OpenGLWidget.h \
+    include/OpenGL/OpenGLWindow.h \
+    include/UI/AmbientLightProperty.h \
+    include/UI/CameraProperty.h \
     include/UI/Common.h \
-    include/UI/MainMenuBar.h \
-    include/UI/MainWindow.h
+    include/UI/DirectionalLightProperty.h \
+    include/UI/FloatEdit.h \
+    include/UI/FloatSlider.h \
+    include/UI/GridlineProperty.h \
+    include/UI/MainWindow.h \
+    include/UI/MaterialProperty.h \
+    include/UI/MeshProperty.h \
+    include/UI/ModelProperty.h \
+    include/UI/PointLightProperty.h \
+    include/UI/SceneTreeView.h \
+    include/UI/SpotLightProperty.h \
+    include/UI/TextureProperty.h \
+    include/UI/UI.h \
+    include/UI/Vector3DEdit.h \
+    include/UI/Vector3DEditSlider.h
 
-SOURCES += \
-    src/Generic/Allocator.cpp \
-    src/Generic/Camera.cpp \
-    src/Generic/Gridline.cpp \
-    src/Generic/Helper.cpp \
-    src/Generic/Light.cpp \
-    src/Generic/Material.cpp \
-    src/Generic/Mesh.cpp \
-    src/Generic/Model.cpp \
-    src/Generic/Scene.cpp \
-    src/Generic/Texture.cpp \
-    src/IO/Loader.cpp \
+SOURCES += \ 
+    src/Core/Light/AbstractLight.cpp \
+    src/Core/Light/AmbientLight.cpp \
+    src/Core/Light/DirectionalLight.cpp \
+    src/Core/Light/PointLight.cpp \
+    src/Core/Light/SpotLight.cpp \
+    src/Core/Camera.cpp \
+    src/Core/Gridline.cpp \
+    src/Core/Material.cpp \
+    src/Core/Mesh.cpp \
+    src/Core/Model.cpp \
+    src/Core/Scene.cpp \
+    src/Core/Texture.cpp \
+    src/IO/ModelLoader.cpp \
+    src/IO/SceneLoader.cpp \
+    src/IO/TextureLoader.cpp \
+    src/OpenGL/OpenGLAmbientLight.cpp \
     src/OpenGL/OpenGLConfig.cpp \
+    src/OpenGL/OpenGLDirectionalLight.cpp \
+    src/OpenGL/OpenGLGridline.cpp \
     src/OpenGL/OpenGLManager.cpp \
+    src/OpenGL/OpenGLMaterial.cpp \
     src/OpenGL/OpenGLMesh.cpp \
+    src/OpenGL/OpenGLModel.cpp \
+    src/OpenGL/OpenGLPointLight.cpp \
     src/OpenGL/OpenGLRenderer.cpp \
+    src/OpenGL/OpenGLScene.cpp \
+    src/OpenGL/OpenGLSpotLight.cpp \
     src/OpenGL/OpenGLTexture.cpp \
-    src/UI/CentralWidget/PropertyWidget/CameraPropertyWidget.cpp \
-    src/UI/CentralWidget/PropertyWidget/FloatEditWidget.cpp \
-    src/UI/CentralWidget/PropertyWidget/LightPropertyWidget.cpp \
-    src/UI/CentralWidget/PropertyWidget/MaterialPropertyWidget.cpp \
-    src/UI/CentralWidget/PropertyWidget/MeshPropertyWidget.cpp \
-    src/UI/CentralWidget/PropertyWidget/ModelPropertyWidget.cpp \
-    src/UI/CentralWidget/PropertyWidget/StringEditWidget.cpp \
-    src/UI/CentralWidget/PropertyWidget/TexturePropertyWidget.cpp \
-    src/UI/CentralWidget/PropertyWidget/Vector3DEditWidget.cpp \
-    src/UI/CentralWidget/CentralWidget.cpp \
-    src/UI/CentralWidget/OpenGLWidget.cpp \
-    src/UI/CentralWidget/SceneTreeView.cpp \
-    src/UI/MainMenuBar.cpp \
+    src/OpenGL/OpenGLWidget.cpp \
+    src/OpenGL/OpenGLWindow.cpp \
+    src/UI/AmbientLightProperty.cpp \
+    src/UI/CameraProperty.cpp \
+    src/UI/DirectionalLightProperty.cpp \
+    src/UI/FloatEdit.cpp \
+    src/UI/FloatSlider.cpp \
+    src/UI/GridlineProperty.cpp \
     src/UI/MainWindow.cpp \
+    src/UI/MaterialProperty.cpp \
+    src/UI/MeshProperty.cpp \
+    src/UI/ModelProperty.cpp \
+    src/UI/PointLightProperty.cpp \
+    src/UI/SceneTreeView.cpp \
+    src/UI/SpotLightProperty.cpp \
+    src/UI/TextureProperty.cpp \
+    src/UI/Vector3DEdit.cpp \
+    src/UI/Vector3DEditSlider.cpp \
     src/masterEngine.cpp
-

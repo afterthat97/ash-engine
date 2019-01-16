@@ -1,24 +1,18 @@
 #pragma once
 
 #include <OpenGL/Common.h>
-#include <Generic/Scene.h>
 
-class OpenGLWidget;
+class OpenGLRenderer: public QObject {
+    Q_OBJECT
 
-class OpenGLRenderer {
 public:
-    OpenGLRenderer();
-    ~OpenGLRenderer();
+    OpenGLRenderer(QObject* parent = 0);
 
-    void loadShader(QString vertexShaderCode, QString fragmentShaderCode);
+    void loadShaders();
     void render(Scene* scene);
 
 private:
-    QOpenGLShaderProgram * shader;
+    QOpenGLShaderProgram * basicShader, *phongShader;
 
-    void renderModel(Model* model);
-    void renderMesh(Mesh* mesh);
-    void renderMaterial(Material *material);
-    void renderTexture(Texture* texture);
-    void renderLight(Light* light, uint32_t indx);
+    QOpenGLShaderProgram * loadShaderFromFile(QString vertexShaderFile, QString fragmentShaderFile, QString geometryShaderFile = "");
 };

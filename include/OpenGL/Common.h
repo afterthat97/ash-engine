@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Generic/Common.h>
+#include <Core/Core.h>
 
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
@@ -8,3 +8,7 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
 #include <QOpenGLWidget>
+#include <QOpenGLWindow>
+#include <QOpenGLContext>
+
+#include <QMimeData>

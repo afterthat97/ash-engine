@@ -1,23 +1,23 @@
 #pragma once
 
 #include <OpenGL/Common.h>
-#include <Generic/Mesh.h>
 
-class OpenGLMesh {
+class OpenGLMesh: public QObject {
+    Q_OBJECT
+
 public:
-    OpenGLMesh();
     OpenGLMesh(Mesh* mesh);
     ~OpenGLMesh();
 
-    void create(Mesh* mesh);
-    void bind();
-    void render();
-    void release();
-    
-    void setVertexAttribPointer(GLuint indx, GLuint size, GLsizei stride, const void* ptr);
+    Mesh* host() const;
+    void render(QOpenGLShaderProgram* shader);
 
 private:
-    Mesh* genericMesh;
-    QOpenGLVertexArrayObject * vao;
-    QOpenGLBuffer * vbo, * ebo;
+    Mesh* m_host;
+    QOpenGLVertexArrayObject * m_vao;
+    QOpenGLBuffer * m_vbo, *m_ebo;
+
+private slots:
+    void geometryChanged(const QVector<Vertex>& vertices, const QVector<uint32_t>& indices);
+    void hostDestroyed(QObject* host);
 };

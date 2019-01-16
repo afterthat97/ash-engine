@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Generic/Common.h>
-#include <OpenGL/Common.h>
+#include <Core/Core.h>
+#include <IO/IO.h>
+#include <OpenGL/OpenGL.h>
 
 #include <QApplication>
 #include <QSurfaceFormat>
@@ -12,13 +13,12 @@
 #include <QMessageBox>
 #include <QMainWindow>
 #include <QPushButton>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QSplitter>
+
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QVariant>
-#include <QKeyEvent>
+
+#include <QSplitter>
 #include <QMimeData>
 #include <QPoint>
 #include <QSlider>
@@ -27,6 +27,12 @@
 #include <QGroupBox>
 #include <QCheckBox>
 #include <QLineEdit>
+
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QFormLayout>
+#include <QGridLayout>
+#include <QCommonStyle>
 
 #include <QNetworkAccessManager>
 #include <QJsonDocument>

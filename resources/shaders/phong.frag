@@ -6,61 +6,136 @@ in vec3 fragPos;
 in vec2 fragTexCoords;
 in mat3 TBN;
 
-struct Material {
-    bool hasDiffuseMap;
-    bool hasSpecularMap;
-    bool hasNormalMap;
+struct PhongMaterial {
+    vec3 color;
+    vec3 bump;
+    float ambient;
+    float diffuse;
+    float specular;
+    float shininess;
     sampler2D diffuseMap;
     sampler2D specularMap;
-    sampler2D normalMap;
-    vec3 ambientRGB;
-    vec3 diffuseRGB;
-    vec3 specularRGB;
-    float shininess;
+    sampler2D bumpMap;
 };
 
-struct Light {
+struct AmbientLight {
+    vec3 color;
+};
+
+struct DirectionalLight {
+    vec3 color;
+    vec3 direction;
+};
+
+struct PointLight {
     vec3 color;
     vec3 pos;
-    bool enableAttenuation;
+    float enableAttenuation;
     float attenuationQuadratic;
     float attenuationLinear;
     float attenuationConstant;
 };
 
-uniform vec3 viewPos;
-uniform bool enableLighting;
-uniform int lightNum;
-uniform Light lights[8];
-uniform Material material;
+struct SpotLight {
+    vec3 color;
+    vec3 pos;
+    vec3 direction;
+    float innerCutOff;
+    float outerCutOff;
+    float enableAttenuation;
+    float attenuationQuadratic;
+    float attenuationLinear;
+    float attenuationConstant;
+};
 
-vec4 calcPointLight(int idx, vec3 diffuseColor, vec3 specularColor, vec3 normal) {
-	vec3 lightDir = normalize(lights[idx].pos - fragPos);
+uniform int ambientLightNum;
+uniform AmbientLight ambientLight[8];
+
+uniform int directionalLightNum;
+uniform DirectionalLight directionalLight[8];
+
+uniform int pointLightNum;
+uniform PointLight pointLight[8];
+
+uniform int spotLightNum;
+uniform SpotLight spotLight[8];
+
+uniform vec3 viewPos;
+uniform PhongMaterial material;
+
+vec3 calcAmbientLight(int idx, vec3 color) {
+    return color * ambientLight[idx].color;
+}
+
+vec3 calcDirectionalLight(int idx, vec3 normal, vec3 color, float diff, float spec) {
+    vec3 lightDir = normalize(-directionalLight[idx].direction);
+    vec3 viewDir = normalize(viewPos - fragPos);
+	vec3 reflectDir = reflect(-lightDir, normal);
+
+    vec3 result = vec3(0.0f);
+    result += diff * color * max(dot(normal, lightDir), 0.0f);
+    result += spec * color * pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
+
+    return result * directionalLight[idx].color;
+}
+
+vec3 calcPointLight(int idx, vec3 normal, vec3 color, float diff, float spec) {
+	vec3 lightDir = normalize(pointLight[idx].pos - fragPos);
 	vec3 viewDir = normalize(viewPos - fragPos);
 	vec3 reflectDir = reflect(-lightDir, normal);
+    float dis = length(pointLight[idx].pos - fragPos);
     
 	vec3 result = vec3(0.0f);
-    result += diffuseColor * max(dot(normal, lightDir), 0.0f);
-    result += specularColor * pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
+    result += diff * color * max(dot(normal, lightDir), 0.0f);
+    result += spec * color * pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
 
-    if (lights[idx].enableAttenuation) {
-		float dis = length(lights[idx].pos - fragPos);
-		result /= (lights[idx].attenuationConstant + lights[idx].attenuationLinear * dis + lights[idx].attenuationQuadratic * dis * dis);
-	}
-	return vec4(result * lights[idx].color, 1.0f);
+    float attenuation = 1 / (pointLight[idx].attenuationConstant
+                            + pointLight[idx].attenuationLinear * dis
+                            + pointLight[idx].attenuationQuadratic * dis * dis);
+    result *= attenuation * pointLight[idx].enableAttenuation
+            + (1 - pointLight[idx].enableAttenuation);
+
+    return result * pointLight[idx].color;
+}
+
+vec3 calcSpotLight(int idx, vec3 normal, vec3 color, float diff, float spec) {
+    vec3 lightDir = normalize(spotLight[idx].pos - fragPos);
+    vec3 viewDir = normalize(viewPos - fragPos);
+	vec3 reflectDir = reflect(-lightDir, normal);
+    float dis = length(spotLight[idx].pos - fragPos);
+    float theta = dot(lightDir, normalize(-spotLight[idx].direction));
+    float intensity = (theta - spotLight[idx].outerCutOff) / (spotLight[idx].innerCutOff - spotLight[idx].outerCutOff);
+
+    vec3 result = vec3(0.0f);
+    result += diff * color * max(dot(normal, lightDir), 0.0f);
+    result += spec * color * pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
+        
+    float attenuation = 1 / (spotLight[idx].attenuationConstant
+                            + spotLight[idx].attenuationLinear * dis
+                            + spotLight[idx].attenuationQuadratic * dis * dis);
+    result *= attenuation * spotLight[idx].enableAttenuation
+            + (1 - spotLight[idx].enableAttenuation);
+    
+    return result * spotLight[idx].color * clamp(intensity, 0.0, 1.0);
 }
 
 void main() {
-    vec3 diffuseColor = (material.hasDiffuseMap ? texture(material.diffuseMap, fragTexCoords).rgb : material.diffuseRGB);
-    vec3 specularColor = (material.hasSpecularMap ? texture(material.specularMap, fragTexCoords).rgb : material.specularRGB);
-    vec3 normal = (material.hasNormalMap ? texture(material.normalMap, fragTexCoords).rgb * 2.0f - 1.0f : vec3(0.0f, 0.0f, 1.0f));
-	normal = TBN * normalize(normal);
+    vec3 color  = texture(material.diffuseMap, fragTexCoords).rgb + material.color;
+    float spec  = texture(material.specularMap, fragTexCoords).r + material.specular;
+    vec3 normal = texture(material.bumpMap, fragTexCoords).rgb + material.bump;
+    normal = normalize(TBN * (normal * 2 - 1));
 
-    if (enableLighting) {
-        fragColor = vec4(diffuseColor * material.ambientRGB, 1.0f);
-        for (int i = 0; i < lightNum; i++)
-            fragColor += calcPointLight(i, diffuseColor, specularColor, normal);
-    } else {
-        fragColor = vec4(diffuseColor, 1.0f);
-    }
+    fragColor = vec4(color * material.ambient, 1);
+
+    for (int i = 0; i < ambientLightNum; i++)
+        fragColor += vec4(calcAmbientLight(i, color), 1);
+    
+    for (int i = 0; i < directionalLightNum; i++)
+        fragColor += vec4(calcDirectionalLight(i, normal, color, material.diffuse, spec), 1);
+
+    for (int i = 0; i < pointLightNum; i++)
+        fragColor += vec4(calcPointLight(i, normal, color, material.diffuse, spec), 1);
+
+    for (int i = 0; i < spotLightNum; i++)
+        fragColor += vec4(calcSpotLight(i, normal, color, material.diffuse, spec), 1);
 }

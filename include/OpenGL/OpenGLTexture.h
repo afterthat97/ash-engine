@@ -1,18 +1,22 @@
 #pragma once
 
 #include <OpenGL/Common.h>
-#include <Generic/Texture.h>
 
-class OpenGLTexture {
+class OpenGLTexture: public QObject {
+    Q_OBJECT
+
 public:
-    OpenGLTexture();
     OpenGLTexture(Texture* texture);
     ~OpenGLTexture();
 
-    void create(Texture* texture);
-    void bind(GLuint indx);
+    void bind(QOpenGLShaderProgram* shader);
     void release();
 
 private:
-    QOpenGLTexture *openGLTexture;
+    Texture* m_host;
+    QOpenGLTexture *m_openGLTexture;
+
+private slots:
+    void imageChanged(const QImage& image);
+    void hostDestroyed(QObject* host);
 };

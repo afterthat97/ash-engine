@@ -1,12 +1,17 @@
 <RCC>
     <qresource prefix="/">
+        <file>resources/shaders/basic.vert</file>
+        <file>resources/shaders/basic.frag</file>
         <file>resources/shaders/phong.vert</file>
         <file>resources/shaders/phong.frag</file>
-        <file>resources/shapes/cone.fbx</file>
-        <file>resources/shapes/cube.fbx</file>
-        <file>resources/shapes/cylinder.fbx</file>
-        <file>resources/shapes/light.fbx</file>
-        <file>resources/shapes/plane.fbx</file>
-        <file>resources/shapes/sphere.fbx</file>
+
+        <file>resources/shapes/Cone.fbx</file>
+        <file>resources/shapes/Cube.fbx</file>
+        <file>resources/shapes/Cylinder.fbx</file>
+        <file>resources/shapes/Plane.fbx</file>
+        <file>resources/shapes/Sphere.fbx</file>
+
+        <file>resources/shapes/PointLight.fbx</file>
+        <file>resources/shapes/SpotLight.fbx</file>
     </qresource>
 </RCC>

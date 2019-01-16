@@ -1,18 +1,33 @@
 #pragma once
 
-#include <OpenGL/OpenGLMesh.h>
-#include <OpenGL/OpenGLTexture.h>
-#include <Generic/Mesh.h>
-#include <Generic/Texture.h>
+#include <OpenGL/Common.h>
 
+template<class CoreClass, class OpenGLClass>
 class OpenGLManager {
 public:
-    static void cleanOpenGLMesh();
-    static void cleanOpenGLTexture();
-    static OpenGLMesh* getOpenGLMesh(Mesh* mesh);
-    static OpenGLTexture* getOpenGLTexture(Texture *texture);
+    OpenGLManager() {}
+
+    static OpenGLManager* currentManager() {
+        static OpenGLManager* manager = new OpenGLManager;
+        return manager;
+    }
+
+    OpenGLClass* getOpenGLObject(CoreClass* coreObject) {
+        if (m_coreClassToOpenGLClass.find(coreObject) == m_coreClassToOpenGLClass.end()) {
+            OpenGLClass* openGLObject = new OpenGLClass(coreObject);
+            m_coreClassToOpenGLClass[coreObject] = openGLObject;
+        }
+        return m_coreClassToOpenGLClass[coreObject];
+    }
+
+    bool removeOpenGLObject(CoreClass* coreObject) {
+        if (m_coreClassToOpenGLClass.find(coreObject) != m_coreClassToOpenGLClass.end()) {
+            m_coreClassToOpenGLClass.remove(coreObject);
+            return true;
+        }
+        return false;
+    }
 
 private:
-    static map<uint32_t, OpenGLMesh*> mesh_map;
-    static map<uint32_t, OpenGLTexture*> texture_map;
+    QHash<CoreClass*, OpenGLClass*> m_coreClassToOpenGLClass;
 };
