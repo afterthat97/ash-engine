@@ -7,6 +7,7 @@ class OpenGLMaterial: public QObject {
 
 public:
     OpenGLMaterial(Material* material);
+    // TODO: Copy constructor
     
     Material* host() const;
     void bind(QOpenGLShaderProgram* shader);

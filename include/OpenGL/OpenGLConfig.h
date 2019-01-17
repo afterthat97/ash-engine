@@ -2,6 +2,8 @@
 
 #include <OpenGL/Common.h>
 
+// TODO: Rewrite this class
+
 struct ShaderAttributeConfig {
     QString name;
     GLuint indx, size;

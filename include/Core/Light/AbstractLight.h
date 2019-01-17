@@ -7,6 +7,7 @@ class AbstractLight: public QObject {
 
 public:
     AbstractLight(QVector3D color = QVector3D(1, 1, 1), QObject* parent = 0);
+    // TODO: Copy constructor
 
     virtual void dumpObjectInfo(int level = 0) = 0;
     virtual void dumpObjectTree(int level = 0) = 0;

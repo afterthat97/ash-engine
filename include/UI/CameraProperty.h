@@ -9,6 +9,7 @@ class CameraProperty: public QWidget {
 
 public:
     CameraProperty(Camera * camera, QWidget * parent = 0);
+    // TODO: Copy constructor
 
 private:
     Camera *m_host;
@@ -20,4 +21,7 @@ private:
 
     void configLayout();
     void configSignals();
+
+private slots:
+    // TODO: Connect to host's destroyed signal, commit suicide when host is destroyed.
 };

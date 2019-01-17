@@ -7,6 +7,7 @@ class OpenGLAmbientLight: public QObject {
 
 public:
     OpenGLAmbientLight(AmbientLight* light);
+    // TODO: Copy constructor
 
     AmbientLight* host() const;
     void bind(QOpenGLShaderProgram* shader, int indx);

@@ -4,6 +4,8 @@
 #include <UI/SceneTreeView.h>
 #include <OpenGL/OpenGLWidget.h>
 
+// TODO: Find a better way to manage property widgets.
+
 class MainWindow: public QMainWindow {
     Q_OBJECT
 

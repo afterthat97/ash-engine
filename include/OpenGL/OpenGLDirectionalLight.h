@@ -7,6 +7,7 @@ class OpenGLDirectionalLight: public QObject {
 
 public:
     OpenGLDirectionalLight(DirectionalLight* light);
+    // TODO: Copy constructor
 
     DirectionalLight* host() const;
     void bind(QOpenGLShaderProgram* shader, int indx);

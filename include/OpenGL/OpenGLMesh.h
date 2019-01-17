@@ -7,6 +7,7 @@ class OpenGLMesh: public QObject {
 
 public:
     OpenGLMesh(Mesh* mesh);
+    // TODO: Copy constructor
     ~OpenGLMesh();
 
     Mesh* host() const;

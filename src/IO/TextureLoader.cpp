@@ -4,8 +4,6 @@ QHash<QString, QWeakPointer<Texture>> TextureLoader::cache;
 
 TextureLoader::TextureLoader() {}
 
-TextureLoader::~TextureLoader() {}
-
 QSharedPointer<Texture> TextureLoader::loadFromFile(Texture::TextureType textureType, QString filePath, bool no_cache) {
     if (no_cache || cache[filePath].isNull()) {
         QSharedPointer<Texture> texture(new Texture);

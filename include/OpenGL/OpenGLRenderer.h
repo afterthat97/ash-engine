@@ -7,6 +7,7 @@ class OpenGLRenderer: public QObject {
 
 public:
     OpenGLRenderer(QObject* parent = 0);
+    // TODO: Copy constructor
 
     void loadShaders();
     void render(Scene* scene);

@@ -15,9 +15,10 @@ uniform mat4 viewMat;
 uniform mat4 modelMat;
 
 void main() {
-	vec3 T = normalize(vec3(modelMat * vec4(tangent,   0.0)));
-	vec3 B = normalize(vec3(modelMat * vec4(bitangent,   0.0)));
-	vec3 N = normalize(vec3(modelMat * vec4(normal,    0.0)));
+	vec3 T = normalize(vec3(modelMat * vec4(tangent, 0.0)));
+    vec3 B = normalize(vec3(modelMat * vec4(bitangent, 0.0)));
+    // TODO: Correct normal transformation.
+	vec3 N = normalize(vec3(modelMat * vec4(normal, 0.0)));
 
     gl_Position = projMat * viewMat * modelMat * vec4(position, 1.0f);
     fragPos = vec3(modelMat * vec4(position, 1.0f));

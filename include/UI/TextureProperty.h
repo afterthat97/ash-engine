@@ -7,6 +7,7 @@ class TexturePropertyWidget: public QWidget {
 
 public:
     TexturePropertyWidget(Texture * texture, QWidget * parent = 0);
+    // TODO: Copy constructor
 
 private:
     Texture* m_host;
@@ -15,4 +16,7 @@ private:
 
     void configLayout();
     void configSignals();
+
+private slots:
+    // TODO: Connect to host's destroyed signal, commit suicide when host is destroyed.
 };

@@ -7,7 +7,10 @@ class FloatSlider: public QWidget {
 
 public:
     FloatSlider(QWidget* parent = 0);
-    FloatSlider(Qt::Orientation orientation, float minimum, float maximum, QWidget* parent = 0);
+    FloatSlider(Qt::Orientation orientation,
+                float minimum, float maximum,
+                QWidget* parent = 0);
+    // TODO: Copy constructor
 
     Qt::Orientation	orientation() const;
     float maximum() const;

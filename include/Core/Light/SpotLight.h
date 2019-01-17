@@ -10,6 +10,7 @@ public:
               QVector3D position = QVector3D(0, 0, 0),
               QVector3D direction = QVector3D(0, -1, 0),
               QObject* parent = 0);
+    // TODO: Copy constructor
 
     void dumpObjectInfo(int level = 0) override;
     void dumpObjectTree(int level = 0) override;

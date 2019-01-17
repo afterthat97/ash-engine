@@ -87,15 +87,15 @@ QModelIndex SceneTreeModel::parent(const QModelIndex &index) const {
     QObject * grandParentPointer = parentPointer->parent();
     if (Scene* scene = qobject_cast<Scene*>(grandParentPointer)) {
         // Parent pointer must be Model*
-        for (uint32_t i = 0; i < scene->models().size(); i++)
+        for (int i = 0; i < scene->models().size(); i++)
             if (scene->models()[i] == parentPointer)
                 return createIndex(int(i + scene->lights().size() + 1), 0, parentPointer);
     } else if (Model* model = qobject_cast<Model*>(grandParentPointer)) {
         // Parent pointer could be Mesh* or Model*
-        for (uint32_t i = 0; i < model->childMeshes().size(); i++)
+        for (int i = 0; i < model->childMeshes().size(); i++)
             if (model->childMeshes()[i] == parentPointer)
                 return createIndex(int(i), 0, parentPointer);
-        for (uint32_t i = 0; i < model->childModels().size(); i++)
+        for (int i = 0; i < model->childModels().size(); i++)
             if (model->childModels()[i] == parentPointer)
                 return createIndex(int(i + model->childMeshes().size()), 0, parentPointer);
     } else if (Mesh* mesh = qobject_cast<Mesh*>(grandParentPointer)) {

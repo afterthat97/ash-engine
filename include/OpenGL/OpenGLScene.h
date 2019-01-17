@@ -7,6 +7,7 @@ class OpenGLScene: public QObject {
 
 public:
     OpenGLScene(Scene* scene);
+    // TODO: Copy constructor
     
     Scene* host() const;
     void bindCamera(QOpenGLShaderProgram* shader);

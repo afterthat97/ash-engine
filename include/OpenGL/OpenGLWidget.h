@@ -10,6 +10,7 @@ class OpenGLWidget: public QOpenGLWidget, protected QOpenGLFunctions {
 
 public:
     OpenGLWidget(QWidget * parent = 0);
+    // TODO: Copy constructor
     OpenGLWidget(Scene * scene, OpenGLRenderer* renderer, QWidget * parent = 0);
 
     void setScene(Scene* scene);
@@ -45,7 +46,6 @@ private:
 
     void processUserInput();
     void configSignals();
-    void configFormat();
 };
 
 class FPSCounter: public QObject {

@@ -9,7 +9,6 @@ OpenGLWidget::OpenGLWidget(QWidget * parent): QOpenGLWidget(parent) {
     m_fpsCounter = new FPSCounter(this);
 
     configSignals();
-    configFormat();
     setAcceptDrops(true);
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -22,7 +21,6 @@ OpenGLWidget::OpenGLWidget(Scene * scene, OpenGLRenderer* renderer, QWidget * pa
     m_fpsCounter = new FPSCounter(this);
 
     configSignals();
-    configFormat();
     setAcceptDrops(true);
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -128,11 +126,4 @@ void OpenGLWidget::configSignals() {
     connect(m_fpsCounter, SIGNAL(fpsChanged(int)), this, SIGNAL(fpsChanged(int)));
     connect(this, SIGNAL(frameSwapped()), m_fpsCounter, SLOT(inc()));
     connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
-}
-
-void OpenGLWidget::configFormat() {
-    QSurfaceFormat openGLFormat;
-    openGLFormat.setVersion(3, 3);
-    openGLFormat.setProfile(QSurfaceFormat::CoreProfile);
-    setFormat(openGLFormat);
 }

@@ -8,6 +8,7 @@ class ModelProperty: public QWidget {
 
 public:
     ModelProperty(Model * model, QWidget * parent = 0);
+    // TODO: Copy constructor
 
 private:
     Model *m_host;
@@ -17,4 +18,7 @@ private:
 
     void configLayout();
     void configSignals();
+
+private slots:
+    // TODO: Connect to host's destroyed signal, commit suicide when host is destroyed.
 };

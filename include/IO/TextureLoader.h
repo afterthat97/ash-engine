@@ -5,7 +5,6 @@
 class TextureLoader {
 public:
     TextureLoader();
-    ~TextureLoader();
 
     QSharedPointer<Texture> loadFromFile(Texture::TextureType textureType, QString filePath, bool no_cache = false);
 

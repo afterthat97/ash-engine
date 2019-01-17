@@ -3,11 +3,14 @@
 #include <OpenGL/Common.h>
 #include <OpenGL/OpenGLRenderer.h>
 
+// TODO: Try to create OpenGLWindow inside a widget
+
 class OpenGLWindow: public QOpenGLWindow, protected QOpenGLFunctions {
     Q_OBJECT
 
 public:
     OpenGLWindow();
+    // TODO: Copy constructor
     ~OpenGLWindow();
 
 protected:

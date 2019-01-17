@@ -2,6 +2,9 @@
 
 #include <UI/Common.h>
 
+// TODO: Represent different types with icons.
+// TODO: Support to select and delete objects.
+
 class SceneTreeModel: public QAbstractItemModel {
     Q_OBJECT
 

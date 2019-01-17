@@ -9,6 +9,7 @@ public:
     FloatEdit(QWidget* parent = 0);
     FloatEdit(float minimum, float maximum, int decimals,
               QWidget* parent = 0);
+    // TODO: Copy constructor
 
     float maximum() const;
     float minimum() const;

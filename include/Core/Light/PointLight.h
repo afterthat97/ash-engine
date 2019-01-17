@@ -7,6 +7,7 @@ class PointLight: public AbstractLight {
 
 public:
     PointLight(QVector3D color = QVector3D(1, 1, 1), QVector3D position = QVector3D(0, 0, 0), QObject* parent = 0);
+    // TODO: Copy constructor
 
     void translate(QVector3D delta);
 

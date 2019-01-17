@@ -1,5 +1,3 @@
-#pragma once
-
 #include <UI/CameraProperty.h>
 
 CameraProperty::CameraProperty(Camera * camera, QWidget * parent): QWidget(parent) {
@@ -68,7 +66,7 @@ void CameraProperty::configSignals() {
 
     connect(m_movingSpeedSlider, SIGNAL(valueSlided(float)), m_host, SLOT(setMovingSpeed(float)));
     connect(m_fieldOfViewSlider, SIGNAL(valueSlided(float)), m_host, SLOT(setFieldOfView(float)));
-    
+
     connect(m_host, SIGNAL(movingSpeedChanged(float)),   m_movingSpeedEdit, SLOT(setValue(float)));
     connect(m_host, SIGNAL(fieldOfViewChanged(float)),   m_fieldOfViewEdit, SLOT(setValue(float)));
     connect(m_host, SIGNAL(nearPlaneChanged(float)),     m_nearPlaneEdit,   SLOT(setValue(float)));

@@ -8,6 +8,7 @@ class Material: public QObject {
 
 public:
     Material(QVector3D color = QVector3D(1, 1, 1), QObject * parent = 0);
+    // TODO: Copy constructor
 
     void dumpObjectInfo(int level = 0);
     void dumpObjectTree(int level = 0);

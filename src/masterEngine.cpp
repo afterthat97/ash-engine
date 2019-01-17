@@ -7,6 +7,11 @@ int main(int argc, char *argv[]) {
 # ifdef WIN32
     QApplication::setFont(QFont("Microsoft YaHei UI", 9));
 # endif
+    QSurfaceFormat openGLFormat;
+    openGLFormat.setVersion(3, 3);
+    openGLFormat.setProfile(QSurfaceFormat::CoreProfile);
+    QSurfaceFormat::setDefaultFormat(openGLFormat);
+
     QApplication a(argc, argv);
 
     Scene* scene = new Scene;

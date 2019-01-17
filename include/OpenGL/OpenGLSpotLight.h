@@ -7,6 +7,7 @@ class OpenGLSpotLight: public QObject {
 
 public:
     OpenGLSpotLight(SpotLight* light);
+    // TODO: Copy constructor
     ~OpenGLSpotLight();
 
     SpotLight* host() const;

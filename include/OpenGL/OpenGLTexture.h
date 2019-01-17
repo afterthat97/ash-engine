@@ -7,6 +7,7 @@ class OpenGLTexture: public QObject {
 
 public:
     OpenGLTexture(Texture* texture);
+    // TODO: Copy constructor
     ~OpenGLTexture();
 
     void bind(QOpenGLShaderProgram* shader);
