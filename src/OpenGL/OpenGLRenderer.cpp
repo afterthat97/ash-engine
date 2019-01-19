@@ -1,21 +1,18 @@
 #include <OpenGL/OpenGLRenderer.h>
 #include <OpenGL/OpenGLManager.h>
-#include <OpenGL/OpenGLConfig.h>
 #include <OpenGL/OpenGLScene.h>
 
 OpenGLRenderer::OpenGLRenderer(QObject* parent): QObject(parent) {
     basicShader = phongShader = 0;
 }
 
+OpenGLRenderer::OpenGLRenderer(const OpenGLRenderer & renderer) {
+    basicShader = phongShader = 0;
+}
+
 void OpenGLRenderer::loadShaders() {
     basicShader = loadShaderFromFile(":/resources/shaders/basic.vert", ":/resources/shaders/basic.frag");
-    basicShader->bindAttributeLocation("position", 0);
     phongShader = loadShaderFromFile(":/resources/shaders/phong.vert", ":/resources/shaders/phong.frag");
-    //phongShader->bindAttributeLocation("position", 0);
-    //phongShader->bindAttributeLocation("normal", 1);
-    //phongShader->bindAttributeLocation("tangent", 2);
-    //phongShader->bindAttributeLocation("bitangent", 3);
-    //phongShader->bindAttributeLocation("texCoords", 4);
 }
 
 void OpenGLRenderer::render(Scene* scene) {
@@ -25,9 +22,6 @@ void OpenGLRenderer::render(Scene* scene) {
     openGLScene->bindCamera(basicShader);
     openGLScene->bindCamera(phongShader);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(OpenGLConfig::getBackgroundColor()[0], OpenGLConfig::getBackgroundColor()[1], OpenGLConfig::getBackgroundColor()[2], 1.0f);
-    
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     openGLScene->renderGridlines(basicShader);
     openGLScene->renderLights(basicShader);

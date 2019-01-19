@@ -7,7 +7,7 @@ class OpenGLRenderer: public QObject {
 
 public:
     OpenGLRenderer(QObject* parent = 0);
-    // TODO: Copy constructor
+    OpenGLRenderer(const OpenGLRenderer& renderer);
 
     void loadShaders();
     void render(Scene* scene);

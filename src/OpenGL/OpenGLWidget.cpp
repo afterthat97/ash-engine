@@ -3,6 +3,7 @@
 
 OpenGLWidget::OpenGLWidget(QWidget * parent): QOpenGLWidget(parent) {
     m_lastCursorPos = QCursor::pos();
+    m_realTimeRendering = true;
     m_captureUserInput = true;
     m_renderer = 0;
     m_host = 0;
@@ -15,6 +16,7 @@ OpenGLWidget::OpenGLWidget(QWidget * parent): QOpenGLWidget(parent) {
 
 OpenGLWidget::OpenGLWidget(Scene * scene, OpenGLRenderer* renderer, QWidget * parent): QOpenGLWidget(parent) {
     m_lastCursorPos = QCursor::pos();
+    m_realTimeRendering = true;
     m_captureUserInput = true;
     m_renderer = renderer;
     m_host = scene;
@@ -26,31 +28,19 @@ OpenGLWidget::OpenGLWidget(Scene * scene, OpenGLRenderer* renderer, QWidget * pa
 }
 
 void OpenGLWidget::setRenderer(OpenGLRenderer * renderer) {
-    if (renderer == 0 || renderer == m_renderer)
-        return;
     m_renderer = renderer;
 }
 
+void OpenGLWidget::setRealTimeRendering(bool realTimeRendering) {
+    m_realTimeRendering = realTimeRendering;
+}
+
 void OpenGLWidget::setScene(Scene * scene) {
-    if (scene == 0 || scene == m_host)
-        return;
     m_host = scene;
 }
 
 void OpenGLWidget::setCaptureUserInput(bool captureUserInput) {
     m_captureUserInput = captureUserInput;
-}
-
-OpenGLRenderer * OpenGLWidget::renderer() {
-    return m_renderer;
-}
-
-Scene * OpenGLWidget::scene() {
-    return m_host;
-}
-
-bool OpenGLWidget::captureUserInput() {
-    return m_captureUserInput;
 }
 
 void OpenGLWidget::initializeGL() {
@@ -59,13 +49,14 @@ void OpenGLWidget::initializeGL() {
 }
 
 void OpenGLWidget::paintGL() {
+    if (!m_realTimeRendering) return;
     if (m_captureUserInput)
         processUserInput();
-    m_renderer->render(m_host);
+    if (m_host) m_renderer->render(m_host);
 }
 
 void OpenGLWidget::resizeGL(int width, int height) {
-    m_host->camera()->setAspectRatio(1.0 * width / height);
+    if (m_host) m_host->camera()->setAspectRatio(1.0 * width / height);
 }
 
 void OpenGLWidget::keyPressEvent(QKeyEvent * event) {
@@ -96,6 +87,7 @@ void OpenGLWidget::dragMoveEvent(QDragMoveEvent * event) {
 }
 
 void OpenGLWidget::dropEvent(QDropEvent * event) {
+    if (!m_host) return;
     foreach(const QUrl &url, event->mimeData()->urls()) {
         ModelLoader loader;
         m_host->addModel(loader.loadFromFile(url.toLocalFile()));
@@ -103,6 +95,7 @@ void OpenGLWidget::dropEvent(QDropEvent * event) {
 }
 
 void OpenGLWidget::processUserInput() {
+    if (!m_host) return;
     float shift = 1.0f;
     if (m_keyPressed[Qt::Key_Shift]) shift *= 5.0f;
     if (m_keyPressed[Qt::Key_W]) m_host->camera()->moveForward(shift);
@@ -126,4 +119,9 @@ void OpenGLWidget::configSignals() {
     connect(m_fpsCounter, SIGNAL(fpsChanged(int)), this, SIGNAL(fpsChanged(int)));
     connect(this, SIGNAL(frameSwapped()), m_fpsCounter, SLOT(inc()));
     connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
+}
+
+void OpenGLWidget::hostDestroyed(QObject * host) {
+    if (host == m_host)
+        m_host = 0;
 }

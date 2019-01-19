@@ -121,10 +121,18 @@ int SceneTreeModel::rowCount(const QModelIndex &parentModelIndex) const {
 
 
 SceneTreeView::SceneTreeView(Scene* scene, QWidget* parent): QTreeView(parent) {
-    m_host = scene;
-    setModel(new SceneTreeModel(m_host, this));
+    setScene(scene);
     connect(selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
             this, SLOT(selectionModelChanged(QModelIndex, QModelIndex)));
+}
+
+void SceneTreeView::setScene(Scene * scene) {
+    m_host = scene;
+    if (m_host) {
+        connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
+        setModel(new SceneTreeModel(m_host, this));
+    } else
+        setModel(0);
 }
 
 void SceneTreeView::selectionModelChanged(const QModelIndex& cntIndex, const QModelIndex& prevIndex) {
@@ -171,5 +179,12 @@ void SceneTreeView::selectionModelChanged(const QModelIndex& cntIndex, const QMo
         } else if (Material* material = qobject_cast<Material*>(pointer)) {
             materialSelected(material);
         }
+    }
+}
+
+void SceneTreeView::hostDestroyed(QObject * host) {
+    if (host == m_host) {
+        m_host = 0;
+        setModel(0);
     }
 }

@@ -21,7 +21,7 @@ private:
     QStatusBar * m_statusBar;
 
     SceneTreeView *m_sceneTreeView;
-    OpenGLWidget *m_openGLWidget;
+    OpenGLWindow *m_openGLWindow;
     QWidget *m_propertyWidget;
 
     QAction *actionFileNew, *actionFileOpen, *actionFileExit;

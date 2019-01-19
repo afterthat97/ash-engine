@@ -29,6 +29,8 @@ class SceneTreeView: public QTreeView {
 public:
     SceneTreeView(Scene* scene, QWidget* parent = 0);
 
+    void setScene(Scene* scene);
+
 signals:
     void cameraSelected(Camera* camera);
     void gridlineSelected(Gridline* gridline);
@@ -55,4 +57,5 @@ private:
 
 private slots:
     void selectionModelChanged(const QModelIndex & cnt, const QModelIndex & prev);
+    void hostDestroyed(QObject* host);
 };

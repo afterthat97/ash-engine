@@ -18,6 +18,11 @@ int main(int argc, char *argv[]) {
     scene->addGridline(new Gridline);
     scene->addLight(new DirectionalLight);
 
+    //OpenGLWindow* window = new OpenGLWindow;
+    //window->setRenderer(new OpenGLRenderer);
+    //window->setScene(scene);
+    //window->show();
+
     MainWindow* window = new MainWindow(scene, 0);
     window->resize(1080, 640);
     window->show();

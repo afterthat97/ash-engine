@@ -18,7 +18,7 @@ MainWindow::MainWindow(Scene * scene, QWidget * parent): QMainWindow(parent) {
     m_statusBar = new QStatusBar(this);
 
     m_sceneTreeView = new SceneTreeView(m_host, this);
-    m_openGLWidget = new OpenGLWidget(m_host, new OpenGLRenderer, this);
+    m_openGLWindow = new OpenGLWindow(m_host, new OpenGLRenderer);
     m_propertyWidget = new QWidget(this);
 
     setMenuBar(m_menuBar);
@@ -78,7 +78,7 @@ void MainWindow::configMenu() {
 
 void MainWindow::configLayout() {
     m_splitter->addWidget(m_sceneTreeView);
-    m_splitter->addWidget(m_openGLWidget);
+    m_splitter->addWidget(QWidget::createWindowContainer(m_openGLWindow));
     m_splitter->addWidget(m_propertyWidget);
     m_splitter->setSizes(QList<int>{160, 500, 340});
 
@@ -88,7 +88,7 @@ void MainWindow::configLayout() {
 }
 
 void MainWindow::configSignals() {
-    connect(m_openGLWidget, SIGNAL(fpsChanged(int)), this, SLOT(fpsChanged(int)));
+    connect(m_openGLWindow, SIGNAL(fpsChanged(int)), this, SLOT(fpsChanged(int)));
 
     connect(m_sceneTreeView, SIGNAL(cameraSelected(Camera*)), this, SLOT(cameraSelected(Camera*)));
     connect(m_sceneTreeView, SIGNAL(gridlineSelected(Gridline*)), this, SLOT(gridlineSelected(Gridline*)));
@@ -171,10 +171,10 @@ void MainWindow::materialSelected(Material * material) {
 }
 
 void MainWindow::fileNew() {
-    m_sceneTreeView->selectionModel()->clearSelection();
     delete m_host;
     m_host = new Scene;
-    m_sceneTreeView->reset();
+    m_sceneTreeView->setScene(m_host);
+    m_openGLWindow->setScene(m_host);
     m_propertyWidget = new CameraProperty(m_host->camera(), this);
     delete m_splitter->replaceWidget(2, m_propertyWidget);
 }
@@ -184,7 +184,6 @@ void MainWindow::fileOpen() {
     ModelLoader loader;
     Model* loadedModel = loader.loadFromFile(filepath);
     m_host->addModel(loadedModel);
-    //m_host->camera()->setDirection(loadedModel->centerOfMass() - m_host->camera()->position());
     m_sceneTreeView->reset();
 }
 

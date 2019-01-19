@@ -2,8 +2,7 @@
 
 #include <OpenGL/Common.h>
 #include <OpenGL/OpenGLRenderer.h>
-
-// TODO: Try to create OpenGLWindow inside a widget
+#include <OpenGL/FPSCounter.h>
 
 class OpenGLWindow: public QOpenGLWindow, protected QOpenGLFunctions {
     Q_OBJECT
@@ -11,7 +10,12 @@ class OpenGLWindow: public QOpenGLWindow, protected QOpenGLFunctions {
 public:
     OpenGLWindow();
     // TODO: Copy constructor
-    ~OpenGLWindow();
+    OpenGLWindow(Scene * scene, OpenGLRenderer* renderer);
+
+    void setScene(Scene* scene);
+    void setRenderer(OpenGLRenderer* renderer);
+    void setRealTimeRendering(bool realTimeRendering);
+    void setCaptureUserInput(bool captureUserInput);
 
 protected:
     void initializeGL() override;
@@ -22,13 +26,20 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
 
-private:
-    OpenGLRenderer * renderer;
-    QHash<int, bool> keyPressed;
-    QPoint lastCursorPos;
+signals:
+    void fpsChanged(int fps);
 
-    int totFrames;
-    QTime time;
+private:
+    QHash<int, bool> m_keyPressed;
+    QPoint m_lastCursorPos;
+    bool m_realTimeRendering, m_captureUserInput;
+    OpenGLRenderer * m_renderer;
+    Scene* m_host;
+    FPSCounter* m_fpsCounter;
 
     void processUserInput();
+    void configSignals();
+
+private slots:
+    void hostDestroyed(QObject* host);
 };

@@ -4,7 +4,7 @@ Camera::Camera(QObject* parent): QObject(parent) {
     reset();
 }
 
-Camera::Camera(QVector3D position, QVector3D direction, QVector3D up, QObject* parent): QObject(parent) {
+Camera::Camera(QVector3D position, QVector3D direction, QObject* parent): QObject(parent) {
     setMovingSpeed(0.1f);
     setFieldOfView(45.0f);
     setNearPlane(0.1f);

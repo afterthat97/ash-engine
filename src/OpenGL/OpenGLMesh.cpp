@@ -19,11 +19,17 @@ OpenGLMesh::OpenGLMesh(Mesh * mesh) {
     m_ebo->allocate(&m_host->indices()[0], int(sizeof(uint32_t) * m_host->indices().size()));
 
     QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
-    QVector<ShaderAttributeConfig> config = OpenGLConfig::getShaderAttributeConfig();
-    for (int i = 0; i < config.size(); i++) {
-        glFuncs->glEnableVertexAttribArray(config[i].indx);
-        glFuncs->glVertexAttribPointer(config[i].indx, config[i].size, GL_FLOAT, GL_FALSE, config[i].stride, config[i].offset);
-    }
+    glFuncs->glEnableVertexAttribArray(0);
+    glFuncs->glEnableVertexAttribArray(1);
+    glFuncs->glEnableVertexAttribArray(2);
+    glFuncs->glEnableVertexAttribArray(3);
+    glFuncs->glEnableVertexAttribArray(4);
+    glFuncs->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
+    glFuncs->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal));
+    glFuncs->glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, tangent));
+    glFuncs->glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, bitangent));
+    glFuncs->glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, texCoords));
+
     m_vao->release();
 
     connect(m_host, SIGNAL(geometryChanged(QVector<Vertex>, QVector<uint32_t>)),
@@ -76,11 +82,16 @@ void OpenGLMesh::geometryChanged(const QVector<Vertex>& vertices, const QVector<
     m_ebo->bind();
     m_ebo->allocate(&indices[0], int(sizeof(uint32_t) * indices.size()));
     QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
-    QVector<ShaderAttributeConfig> config = OpenGLConfig::getShaderAttributeConfig();
-    for (int i = 0; i < config.size(); i++) {
-        glFuncs->glEnableVertexAttribArray(config[i].indx);
-        glFuncs->glVertexAttribPointer(config[i].indx, config[i].size, GL_FLOAT, GL_FALSE, config[i].stride, config[i].offset);
-    }
+    glFuncs->glEnableVertexAttribArray(0);
+    glFuncs->glEnableVertexAttribArray(1);
+    glFuncs->glEnableVertexAttribArray(2);
+    glFuncs->glEnableVertexAttribArray(3);
+    glFuncs->glEnableVertexAttribArray(4);
+    glFuncs->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
+    glFuncs->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal));
+    glFuncs->glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, tangent));
+    glFuncs->glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, bitangent));
+    glFuncs->glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, texCoords));
     m_vao->release();
 }
 
