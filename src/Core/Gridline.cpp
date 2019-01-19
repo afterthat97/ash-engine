@@ -7,6 +7,16 @@ Gridline::Gridline(QObject* parent): QObject(parent) {
 
 // Dump info
 
+Gridline::Gridline(const Gridline & gridline) {
+    m_xRange = gridline.m_xRange;
+    m_yRange = gridline.m_yRange;
+    m_zRange = gridline.m_zRange;
+    m_xStride = gridline.m_xStride;
+    m_yStride = gridline.m_yStride;
+    m_zStride = gridline.m_zStride;
+    m_color = gridline.m_color;
+}
+
 void Gridline::dumpObjectInfo(int l) {
     qDebug().nospace() << tab(l) << "Gridline: " << objectName();
     qDebug().nospace() << tab(l + 1) << "X Range: " << m_xRange;

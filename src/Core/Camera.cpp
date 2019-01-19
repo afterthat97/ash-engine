@@ -4,6 +4,26 @@ Camera::Camera(QObject* parent): QObject(parent) {
     reset();
 }
 
+Camera::Camera(QVector3D position, QVector3D direction, QVector3D up, QObject* parent): QObject(parent) {
+    setMovingSpeed(0.1f);
+    setFieldOfView(45.0f);
+    setNearPlane(0.1f);
+    setFarPlane(100000.0f);
+    setPosition(position);
+    setDirection(direction);
+}
+
+Camera::Camera(const Camera & camera) {
+    m_movingSpeed = camera.m_movingSpeed;
+    m_fieldOfView = camera.m_fieldOfView;
+    m_aspectRatio = camera.m_aspectRatio;
+    m_nearPlane = camera.m_nearPlane;
+    m_farPlane = camera.m_farPlane;
+    m_position = camera.m_position;
+    m_direction = camera.m_direction;
+    m_up = camera.m_up;
+}
+
 void Camera::moveForward(float shift) {
     setPosition(m_position + m_direction * shift * m_movingSpeed);
 }

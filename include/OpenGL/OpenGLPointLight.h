@@ -7,7 +7,6 @@ class OpenGLPointLight: public QObject {
 
 public:
     OpenGLPointLight(PointLight* light);
-    // TODO: Copy constructor
     ~OpenGLPointLight();
 
     PointLight* host() const;

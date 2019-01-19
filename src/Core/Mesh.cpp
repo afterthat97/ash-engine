@@ -2,11 +2,29 @@
 #include <Core/Model.h>
 #include <Core/Material.h>
 
+Mesh::Mesh(QObject * parent): QObject(parent) {
+    m_meshType = Triangle;
+    m_visible = true;
+    m_material = 0;
+    resetTransformation();
+}
+
 Mesh::Mesh(MeshType _meshType, QObject * parent): QObject(parent) {
     m_meshType = _meshType;
     m_visible = true;
     m_material = 0;
     resetTransformation();
+}
+
+Mesh::Mesh(const Mesh & mesh) {
+    m_visible = mesh.m_visible;
+    m_meshType = mesh.m_meshType;
+    m_position = mesh.m_position;
+    m_rotation = mesh.m_rotation;
+    m_scaling = mesh.m_scaling;
+    m_vertices = mesh.m_vertices;
+    m_indices = mesh.m_indices;
+    m_material = new Material(*mesh.m_material);
 }
 
 // Transform functions

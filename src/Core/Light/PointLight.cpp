@@ -1,11 +1,28 @@
 #include <Core/Light/PointLight.h>
 
-PointLight::PointLight(QVector3D color, QVector3D position, QObject * parent): AbstractLight(color, parent) {
+PointLight::PointLight(QObject * parent): AbstractLight(parent) {
+    m_color = QVector3D(1.0f, 1.0f, 1.0f);
+    m_position = QVector3D(0.0f, 0.0f, 0.0f);
+    m_enableAttenuation = false;
+    m_attenuationQuadratic = 0.0007f;
+    m_attenuationLinear = 0.014f;
+    m_attenuationConstant = 1.0f;
+}
+
+PointLight::PointLight(QVector3D color, QVector3D position, QObject * parent) : AbstractLight(color, parent) {
     m_position = position;
     m_enableAttenuation = false;
     m_attenuationQuadratic = 0.0007f;
     m_attenuationLinear = 0.014f;
     m_attenuationConstant = 1.0f;
+}
+
+PointLight::PointLight(const PointLight & light): AbstractLight(light) {
+    m_position = light.m_position;
+    m_enableAttenuation = light.m_enableAttenuation;
+    m_attenuationQuadratic = light.m_attenuationQuadratic;
+    m_attenuationLinear = light.m_attenuationLinear;
+    m_attenuationConstant = light.m_attenuationConstant;
 }
 
 void PointLight::translate(QVector3D delta) {

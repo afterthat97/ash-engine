@@ -12,7 +12,7 @@ public:
         Bump
     };
     Texture(TextureType textureType = Diffuse);
-    // TODO: Copy constructor
+    Texture(const Texture& texture);
 
     void loadFromFile(QString filePath);
     void saveToFile();

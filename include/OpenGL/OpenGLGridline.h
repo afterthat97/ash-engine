@@ -7,7 +7,6 @@ class OpenGLGridline: public QObject {
 
 public:
     OpenGLGridline(Gridline* gridline);
-    // TODO: Copy constructor
     ~OpenGLGridline();
 
     Gridline* host() const;

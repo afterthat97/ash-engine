@@ -7,7 +7,7 @@ class Gridline: public QObject {
 
 public:
     Gridline(QObject* parent = 0);
-    // TODO: Copy constructor
+    Gridline(const Gridline& gridline);
 
     void dumpObjectInfo(int level = 0);
     void dumpObjectTree(int level = 0);

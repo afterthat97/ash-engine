@@ -1,4 +1,8 @@
 #include <Core/Scene.h>
+#include <Core/Light/AmbientLight.h>
+#include <Core/Light/DirectionalLight.h>
+#include <Core/Light/PointLight.h>
+#include <Core/Light/SpotLight.h>
 
 Scene::Scene(): QObject(0) {
     setObjectName("Untitled Scene");
@@ -6,6 +10,23 @@ Scene::Scene(): QObject(0) {
 }
 
 // Add & remove members
+
+Scene::Scene(const Scene & scene) {
+    m_camera = new Camera(*scene.m_camera);
+    for (int i = 0; i < scene.m_gridlines.size(); i++)
+        addGridline(new Gridline(*scene.m_gridlines[i]));
+    for (int i = 0; i < scene.m_lights.size(); i++)
+        if (AmbientLight * light = qobject_cast<AmbientLight*>(scene.m_lights[i]))
+            addLight(new AmbientLight(*light));
+        else if (DirectionalLight * light = qobject_cast<DirectionalLight*>(scene.m_lights[i]))
+            addLight(new DirectionalLight(*light));
+        else if (PointLight * light = qobject_cast<PointLight*>(scene.m_lights[i]))
+            addLight(new PointLight(*light));
+        else if (SpotLight * light = qobject_cast<SpotLight*>(scene.m_lights[i]))
+            addLight(new SpotLight(*light));
+    for (int i = 0; i < scene.m_models.size(); i++)
+        addModel(new Model(*scene.m_models[i]));
+}
 
 bool Scene::setCamera(Camera * camera) {
     if (camera == 0 || m_camera == camera)

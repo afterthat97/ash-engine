@@ -6,8 +6,9 @@ class AbstractLight: public QObject {
     Q_OBJECT
 
 public:
-    AbstractLight(QVector3D color = QVector3D(1, 1, 1), QObject* parent = 0);
-    // TODO: Copy constructor
+    AbstractLight(QObject* parent = 0);
+    AbstractLight(QVector3D color, QObject* parent = 0);
+    AbstractLight(const AbstractLight& light);
 
     virtual void dumpObjectInfo(int level = 0) = 0;
     virtual void dumpObjectTree(int level = 0) = 0;
@@ -28,6 +29,6 @@ signals:
 
 protected:
     QVector3D m_color;
-    float m_intensity;
     bool m_enabled;
+    float m_intensity;
 };

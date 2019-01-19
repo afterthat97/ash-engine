@@ -7,7 +7,6 @@ class OpenGLModel: public QObject {
 
 public:
     OpenGLModel(Model* model);
-    // TODO: Copy constructor
 
     Model* host() const;
     void render(QOpenGLShaderProgram* shader);

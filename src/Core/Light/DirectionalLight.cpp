@@ -1,7 +1,16 @@
 #include <Core/Light/DirectionalLight.h>
 
+DirectionalLight::DirectionalLight(QObject * parent) : AbstractLight(parent) {
+    m_color = QVector3D(1.0f, 1.0f, 1.0f);
+    m_direction = QVector3D(-1.0f, -1.0f, -1.0f);
+}
+
 DirectionalLight::DirectionalLight(QVector3D color, QVector3D direction, QObject * parent): AbstractLight(color, parent) {
     m_direction = direction;
+}
+
+DirectionalLight::DirectionalLight(const DirectionalLight & light): AbstractLight(light) {
+    m_direction = light.m_direction;
 }
 
 void DirectionalLight::dumpObjectInfo(int l) {

@@ -10,7 +10,7 @@ class Scene: public QObject {
 
 public:
     Scene();
-    // TODO: Copy constructor
+    Scene(const Scene& scene);
 
     bool setCamera(Camera* camera);
     bool addGridline(Gridline* gridline);

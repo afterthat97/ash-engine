@@ -14,8 +14,9 @@ public:
         Point
     };
 
-    Mesh(MeshType meshType = Triangle, QObject * parent = 0);
-    // TODO: Copy constructor
+    Mesh(QObject * parent = 0);
+    Mesh(MeshType meshType, QObject * parent = 0);
+    Mesh(const Mesh& mesh);
 
     void translate(QVector3D delta);
     void rotate(QQuaternion rotation);

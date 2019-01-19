@@ -8,6 +8,17 @@ Model::Model(QObject * parent): QObject(parent) {
 
 // Add & remove members
 
+Model::Model(const Model & model) {
+    m_visible = model.m_visible;
+    m_position = model.m_position;
+    m_rotation = model.m_rotation;
+    m_scaling = model.m_scaling;
+    for (int i = 0; i < model.m_childMeshes.size(); i++)
+        addChildMesh(new Mesh(*model.m_childMeshes[i]));
+    for (int i = 0; i < model.m_childModels.size(); i++)
+        addChildModel(new Model(*model.m_childModels[i]));
+}
+
 bool Model::addChildMesh(Mesh * mesh) {
     if (!mesh || m_childMeshes.contains(mesh))
         return false;

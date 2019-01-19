@@ -6,8 +6,9 @@ class DirectionalLight: public AbstractLight {
     Q_OBJECT
 
 public:
-    DirectionalLight(QVector3D color = QVector3D(1, 1, 1), QVector3D direction = QVector3D(-1, -1, -1), QObject* parent = 0);
-    // TODO: Copy constructor
+    DirectionalLight(QObject* parent = 0);
+    DirectionalLight(QVector3D color, QVector3D direction, QObject* parent = 0);
+    DirectionalLight(const DirectionalLight& light);
 
     void dumpObjectInfo(int level = 0) override;
     void dumpObjectTree(int level = 0) override;

@@ -6,6 +6,13 @@ Texture::Texture(TextureType textureType) : QObject(0) {
     m_textureType = textureType;
 }
 
+Texture::Texture(const Texture & texture) {
+    m_enabled = texture.m_enabled;
+    m_textureType = texture.m_textureType;
+    m_filePath = texture.m_filePath;
+    m_image = texture.m_image;
+}
+
 void Texture::loadFromFile(QString filePath) {
     m_filePath = filePath;
     QImageReader reader(m_filePath);

@@ -9,7 +9,7 @@ class Model: public QObject {
 
 public:
     Model(QObject * parent = 0);
-    // TODO: Copy constructor
+    Model(const Model& model);
 
     bool addChildMesh(Mesh* mesh);
     bool addChildModel(Model* model);

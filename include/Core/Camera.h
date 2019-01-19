@@ -7,7 +7,8 @@ class Camera: public QObject {
 
 public:
     Camera(QObject* parent = 0);
-    // TODO: Copy constructor
+    Camera(QVector3D position, QVector3D direction, QVector3D up, QObject* parent = 0);
+    Camera(const Camera& camera);
 
     void moveForward(float shift);
     void moveRight(float shift);

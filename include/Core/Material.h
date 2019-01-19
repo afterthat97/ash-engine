@@ -7,8 +7,9 @@ class Material: public QObject {
     Q_OBJECT
 
 public:
-    Material(QVector3D color = QVector3D(1, 1, 1), QObject * parent = 0);
-    // TODO: Copy constructor
+    Material(QObject * parent = 0);
+    Material(QVector3D color, float ambient, float diffuse, float specular, QObject * parent = 0);
+    Material(const Material& material);
 
     void dumpObjectInfo(int level = 0);
     void dumpObjectTree(int level = 0);

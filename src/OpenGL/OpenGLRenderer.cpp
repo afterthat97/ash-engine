@@ -11,11 +11,11 @@ void OpenGLRenderer::loadShaders() {
     basicShader = loadShaderFromFile(":/resources/shaders/basic.vert", ":/resources/shaders/basic.frag");
     basicShader->bindAttributeLocation("position", 0);
     phongShader = loadShaderFromFile(":/resources/shaders/phong.vert", ":/resources/shaders/phong.frag");
-    phongShader->bindAttributeLocation("position", 0);
-    phongShader->bindAttributeLocation("normal", 1);
-    phongShader->bindAttributeLocation("tangent", 2);
-    phongShader->bindAttributeLocation("bitangent", 3);
-    phongShader->bindAttributeLocation("texCoords", 4);
+    //phongShader->bindAttributeLocation("position", 0);
+    //phongShader->bindAttributeLocation("normal", 1);
+    //phongShader->bindAttributeLocation("tangent", 2);
+    //phongShader->bindAttributeLocation("bitangent", 3);
+    //phongShader->bindAttributeLocation("texCoords", 4);
 }
 
 void OpenGLRenderer::render(Scene* scene) {
