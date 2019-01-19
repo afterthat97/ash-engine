@@ -30,7 +30,7 @@ win32 {
     RC_ICONS = resources/win/AppIcon.ico
 }
 
-HEADERS += \ 
+HEADERS += \
     include/Core/Light/AbstractLight.h \
     include/Core/Light/AmbientLight.h \
     include/Core/Light/DirectionalLight.h \
@@ -51,6 +51,7 @@ HEADERS += \
     include/IO/SceneLoader.h \
     include/IO/TextureLoader.h \
     include/OpenGL/Common.h \
+    include/OpenGL/FPSCounter.h \
     include/OpenGL/OpenGL.h \
     include/OpenGL/OpenGLAmbientLight.h \
     include/OpenGL/OpenGLConfig.h \
@@ -86,7 +87,7 @@ HEADERS += \
     include/UI/Vector3DEdit.h \
     include/UI/Vector3DEditSlider.h
 
-SOURCES += \ 
+SOURCES += \
     src/Core/Light/AbstractLight.cpp \
     src/Core/Light/AmbientLight.cpp \
     src/Core/Light/DirectionalLight.cpp \
@@ -105,6 +106,7 @@ SOURCES += \
     src/OpenGL/OpenGLAmbientLight.cpp \
     src/OpenGL/OpenGLConfig.cpp \
     src/OpenGL/OpenGLDirectionalLight.cpp \
+    src/OpenGL/FPSCounter.cpp \
     src/OpenGL/OpenGLGridline.cpp \
     src/OpenGL/OpenGLManager.cpp \
     src/OpenGL/OpenGLMaterial.cpp \

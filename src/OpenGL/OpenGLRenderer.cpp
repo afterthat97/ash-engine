@@ -6,7 +6,7 @@ OpenGLRenderer::OpenGLRenderer(QObject* parent): QObject(parent) {
     basicShader = phongShader = 0;
 }
 
-OpenGLRenderer::OpenGLRenderer(const OpenGLRenderer & renderer) {
+OpenGLRenderer::OpenGLRenderer(const OpenGLRenderer &) {
     basicShader = phongShader = 0;
 }
 
