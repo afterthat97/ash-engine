@@ -8,7 +8,6 @@ class SpotLightProperty: public QWidget {
 
 public:
     SpotLightProperty(SpotLight * light, QWidget * parent = 0);
-    // TODO: Copy constructor
 
 private:
     SpotLight *m_host;
@@ -23,5 +22,5 @@ private:
     void configSignals();
 
 private slots:
-    // TODO: Connect to host's destroyed signal, commit suicide when host is destroyed.
+    void hostDestroyed(QObject* host);
 };

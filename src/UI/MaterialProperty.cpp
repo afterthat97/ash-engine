@@ -56,6 +56,8 @@ void MaterialProperty::configLayout() {
 }
 
 void MaterialProperty::configSignals() {
+    connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
+
     connect(m_ambientEdit, SIGNAL(valueEdited(float)), m_host, SLOT(setAmbient(float)));
     connect(m_diffuseEdit, SIGNAL(valueEdited(float)), m_host, SLOT(setDiffuse(float)));
     connect(m_specularEdit, SIGNAL(valueEdited(float)), m_host, SLOT(setSpecular(float)));
@@ -75,4 +77,8 @@ void MaterialProperty::configSignals() {
     connect(m_host, SIGNAL(specularChanged(float)), m_specularSlider, SLOT(setValue(float)));
     connect(m_host, SIGNAL(shininessChanged(float)), m_shininessSlider, SLOT(setValue(float)));
     connect(m_host, SIGNAL(colorChanged(QVector3D)), m_colorEditSlider, SLOT(setValue(QVector3D)));
+}
+
+void MaterialProperty::hostDestroyed(QObject *) {
+    delete this;
 }

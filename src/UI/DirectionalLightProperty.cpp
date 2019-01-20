@@ -33,6 +33,8 @@ void DirectionalLightProperty::configLayout() {
 }
 
 void DirectionalLightProperty::configSignals() {
+    connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
+
     connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_host, SLOT(setEnabled(bool)));
     connect(m_intensityEdit, SIGNAL(valueEdited(float)), m_host, SLOT(setIntensity(float)));
     connect(m_intensitySlider, SIGNAL(valueSlided(float)), m_host, SLOT(setIntensity(float)));
@@ -44,4 +46,8 @@ void DirectionalLightProperty::configSignals() {
     connect(m_host, SIGNAL(intensityChanged(float)), m_intensitySlider, SLOT(setValue(float)));
     connect(m_host, SIGNAL(colorChanged(QVector3D)), m_colorEditSlider, SLOT(setValue(QVector3D)));
     connect(m_host, SIGNAL(directionChanged(QVector3D)), m_directionEdit, SLOT(setValue(QVector3D)));
+}
+
+void DirectionalLightProperty::hostDestroyed(QObject *) {
+    delete this;
 }

@@ -17,6 +17,8 @@
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QVariant>
+#include <QTreeView>
+#include <QTreeWidget>
 
 #include <QSplitter>
 #include <QMimeData>

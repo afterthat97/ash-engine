@@ -30,6 +30,8 @@ void AmbientLightProperty::configLayout() {
 }
 
 void AmbientLightProperty::configSignals() {
+    connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
+
     connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_host, SLOT(setEnabled(bool)));
     connect(m_intensityEdit, SIGNAL(valueEdited(float)), m_host, SLOT(setIntensity(float)));
     connect(m_intensitySlider, SIGNAL(valueSlided(float)), m_host, SLOT(setIntensity(float)));
@@ -39,4 +41,9 @@ void AmbientLightProperty::configSignals() {
     connect(m_host, SIGNAL(intensityChanged(float)), m_intensityEdit, SLOT(setValue(float)));
     connect(m_host, SIGNAL(intensityChanged(float)), m_intensitySlider, SLOT(setValue(float)));
     connect(m_host, SIGNAL(colorChanged(QVector3D)), m_colorEditSlider, SLOT(setValue(QVector3D)));
+}
+
+void AmbientLightProperty::hostDestroyed(QObject *) {
+    // Commit suicide
+    delete this;
 }

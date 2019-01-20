@@ -28,6 +28,8 @@ void GridlineProperty::configLayout() {
 }
 
 void GridlineProperty::configSignals() {
+    connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
+
     connect(m_xargsEdit, SIGNAL(valueEdited(QVector3D)), m_host, SLOT(setXArguments(QVector3D)));
     connect(m_yargsEdit, SIGNAL(valueEdited(QVector3D)), m_host, SLOT(setYArguments(QVector3D)));
     connect(m_zargsEdit, SIGNAL(valueEdited(QVector3D)), m_host, SLOT(setZArguments(QVector3D)));
@@ -37,4 +39,8 @@ void GridlineProperty::configSignals() {
     connect(m_host, SIGNAL(yArgumentsChanged(QVector3D)), m_yargsEdit, SLOT(setValue(QVector3D)));
     connect(m_host, SIGNAL(zArgumentsChanged(QVector3D)), m_zargsEdit, SLOT(setValue(QVector3D)));
     connect(m_host, SIGNAL(colorChanged(QVector3D)), m_colorEditSlider, SLOT(setValue(QVector3D)));
+}
+
+void GridlineProperty::hostDestroyed(QObject *) {
+    delete this;
 }

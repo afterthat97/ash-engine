@@ -17,7 +17,7 @@ MainWindow::MainWindow(Scene * scene, QWidget * parent): QMainWindow(parent) {
     m_splitter = new QSplitter(this);
     m_statusBar = new QStatusBar(this);
 
-    m_sceneTreeView = new SceneTreeView(m_host, this);
+    m_sceneTreeView = new SceneTreeWidget(m_host, this);
     m_openGLWindow = new OpenGLWindow(m_host, new OpenGLRenderer);
     m_propertyWidget = new QWidget(this);
 
@@ -89,16 +89,7 @@ void MainWindow::configLayout() {
 
 void MainWindow::configSignals() {
     connect(m_openGLWindow, SIGNAL(fpsChanged(int)), this, SLOT(fpsChanged(int)));
-
-    connect(m_sceneTreeView, SIGNAL(cameraSelected(Camera*)), this, SLOT(cameraSelected(Camera*)));
-    connect(m_sceneTreeView, SIGNAL(gridlineSelected(Gridline*)), this, SLOT(gridlineSelected(Gridline*)));
-    connect(m_sceneTreeView, SIGNAL(ambientLightSelected(AmbientLight*)), this, SLOT(ambientLightSelected(AmbientLight*)));
-    connect(m_sceneTreeView, SIGNAL(directionalLightSelected(DirectionalLight*)), this, SLOT(directionalLightSelected(DirectionalLight*)));
-    connect(m_sceneTreeView, SIGNAL(pointLightSelected(PointLight*)), this, SLOT(pointLightSelected(PointLight*)));
-    connect(m_sceneTreeView, SIGNAL(spotLightSelected(SpotLight*)), this, SLOT(spotLightSelected(SpotLight*)));
-    connect(m_sceneTreeView, SIGNAL(modelSelected(Model*)), this, SLOT(modelSelected(Model*)));
-    connect(m_sceneTreeView, SIGNAL(meshSelected(Mesh*)), this, SLOT(meshSelected(Mesh*)));
-    connect(m_sceneTreeView, SIGNAL(materialSelected(Material*)), this, SLOT(materialSelected(Material*)));
+    connect(m_sceneTreeView, SIGNAL(itemSelected(QVariant)), this, SLOT(itemSelected(QVariant)));
 
     connect(actionFileNew, SIGNAL(triggered(bool)), this, SLOT(fileNew()));
     connect(actionFileOpen, SIGNAL(triggered(bool)), this, SLOT(fileOpen()));
@@ -125,48 +116,26 @@ void MainWindow::fpsChanged(int fps) {
     m_statusBar->showMessage("FPS: " + QString::number(fps));
 }
 
-void MainWindow::cameraSelected(Camera * camera) {
-    m_propertyWidget = new CameraProperty(camera, this);
-    delete m_splitter->replaceWidget(2, m_propertyWidget);
-}
-
-void MainWindow::gridlineSelected(Gridline * gridline) {
-    m_propertyWidget = new GridlineProperty(gridline, this);
-    delete m_splitter->replaceWidget(2, m_propertyWidget);
-}
-
-void MainWindow::ambientLightSelected(AmbientLight * light) {
-    m_propertyWidget = new AmbientLightProperty(light, this);
-    delete m_splitter->replaceWidget(2, m_propertyWidget);
-}
-
-void MainWindow::directionalLightSelected(DirectionalLight * light) {
-    m_propertyWidget = new DirectionalLightProperty(light, this);
-    delete m_splitter->replaceWidget(2, m_propertyWidget);
-}
-
-void MainWindow::pointLightSelected(PointLight * light) {
-    m_propertyWidget = new PointLightProperty(light, this);
-    delete m_splitter->replaceWidget(2, m_propertyWidget);
-}
-
-void MainWindow::spotLightSelected(SpotLight * light) {
-    m_propertyWidget = new SpotLightProperty(light, this);
-    delete m_splitter->replaceWidget(2, m_propertyWidget);
-}
-
-void MainWindow::modelSelected(Model * model) {
-    m_propertyWidget = new ModelProperty(model, this);
-    delete m_splitter->replaceWidget(2, m_propertyWidget);
-}
-
-void MainWindow::meshSelected(Mesh * mesh) {
-    m_propertyWidget = new MeshProperty(mesh, this);
-    delete m_splitter->replaceWidget(2, m_propertyWidget);
-}
-
-void MainWindow::materialSelected(Material * material) {
-    m_propertyWidget = new MaterialProperty(material, this);
+void MainWindow::itemSelected(QVariant item) {
+    if (item.canConvert<Camera*>()) {
+        m_propertyWidget = new CameraProperty(item.value<Camera*>(), this);
+    } else if (item.canConvert<Gridline*>()) {
+        m_propertyWidget = new GridlineProperty(item.value<Gridline*>(), this);
+    } else if (item.canConvert<AmbientLight*>()) {
+        m_propertyWidget = new AmbientLightProperty(item.value<AmbientLight*>(), this);
+    } else if (item.canConvert<DirectionalLight*>()) {
+        m_propertyWidget = new DirectionalLightProperty(item.value<DirectionalLight*>(), this);
+    } else if (item.canConvert<PointLight*>()) {
+        m_propertyWidget = new PointLightProperty(item.value<PointLight*>(), this);
+    } else if (item.canConvert<SpotLight*>()) {
+        m_propertyWidget = new SpotLightProperty(item.value<SpotLight*>(), this);
+    } else if (item.canConvert<Model*>()) {
+        m_propertyWidget = new ModelProperty(item.value<Model*>(), this);
+    } else if (item.canConvert<Mesh*>()) {
+        m_propertyWidget = new MeshProperty(item.value<Mesh*>(), this);
+    } else if (item.canConvert<Material*>()) {
+        m_propertyWidget = new MaterialProperty(item.value<Material*>(), this);
+    }
     delete m_splitter->replaceWidget(2, m_propertyWidget);
 }
 

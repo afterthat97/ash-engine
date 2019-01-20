@@ -34,6 +34,11 @@ void TexturePropertyWidget::configLayout() {
 }
 
 void TexturePropertyWidget::configSignals() {
+    connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
     connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_host, SLOT(setEnabled(bool)));
     connect(m_host, SIGNAL(enabledChanged(bool)), m_enabledCheckBox, SLOT(setChecked(bool)));
+}
+
+void TexturePropertyWidget::hostDestroyed(QObject *) {
+    delete this;
 }

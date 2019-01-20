@@ -1,7 +1,7 @@
 #pragma once
 
 #include <UI/Common.h>
-#include <UI/SceneTreeView.h>
+#include <UI/SceneTreeWidget.h>
 #include <OpenGL/OpenGLWidget.h>
 
 // TODO: Find a better way to manage property widgets.
@@ -20,7 +20,7 @@ private:
     QSplitter * m_splitter;
     QStatusBar * m_statusBar;
 
-    SceneTreeView *m_sceneTreeView;
+    SceneTreeWidget *m_sceneTreeView;
     OpenGLWindow *m_openGLWindow;
     QWidget *m_propertyWidget;
 
@@ -36,16 +36,7 @@ private:
 
 private slots:
     void fpsChanged(int fps);
-
-    void cameraSelected(Camera* camera);
-    void gridlineSelected(Gridline* gridline);
-    void ambientLightSelected(AmbientLight* light);
-    void directionalLightSelected(DirectionalLight* light);
-    void pointLightSelected(PointLight* light);
-    void spotLightSelected(SpotLight* light);
-    void modelSelected(Model* model);
-    void meshSelected(Mesh* mesh);
-    void materialSelected(Material* material);
+    void itemSelected(QVariant item);
 
     void fileNew();
     void fileOpen();

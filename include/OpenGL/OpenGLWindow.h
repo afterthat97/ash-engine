@@ -9,7 +9,6 @@ class OpenGLWindow: public QOpenGLWindow, protected QOpenGLFunctions {
 
 public:
     OpenGLWindow();
-    // TODO: Copy constructor
     OpenGLWindow(Scene * scene, OpenGLRenderer* renderer);
 
     void setScene(Scene* scene);

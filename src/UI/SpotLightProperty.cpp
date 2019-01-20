@@ -57,6 +57,8 @@ void SpotLightProperty::configLayout() {
 }
 
 void SpotLightProperty::configSignals() {
+    connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
+
     connect(m_enabledCheckBox,   SIGNAL(toggled(bool)),          m_host, SLOT(setEnabled(bool)));
     connect(m_intensityEdit,     SIGNAL(valueEdited(float)),     m_host, SLOT(setIntensity(float)));
     connect(m_intensitySlider,   SIGNAL(valueSlided(float)),     m_host, SLOT(setIntensity(float)));
@@ -80,4 +82,8 @@ void SpotLightProperty::configSignals() {
     connect(m_host, SIGNAL(positionChanged(QVector3D)), m_positionEdit, SLOT(setValue(QVector3D)));
     connect(m_host, SIGNAL(enableAttenuationChanged(bool)), m_attenuationEdit, SLOT(setChecked(bool)));
     connect(m_host, SIGNAL(attenuationArgumentsChanged(QVector3D)), m_attenuationEdit, SLOT(setValue(QVector3D)));
+}
+
+void SpotLightProperty::hostDestroyed(QObject *) {
+    delete this;
 }
