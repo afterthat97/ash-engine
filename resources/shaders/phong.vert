@@ -1,10 +1,10 @@
 #version 330 core
 
-in vec3 position;
-in vec3 normal;
-in vec3 tangent;
-in vec3 bitangent;
-in vec2 texCoords;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec3 tangent;
+layout (location = 3) in vec3 bitangent;
+layout (location = 4) in vec2 texCoords;
 
 out vec3 fragPos;
 out vec2 fragTexCoords;
@@ -15,13 +15,12 @@ uniform mat4 viewMat;
 uniform mat4 modelMat;
 
 void main() {
-	vec3 T = normalize(vec3(modelMat * vec4(tangent, 0.0)));
-    vec3 B = normalize(vec3(modelMat * vec4(bitangent, 0.0)));
-    // TODO: Correct normal transformation.
-	vec3 N = normalize(vec3(modelMat * vec4(normal, 0.0)));
+    vec3 T = normalize(mat3(modelMat) * tangent);
+    vec3 B = normalize(mat3(modelMat) * bitangent);
+    vec3 N = normalize(transpose(inverse(mat3(modelMat))) * normal);
 
     gl_Position = projMat * viewMat * modelMat * vec4(position, 1.0f);
     fragPos = vec3(modelMat * vec4(position, 1.0f));
-	fragTexCoords = texCoords;
-	TBN = mat3(T, B, N);
+    fragTexCoords = texCoords;
+    TBN = mat3(T, B, N);
 }

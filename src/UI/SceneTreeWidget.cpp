@@ -28,7 +28,7 @@ void SceneTreeWidget::reload() {
     cameraItem->setText(0, m_host->camera()->objectName());
     cameraItem->setData(0, Qt::UserRole, QVariant::fromValue(m_host->camera()));
     cameraItem->setIcon(0, QIcon(":/resources/icons/CameraIcon.png"));
-    
+
     for (int i = 0; i < m_host->gridlines().size(); i++) {
         QTreeWidgetItem *gridlineItem = new QTreeWidgetItem(rootItem);
         gridlineItem->setData(0, Qt::UserRole, QVariant::fromValue(m_host->gridlines()[i]));
@@ -69,7 +69,8 @@ void SceneTreeWidget::reload() {
 }
 
 void SceneTreeWidget::keyPressEvent(QKeyEvent * e) {
-    if (e->key() == Qt::Key_Delete && currentItem()) {
+    if (!currentItem()) return;
+    if (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace) {
         QVariant item = currentItem()->data(0, Qt::UserRole);
         itemDeselected(item);
         if (item.canConvert<Camera*>()) {

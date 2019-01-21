@@ -70,7 +70,7 @@ vec3 calcAmbientLight(int idx, vec3 color, float ambient) {
 vec3 calcDirectionalLight(int idx, vec3 normal, vec3 color, float diff, float spec) {
     vec3 lightDir = normalize(-directionalLight[idx].direction);
     vec3 viewDir = normalize(viewPos - fragPos);
-	vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 reflectDir = reflect(-lightDir, normal);
 
     vec3 result = vec3(0.0f);
     result += diff * color * max(dot(normal, lightDir), 0.0f);
@@ -80,12 +80,12 @@ vec3 calcDirectionalLight(int idx, vec3 normal, vec3 color, float diff, float sp
 }
 
 vec3 calcPointLight(int idx, vec3 normal, vec3 color, float diff, float spec) {
-	vec3 lightDir = normalize(pointLight[idx].pos - fragPos);
-	vec3 viewDir = normalize(viewPos - fragPos);
-	vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 lightDir = normalize(pointLight[idx].pos - fragPos);
+    vec3 viewDir = normalize(viewPos - fragPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
     float dis = length(pointLight[idx].pos - fragPos);
-    
-	vec3 result = vec3(0.0f);
+
+    vec3 result = vec3(0.0f);
     result += diff * color * max(dot(normal, lightDir), 0.0f);
     result += spec * color * pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
 
@@ -101,7 +101,7 @@ vec3 calcPointLight(int idx, vec3 normal, vec3 color, float diff, float spec) {
 vec3 calcSpotLight(int idx, vec3 normal, vec3 color, float diff, float spec) {
     vec3 lightDir = normalize(spotLight[idx].pos - fragPos);
     vec3 viewDir = normalize(viewPos - fragPos);
-	vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 reflectDir = reflect(-lightDir, normal);
     float dis = length(spotLight[idx].pos - fragPos);
     float theta = dot(lightDir, normalize(-spotLight[idx].direction));
     float intensity = (theta - spotLight[idx].outerCutOff) / (spotLight[idx].innerCutOff - spotLight[idx].outerCutOff);
@@ -109,13 +109,13 @@ vec3 calcSpotLight(int idx, vec3 normal, vec3 color, float diff, float spec) {
     vec3 result = vec3(0.0f);
     result += diff * color * max(dot(normal, lightDir), 0.0f);
     result += spec * color * pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
-        
+
     float attenuation = 1 / (spotLight[idx].attenuationConstant
                             + spotLight[idx].attenuationLinear * dis
                             + spotLight[idx].attenuationQuadratic * dis * dis);
     result *= attenuation * spotLight[idx].enableAttenuation
             + (1 - spotLight[idx].enableAttenuation);
-    
+
     return result * spotLight[idx].color * clamp(intensity, 0.0, 1.0);
 }
 
@@ -129,7 +129,7 @@ void main() {
 
     for (int i = 0; i < ambientLightNum; i++)
         fragColor += vec4(calcAmbientLight(i, color, material.ambient), 1);
-    
+
     for (int i = 0; i < directionalLightNum; i++)
         fragColor += vec4(calcDirectionalLight(i, normal, color, material.diffuse, spec), 1);
 
