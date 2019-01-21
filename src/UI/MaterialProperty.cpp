@@ -8,15 +8,15 @@ MaterialProperty::MaterialProperty(Material * material, QWidget * parent): QWidg
     m_specularLabel  = new QLabel("Specular:",  this);
     m_shininessLabel = new QLabel("Shininess:", this);
 
-    m_ambientEdit   = new FloatEdit(0.0f, 1.0f, 2, this);
-    m_diffuseEdit   = new FloatEdit(0.0f, 1.0f, 2, this);
-    m_specularEdit  = new FloatEdit(0.0f, 1.0f, 2, this);
-    m_shininessEdit = new FloatEdit(0.0f, inf,  2, this);
+    m_ambientEdit   = new FloatEdit(0.0f, inf, 2, this);
+    m_diffuseEdit   = new FloatEdit(0.0f, inf, 2, this);
+    m_specularEdit  = new FloatEdit(0.0f, inf, 2, this);
+    m_shininessEdit = new FloatEdit(0.0f, inf, 2, this);
 
     m_ambientSlider   = new FloatSlider(Qt::Horizontal, 0.0f, 1.0f, this);
     m_diffuseSlider   = new FloatSlider(Qt::Horizontal, 0.0f, 1.0f, this);
     m_specularSlider  = new FloatSlider(Qt::Horizontal, 0.0f, 1.0f, this);
-    m_shininessSlider = new FloatSlider(Qt::Horizontal, 0.0f, inf,  this);
+    m_shininessSlider = new FloatSlider(Qt::Horizontal, 0.0f, 100.0f,  this);
 
     m_colorEditSlider = new Vector3DEditSlider("Color", Qt::Horizontal, "R", "G", "B", 0.0f, 1.0f, 2, this);
 
@@ -62,10 +62,10 @@ void MaterialProperty::configSignals() {
     connect(m_diffuseEdit, SIGNAL(valueEdited(float)), m_host, SLOT(setDiffuse(float)));
     connect(m_specularEdit, SIGNAL(valueEdited(float)), m_host, SLOT(setSpecular(float)));
     connect(m_shininessEdit, SIGNAL(valueEdited(float)), m_host, SLOT(setShininess(float)));
-    connect(m_ambientSlider, SIGNAL(valueSlided(float)), m_host, SLOT(setAmbient(float)));
-    connect(m_diffuseSlider, SIGNAL(valueSlided(float)), m_host, SLOT(setDiffuse(float)));
-    connect(m_specularSlider, SIGNAL(valueSlided(float)), m_host, SLOT(setSpecular(float)));
-    connect(m_shininessSlider, SIGNAL(valueSlided(float)), m_host, SLOT(setShininess(float)));
+    connect(m_ambientSlider, SIGNAL(sliderMoved(float)), m_host, SLOT(setAmbient(float)));
+    connect(m_diffuseSlider, SIGNAL(sliderMoved(float)), m_host, SLOT(setDiffuse(float)));
+    connect(m_specularSlider, SIGNAL(sliderMoved(float)), m_host, SLOT(setSpecular(float)));
+    connect(m_shininessSlider, SIGNAL(sliderMoved(float)), m_host, SLOT(setShininess(float)));
     connect(m_colorEditSlider, SIGNAL(valueEdited(QVector3D)), m_host, SLOT(setColor(QVector3D)));
 
     connect(m_host, SIGNAL(ambientChanged(float)), m_ambientEdit, SLOT(setValue(float)));

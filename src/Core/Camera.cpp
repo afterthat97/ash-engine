@@ -1,19 +1,22 @@
 #include <Core/Camera.h>
 
-Camera::Camera(QObject* parent): QObject(parent) {
+Camera::Camera(QObject* parent): QObject(0) {
     reset();
+    setObjectName("Camera");
+    setParent(parent);
 }
 
-Camera::Camera(QVector3D position, QVector3D direction, QObject* parent): QObject(parent) {
+Camera::Camera(QVector3D position, QVector3D direction, QObject* parent): QObject(0) {
     setMovingSpeed(0.1f);
     setFieldOfView(45.0f);
     setNearPlane(0.1f);
     setFarPlane(100000.0f);
     setPosition(position);
     setDirection(direction);
+    setParent(parent);
 }
 
-Camera::Camera(const Camera & camera) {
+Camera::Camera(const Camera & camera): QObject(0) {
     m_movingSpeed = camera.m_movingSpeed;
     m_fieldOfView = camera.m_fieldOfView;
     m_aspectRatio = camera.m_aspectRatio;
@@ -113,10 +116,11 @@ QMatrix4x4 Camera::viewMatrix() const {
 void Camera::reset() {
     setMovingSpeed(0.1f);
     setFieldOfView(45.0f);
+    setAspectRatio(1.0f);
     setNearPlane(0.1f);
     setFarPlane(100000.0f);
-    setPosition(QVector3D(0, 2, 10));
-    setDirection(QVector3D(0, 0, -1));
+    setPosition(QVector3D(40, 40, 40));
+    setDirection(QVector3D(-1, -1, -1));
 }
 
 void Camera::setMovingSpeed(float movingSpeed) {

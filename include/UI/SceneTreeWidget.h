@@ -2,9 +2,6 @@
 
 #include <UI/Common.h>
 
-// TODO: Represent different types with icons.
-// TODO: Support to select and delete objects.
-
 class SceneTreeWidget: public QTreeWidget {
     Q_OBJECT
 
@@ -12,7 +9,12 @@ public:
     SceneTreeWidget(Scene* scene, QWidget* parent = 0);
 
     void setScene(Scene* scene);
+
+public slots:
     void reload();
+
+protected:
+    void keyPressEvent(QKeyEvent *e) override;
 
 signals:
     void itemSelected(QVariant item);
@@ -25,6 +27,5 @@ private:
 
 private slots:
     void currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
-    void hostChanged();
     void hostDestroyed(QObject* host);
 };

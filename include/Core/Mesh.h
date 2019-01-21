@@ -9,9 +9,9 @@ class Mesh: public QObject {
 
 public:
     enum MeshType {
-        Triangle,
-        Line,
-        Point
+        Triangle = 0,
+        Line = 1,
+        Point = 2
     };
 
     Mesh(QObject * parent = 0);
@@ -72,3 +72,5 @@ private:
     QVector<uint32_t> m_indices;
     Material *m_material;
 };
+
+QDataStream &operator>>(QDataStream &in, Mesh::MeshType& meshType);

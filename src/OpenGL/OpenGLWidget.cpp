@@ -1,17 +1,14 @@
 #include <OpenGL/OpenGLWidget.h>
-#include <IO/ModelLoader.h>
+#include <OpenGL/OpenGLConfig.h>
 
 OpenGLWidget::OpenGLWidget(QWidget * parent): QOpenGLWidget(parent) {
     m_lastCursorPos = QCursor::pos();
     m_realTimeRendering = true;
     m_captureUserInput = true;
     m_renderer = 0;
-    m_host = 0;
     m_fpsCounter = new FPSCounter(this);
-
+    setScene(0);
     configSignals();
-    setAcceptDrops(true);
-    setFocusPolicy(Qt::StrongFocus);
 }
 
 OpenGLWidget::OpenGLWidget(Scene * scene, OpenGLRenderer* renderer, QWidget * parent): QOpenGLWidget(parent) {
@@ -19,12 +16,15 @@ OpenGLWidget::OpenGLWidget(Scene * scene, OpenGLRenderer* renderer, QWidget * pa
     m_realTimeRendering = true;
     m_captureUserInput = true;
     m_renderer = renderer;
-    m_host = scene;
     m_fpsCounter = new FPSCounter(this);
-
+    setScene(scene);
     configSignals();
-    setAcceptDrops(true);
-    setFocusPolicy(Qt::StrongFocus);
+}
+
+void OpenGLWidget::setScene(Scene * scene) {
+    m_host = scene;
+    if (m_host)
+        connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
 }
 
 void OpenGLWidget::setRenderer(OpenGLRenderer * renderer) {
@@ -35,12 +35,18 @@ void OpenGLWidget::setRealTimeRendering(bool realTimeRendering) {
     m_realTimeRendering = realTimeRendering;
 }
 
-void OpenGLWidget::setScene(Scene * scene) {
-    m_host = scene;
-}
-
 void OpenGLWidget::setCaptureUserInput(bool captureUserInput) {
     m_captureUserInput = captureUserInput;
+}
+
+void OpenGLWidget::childEvent(QChildEvent * e) {
+    if (e->added()) {
+        if (OpenGLRenderer* renderer = qobject_cast<OpenGLRenderer*>(e->child()))
+            setRenderer(renderer);
+    } else if (e->removed()) {
+        if (m_renderer == e->child())
+            setRenderer(0);
+    }
 }
 
 void OpenGLWidget::initializeGL() {
@@ -49,10 +55,16 @@ void OpenGLWidget::initializeGL() {
 }
 
 void OpenGLWidget::paintGL() {
-    if (!m_realTimeRendering) return;
+    if (!m_realTimeRendering)
+        return;
     if (m_captureUserInput)
         processUserInput();
-    if (m_host) m_renderer->render(m_host);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(OpenGLConfig::getBackgroundColor()[0], OpenGLConfig::getBackgroundColor()[1], OpenGLConfig::getBackgroundColor()[2], 1.0f);
+
+    if (m_host)
+        m_renderer->render(m_host);
 }
 
 void OpenGLWidget::resizeGL(int width, int height) {
@@ -76,22 +88,9 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent * event) {
     m_keyPressed[event->button()] = false;
 }
 
-void OpenGLWidget::dragEnterEvent(QDragEnterEvent * event) {
-    if (event->mimeData()->hasUrls())
-        event->acceptProposedAction();
-}
-
-void OpenGLWidget::dragMoveEvent(QDragMoveEvent * event) {
-    if (event->mimeData()->hasUrls())
-        event->acceptProposedAction();
-}
-
-void OpenGLWidget::dropEvent(QDropEvent * event) {
-    if (!m_host) return;
-    foreach(const QUrl &url, event->mimeData()->urls()) {
-        ModelLoader loader;
-        m_host->addModel(loader.loadFromFile(url.toLocalFile()));
-    }
+void OpenGLWidget::focusOutEvent(QFocusEvent *) {
+    for (int i = 0; i < m_keyPressed.keys().size(); i++)
+        m_keyPressed[m_keyPressed.keys()[i]] = false;
 }
 
 void OpenGLWidget::processUserInput() {
@@ -122,6 +121,7 @@ void OpenGLWidget::configSignals() {
 }
 
 void OpenGLWidget::hostDestroyed(QObject * host) {
-    if (host == m_host)
+    if (host == m_host) {
         m_host = 0;
+    }
 }

@@ -5,7 +5,6 @@ TexturePropertyWidget::TexturePropertyWidget(Texture * texture, QWidget * parent
 
     m_enabledCheckBox  = new QCheckBox("Enabled", this);
     m_textureTypeLabel = new QLabel(this);
-    m_filePathLabel    = new QLabel(this);
     m_imageLabel       = new QLabel(this);
 
     m_enabledCheckBox->setChecked(m_host->enabled());
@@ -16,7 +15,6 @@ TexturePropertyWidget::TexturePropertyWidget(Texture * texture, QWidget * parent
     } else if (texture->textureType() == Texture::Bump) {
         m_textureTypeLabel->setText("Type: Bump map");
     }
-    m_filePathLabel->setText("Path: " + m_host->filePath());
     m_imageLabel->setPixmap(QPixmap::fromImage(texture->image()).scaled(300, 300, Qt::KeepAspectRatio));
 
     configLayout();
@@ -28,7 +26,6 @@ void TexturePropertyWidget::configLayout() {
     mainLayout->setAlignment(Qt::AlignTop);
     mainLayout->addWidget(m_enabledCheckBox);
     mainLayout->addWidget(m_textureTypeLabel);
-    mainLayout->addWidget(m_filePathLabel);
     mainLayout->addWidget(m_imageLabel);
     setLayout(mainLayout);
 }

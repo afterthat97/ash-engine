@@ -1,13 +1,14 @@
 #include <Core/Gridline.h>
 #include <Core/Model.h>
 
-Gridline::Gridline(QObject* parent): QObject(parent) {
+Gridline::Gridline(QObject* parent): QObject(0) {
     reset();
+    setParent(parent);
 }
 
 // Dump info
 
-Gridline::Gridline(const Gridline & gridline) {
+Gridline::Gridline(const Gridline & gridline): QObject(0) {
     m_xRange = gridline.m_xRange;
     m_yRange = gridline.m_yRange;
     m_zRange = gridline.m_zRange;
@@ -65,10 +66,10 @@ QVector3D Gridline::color() const {
 // Public slots
 
 void Gridline::reset() {
-    setXRange(-100.0f, 100.0f);
+    setXRange(-20.0f, 20.0f);
     setYRange(0.0f, 0.0f);
-    setZRange(-100.0f, 100.0f);
-    setStride(4.0f, 4.0f, 4.0f);
+    setZRange(-20.0f, 20.0f);
+    setStride(1.0f, 1.0f, 1.0f);
     setColor(QVector3D(0.4f, 0.4f, 0.4f));
 }
 

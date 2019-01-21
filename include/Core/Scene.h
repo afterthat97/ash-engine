@@ -8,6 +8,9 @@
 #include <Core/Light/SpotLight.h>
 #include <Core/Model.h>
 
+class SceneLoader;
+class SceneSaver;
+
 class Scene: public QObject {
     Q_OBJECT
 
@@ -24,9 +27,9 @@ public:
     bool addSpotLight(SpotLight* light);
     bool addModel(Model* model);
 
-    bool removeGridline(Gridline* gridline);
-    bool removeLight(AbstractLight* light);
-    bool removeModel(Model* model);
+    bool removeGridline(QObject* gridline);
+    bool removeLight(QObject* light);
+    bool removeModel(QObject* model, bool recursive);
 
     void dumpObjectInfo(int level = 0);
     void dumpObjectTree(int level = 0);
@@ -41,7 +44,7 @@ public:
     const QVector<Model*>& models() const;
 
 signals:
-    void sceneChanged();
+    void childrenChanged();
 
 protected:
     void childEvent(QChildEvent *event) override;
@@ -54,4 +57,13 @@ private:
     QVector<PointLight*> m_pointLights;
     QVector<SpotLight*> m_spotLights;
     QVector<Model*> m_models;
+
+    int m_gridlineNameCounter;
+    int m_ambientLightNameCounter;
+    int m_directionalLightNameCounter;
+    int m_pointLightNameCounter;
+    int m_spotLightNameCounter;
+
+    friend SceneLoader;
+    friend SceneSaver;
 };

@@ -9,23 +9,7 @@ Texture::Texture(TextureType textureType) : QObject(0) {
 Texture::Texture(const Texture & texture) {
     m_enabled = texture.m_enabled;
     m_textureType = texture.m_textureType;
-    m_filePath = texture.m_filePath;
     m_image = texture.m_image;
-}
-
-void Texture::loadFromFile(QString filePath) {
-    m_filePath = filePath;
-    QImageReader reader(m_filePath);
-    m_image = reader.read().mirrored();
-    if (m_image.isNull()) {
-        qWarning() << reader.errorString();
-    }
-    filePathChanged(m_filePath);
-    imageChanged(m_image);
-}
-
-void Texture::saveToFile() {
-    m_image.save(m_filePath);
 }
 
 void Texture::dumpObjectInfo(int l) {
@@ -33,7 +17,6 @@ void Texture::dumpObjectInfo(int l) {
     qDebug().nospace() << tab(l + 1) << "Enabled: " << m_enabled;
     qDebug().nospace() << tab(l + 1) << "Type: " <<
         (m_textureType == Diffuse ? "Diffuse" : (m_textureType == Specular ? "Specular" : "Height"));
-    qDebug().nospace() << tab(l + 1) << "Filepath: " << m_filePath;
     qDebug().nospace() << tab(l + 1) << "Resolution: " << m_image.width() << "*" << m_image.height();
 }
 
@@ -47,10 +30,6 @@ bool Texture::enabled() const {
 
 Texture::TextureType Texture::textureType() const {
     return m_textureType;
-}
-
-QString Texture::filePath() const {
-    return m_filePath;
 }
 
 const QImage & Texture::image() const {
@@ -69,4 +48,23 @@ void Texture::setTextureType(TextureType textureType) {
         m_textureType = textureType;
         textureTypeChanged(m_textureType);
     }
+}
+
+void Texture::setImage(const QImage & image) {
+    if (m_image != image) {
+        m_image = image;
+        imageChanged(m_image);
+    }
+}
+
+QDataStream & operator>>(QDataStream & in, Texture::TextureType & textureType) {
+    qint32 t;
+    in >> t;
+    if (t == 0)
+        textureType = Texture::Diffuse;
+    else if (t == 1)
+        textureType = Texture::Specular;
+    else
+        textureType = Texture::Bump;
+    return in;
 }

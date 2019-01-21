@@ -14,8 +14,8 @@ public:
     bool addChildMesh(Mesh* mesh);
     bool addChildModel(Model* model);
 
-    bool removeChildMesh(Mesh* mesh);
-    bool removeChildModel(Model* model);
+    bool removeChildMesh(QObject* mesh, bool recursive);
+    bool removeChildModel(QObject* model, bool recursive);
 
     void translate(QVector3D delta);
     void rotate(QQuaternion rotation);
@@ -52,10 +52,7 @@ signals:
     void positionChanged(QVector3D position);
     void rotationChanged(QVector3D rotation);
     void scalingChanged(QVector3D scaling);
-    void childMeshAdded(Mesh* mesh);
-    void childMeshRemoved(Mesh* mesh);
-    void childModelAdded(Model* model);
-    void childModelRemoved(Model* model);
+    void childrenChanged();
 
 protected:
     void childEvent(QChildEvent *event) override;

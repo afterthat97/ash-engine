@@ -15,7 +15,6 @@ public:
     
     Model* loadFromFile(QString filePath);
 
-    // TODO: Provide support for detailed arguments, e.g. width, height
     static Model* loadConeModel();
     static Model* loadCubeModel();
     static Model* loadCylinderModel();

@@ -1,14 +1,15 @@
 #include <Core/Model.h>
 #include <Core/Mesh.h>
 
-Model::Model(QObject * parent): QObject(parent) {
+Model::Model(QObject * parent): QObject(0) {
     m_visible = true;
     resetTransformation();
+    setParent(parent);
 }
 
 // Add & remove members
 
-Model::Model(const Model & model) {
+Model::Model(const Model & model): QObject(0) {
     m_visible = model.m_visible;
     m_position = model.m_position;
     m_rotation = model.m_rotation;
@@ -24,7 +25,8 @@ bool Model::addChildMesh(Mesh * mesh) {
         return false;
     m_childMeshes.push_back(mesh);
     mesh->setParent(this);
-    childMeshAdded(mesh);
+    connect(mesh, SIGNAL(materialChanged(Material*)), this, SIGNAL(childrenChanged()));
+    childrenChanged();
     return true;
 }
 
@@ -33,27 +35,36 @@ bool Model::addChildModel(Model * model) {
         return false;
     m_childModels.push_back(model);
     model->setParent(this);
-    childModelAdded(model);
+    connect(model, SIGNAL(childrenChanged()), this, SIGNAL(childrenChanged()));
+    childrenChanged();
     return true;
 }
 
-bool Model::removeChildMesh(Mesh * mesh) {
+bool Model::removeChildMesh(QObject * mesh, bool recursive) {
     for (int i = 0; i < m_childMeshes.size(); i++)
         if (m_childMeshes[i] == mesh) {
             m_childMeshes.erase(m_childMeshes.begin() + i);
-            childMeshRemoved(mesh);
+            childrenChanged();
             return true;
         }
+    if (!recursive) return false;
+    for (int i = 0; i < m_childModels.size(); i++)
+        if (m_childModels[i]->removeChildMesh(mesh, recursive))
+            return true;
     return false;
 }
 
-bool Model::removeChildModel(Model * model) {
+bool Model::removeChildModel(QObject * model, bool recursive) {
     for (int i = 0; i < m_childModels.size(); i++)
         if (m_childModels[i] == model) {
             m_childModels.erase(m_childModels.begin() + i);
-            childModelRemoved(model);
+            childrenChanged();
             return true;
         }
+    if (!recursive) return false;
+    for (int i = 0; i < m_childModels.size(); i++)
+        if (m_childModels[i]->removeChildModel(model, recursive))
+            return true;
     return false;
 }
 
@@ -224,9 +235,7 @@ void Model::childEvent(QChildEvent * e) {
         else if (Mesh* mesh = qobject_cast<Mesh*>(e->child()))
             addChildMesh(mesh);
     } else if (e->removed()) {
-        if (Model* model = qobject_cast<Model*>(e->child()))
-            removeChildModel(model);
-        else if (Mesh* mesh = qobject_cast<Mesh*>(e->child()))
-            removeChildMesh(mesh);
+        removeChildModel(e->child(), false);
+        removeChildMesh(e->child(), false);
     }
 }

@@ -1,8 +1,8 @@
 #include <Core/Light/SpotLight.h>
 
-SpotLight::SpotLight(QObject * parent): AbstractLight(parent) {
+SpotLight::SpotLight(QObject * parent): AbstractLight() {
     m_color = QVector3D(1.0f, 1.0f, 1.0f);
-    m_position = QVector3D(1.0f, 1.0f, 1.0f);
+    m_position = QVector3D(0.0f, 0.0f, 0.0f);
     m_direction = QVector3D(0.0f, -1.0f, 0.0f);
     m_innerCutOff = 30.0f;
     m_outerCutOff = 45.0f;
@@ -10,10 +10,11 @@ SpotLight::SpotLight(QObject * parent): AbstractLight(parent) {
     m_attenuationQuadratic = 0.0007f;
     m_attenuationLinear = 0.014f;
     m_attenuationConstant = 1.0f;
+    setParent(parent);
 }
 
 SpotLight::SpotLight(QVector3D color, QVector3D position, QVector3D direction, QObject * parent)
-: AbstractLight(color, parent) {
+: AbstractLight(color) {
     m_position = position;
     m_direction = direction;
     m_innerCutOff = 30.0f;
@@ -22,6 +23,7 @@ SpotLight::SpotLight(QVector3D color, QVector3D position, QVector3D direction, Q
     m_attenuationQuadratic = 0.0007f;
     m_attenuationLinear = 0.014f;
     m_attenuationConstant = 1.0f;
+    setParent(parent);
 }
 
 SpotLight::SpotLight(const SpotLight & light): AbstractLight(light) {
@@ -99,7 +101,7 @@ float SpotLight::attenuationConstant() const {
 void SpotLight::setPosition(QVector3D position) {
     if (!qFuzzyCompare(m_position, position)) {
         m_position = position;
-        directionChanged(m_position);
+        positionChanged(m_position);
     }
 }
 

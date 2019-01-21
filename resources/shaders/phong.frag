@@ -63,8 +63,8 @@ uniform SpotLight spotLight[8];
 uniform vec3 viewPos;
 uniform PhongMaterial material;
 
-vec3 calcAmbientLight(int idx, vec3 color) {
-    return color * ambientLight[idx].color;
+vec3 calcAmbientLight(int idx, vec3 color, float ambient) {
+    return ambient * color * ambientLight[idx].color;
 }
 
 vec3 calcDirectionalLight(int idx, vec3 normal, vec3 color, float diff, float spec) {
@@ -125,10 +125,10 @@ void main() {
     vec3 normal = texture(material.bumpMap, fragTexCoords).rgb + material.bump;
     normal = normalize(TBN * (normal * 2 - 1));
 
-    fragColor = vec4(color * material.ambient, 1);
+    fragColor = vec4(0, 0, 0, 1);
 
     for (int i = 0; i < ambientLightNum; i++)
-        fragColor += vec4(calcAmbientLight(i, color), 1);
+        fragColor += vec4(calcAmbientLight(i, color, material.ambient), 1);
     
     for (int i = 0; i < directionalLightNum; i++)
         fragColor += vec4(calcDirectionalLight(i, normal, color, material.diffuse, spec), 1);

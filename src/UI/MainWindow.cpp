@@ -16,22 +16,54 @@ MainWindow::MainWindow(Scene * scene, QWidget * parent): QMainWindow(parent) {
     m_centralWidget = new QWidget(this);
     m_splitter = new QSplitter(this);
     m_statusBar = new QStatusBar(this);
+    m_fpsLabel = new QLabel(this);
+    m_statusBar->addPermanentWidget(m_fpsLabel);
 
-    m_sceneTreeView = new SceneTreeWidget(m_host, this);
+    m_sceneTreeWidget = new SceneTreeWidget(m_host, this);
     m_openGLWindow = new OpenGLWindow(m_host, new OpenGLRenderer);
     m_propertyWidget = new QWidget(this);
 
     setMenuBar(m_menuBar);
     setCentralWidget(m_centralWidget);
     setStatusBar(m_statusBar);
+    setAcceptDrops(true);
+    setFocusPolicy(Qt::StrongFocus);
+
     configMenu();
     configLayout();
     configSignals();
+
+    resize(1200, 720);
+    helpCheckForUpdates();
+}
+
+void MainWindow::resizeEvent(QResizeEvent *) {
+    m_splitter->setSizes(QList<int>{160, width() - 160 - 300, 300});
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent * event) {
+    if (event->mimeData()->hasUrls())
+        event->acceptProposedAction();
+}
+
+void MainWindow::dragMoveEvent(QDragMoveEvent * event) {
+    if (event->mimeData()->hasUrls())
+        event->acceptProposedAction();
+}
+
+void MainWindow::dropEvent(QDropEvent * event) {
+    if (!m_host) return;
+    foreach(const QUrl &url, event->mimeData()->urls()) {
+        ModelLoader loader;
+        m_host->addModel(loader.loadFromFile(url.toLocalFile()));
+    }
 }
 
 void MainWindow::configMenu() {
     actionFileNew = new QAction("New", this);
     actionFileOpen = new QAction("Open", this);
+    actionFileLoadModel = new QAction("Load Model", this);
+    actionFileSave = new QAction("Save", this);
     actionFileExit = new QAction("Exit", this);
 
     actionCreateGridline = new QAction("Gridline", this);
@@ -53,6 +85,8 @@ void MainWindow::configMenu() {
     QMenu *menuFile = m_menuBar->addMenu("File");
     menuFile->addAction(actionFileNew);
     menuFile->addAction(actionFileOpen);
+    menuFile->addAction(actionFileLoadModel);
+    menuFile->addAction(actionFileSave);
     menuFile->addAction(actionFileExit);
 
     QMenu *menuCreate = m_menuBar->addMenu("Create");
@@ -77,10 +111,10 @@ void MainWindow::configMenu() {
 }
 
 void MainWindow::configLayout() {
-    m_splitter->addWidget(m_sceneTreeView);
+    m_splitter->addWidget(m_sceneTreeWidget);
     m_splitter->addWidget(QWidget::createWindowContainer(m_openGLWindow));
     m_splitter->addWidget(m_propertyWidget);
-    m_splitter->setSizes(QList<int>{160, 500, 340});
+    m_splitter->setSizes(QList<int>{160, width() - 160 - 300, 300});
 
     QHBoxLayout * mainLayout = new QHBoxLayout;
     mainLayout->addWidget(m_splitter);
@@ -89,10 +123,13 @@ void MainWindow::configLayout() {
 
 void MainWindow::configSignals() {
     connect(m_openGLWindow, SIGNAL(fpsChanged(int)), this, SLOT(fpsChanged(int)));
-    connect(m_sceneTreeView, SIGNAL(itemSelected(QVariant)), this, SLOT(itemSelected(QVariant)));
+    connect(m_sceneTreeWidget, SIGNAL(itemSelected(QVariant)), this, SLOT(itemSelected(QVariant)));
+    connect(m_sceneTreeWidget, SIGNAL(itemDeselected(QVariant)), this, SLOT(itemDeselected(QVariant)));
 
     connect(actionFileNew, SIGNAL(triggered(bool)), this, SLOT(fileNew()));
     connect(actionFileOpen, SIGNAL(triggered(bool)), this, SLOT(fileOpen()));
+    connect(actionFileLoadModel, SIGNAL(triggered(bool)), this, SLOT(fileLoadModel()));
+    connect(actionFileSave, SIGNAL(triggered(bool)), this, SLOT(fileSave()));
     connect(actionFileExit, SIGNAL(triggered(bool)), this, SLOT(fileExit()));
 
     connect(actionCreateGridline, SIGNAL(triggered(bool)), this, SLOT(createGridline()));
@@ -113,7 +150,7 @@ void MainWindow::configSignals() {
 }
 
 void MainWindow::fpsChanged(int fps) {
-    m_statusBar->showMessage("FPS: " + QString::number(fps));
+    m_fpsLabel->setText("FPS: " + QString::number(fps));
 }
 
 void MainWindow::itemSelected(QVariant item) {
@@ -139,21 +176,46 @@ void MainWindow::itemSelected(QVariant item) {
     delete m_splitter->replaceWidget(2, m_propertyWidget);
 }
 
-void MainWindow::fileNew() {
-    delete m_host;
-    m_host = new Scene;
-    m_sceneTreeView->setScene(m_host);
-    m_openGLWindow->setScene(m_host);
-    m_propertyWidget = new CameraProperty(m_host->camera(), this);
+void MainWindow::itemDeselected(QVariant) {
+    m_propertyWidget = new QWidget(this);
     delete m_splitter->replaceWidget(2, m_propertyWidget);
 }
 
+void MainWindow::fileNew() {
+    m_propertyWidget = new QWidget(this);
+    delete m_splitter->replaceWidget(2, m_propertyWidget);
+    delete m_host;
+    m_host = new Scene;
+    m_host->addGridline(new Gridline);
+    m_sceneTreeWidget->setScene(m_host);
+    m_openGLWindow->setScene(m_host);
+}
+
 void MainWindow::fileOpen() {
-    QString filepath = QFileDialog::getOpenFileName(this, "Load Model(s)", "", "All Files (*)");
+    QString filePath = QFileDialog::getOpenFileName(this, "Open Project", "", "Ash Engine Project (*.aeproj)");
+    SceneLoader loader;
+    Scene* scene = loader.loadFromFile(filePath);
+    if (scene) {
+        m_propertyWidget = new QWidget(this);
+        delete m_splitter->replaceWidget(2, m_propertyWidget);
+        delete m_host;
+        m_host = scene;
+        m_sceneTreeWidget->setScene(m_host);
+        m_openGLWindow->setScene(m_host);
+    }
+}
+
+void MainWindow::fileLoadModel() {
+    QString filePath = QFileDialog::getOpenFileName(this, "Load Model", "", "All Files (*)");
     ModelLoader loader;
-    Model* loadedModel = loader.loadFromFile(filepath);
+    Model* loadedModel = loader.loadFromFile(filePath);
     m_host->addModel(loadedModel);
-    m_sceneTreeView->reset();
+}
+
+void MainWindow::fileSave() {
+    QString filePath = QFileDialog::getSaveFileName(this, "Save Project", "", "Ash Engine Project (*.aeproj)");
+    SceneSaver saver(m_host);
+    saver.saveToFile(filePath);
 }
 
 void MainWindow::fileExit() {
@@ -162,52 +224,42 @@ void MainWindow::fileExit() {
 
 void MainWindow::createGridline() {
     m_host->addGridline(new Gridline);
-    m_sceneTreeView->reset();
 }
 
 void MainWindow::createAmbientLight() {
     m_host->addLight(new AmbientLight);
-    m_sceneTreeView->reset();
 }
 
 void MainWindow::createDirectionalLight() {
     m_host->addLight(new DirectionalLight);
-    m_sceneTreeView->reset();
 }
 
 void MainWindow::createPointLight() {
     m_host->addLight(new PointLight);
-    m_sceneTreeView->reset();
 }
 
 void MainWindow::createSpotLight() {
     m_host->addLight(new SpotLight);
-    m_sceneTreeView->reset();
 }
 
 void MainWindow::createBasicCone() {
     m_host->addModel(ModelLoader::loadConeModel());
-    m_sceneTreeView->reset();
 }
 
 void MainWindow::createBasicCube() {
     m_host->addModel(ModelLoader::loadCubeModel());
-    m_sceneTreeView->reset();
 }
 
 void MainWindow::createBasicCylinder() {
     m_host->addModel(ModelLoader::loadCylinderModel());
-    m_sceneTreeView->reset();
 }
 
 void MainWindow::createBasicPlane() {
     m_host->addModel(ModelLoader::loadPlaneModel());
-    m_sceneTreeView->reset();
 }
 
 void MainWindow::createBasicSphere() {
     m_host->addModel(ModelLoader::loadSphereModel());
-    m_sceneTreeView->reset();
 }
 
 void MainWindow::helpAbout() {
@@ -239,4 +291,3 @@ void MainWindow::replyOfUpdates(QNetworkReply * reply) {
         }
     }
 }
-

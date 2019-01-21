@@ -2,8 +2,9 @@
 #include <OpenGL/OpenGLManager.h>
 #include <OpenGL/OpenGLScene.h>
 
-OpenGLRenderer::OpenGLRenderer(QObject* parent): QObject(parent) {
+OpenGLRenderer::OpenGLRenderer(QObject* parent): QObject(0) {
     basicShader = phongShader = 0;
+    setParent(parent);
 }
 
 OpenGLRenderer::OpenGLRenderer(const OpenGLRenderer &) {

@@ -5,6 +5,7 @@ FloatEdit::FloatEdit(QWidget * parent): QWidget(parent) {
     m_lineEdit->setText(QString::number(0.0, 'f', 2));
     setRange(0.0f, 1.0f);
     setDecimals(2);
+    setValue(0.0f);
     configLayout();
     configSignals();
 }
@@ -15,6 +16,7 @@ FloatEdit::FloatEdit(float minimum, float maximum, int decimals,
     m_lineEdit->setText(QString::number(0.0, 'f', decimals));
     setRange(minimum, maximum);
     setDecimals(decimals);
+    setValue(0.0f);
     configLayout();
     configSignals();
 }
@@ -68,7 +70,7 @@ void FloatEdit::editingFinished() {
     if (isFloat) {
         v = (v > (float) m_maximum ? m_maximum : v);
         v = (v < (float) m_minimum ? m_minimum : v);
-        m_lineEdit->setText(QString::number(double(v)));
+        m_lineEdit->setText(QString::number((double) v, 'f', m_decimals));
         valueEdited(v);
         valueChanged(v);
     } else {

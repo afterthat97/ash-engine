@@ -14,7 +14,6 @@ public:
                        QString label0, QString label1, QString label2,
                        float minimum, float maximum, int decimals,
                        QWidget* parent = 0);
-    // TODO: Copy constructor
 
 private:
     FloatSlider * m_floatSliders[3];

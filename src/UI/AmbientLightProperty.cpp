@@ -34,7 +34,7 @@ void AmbientLightProperty::configSignals() {
 
     connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_host, SLOT(setEnabled(bool)));
     connect(m_intensityEdit, SIGNAL(valueEdited(float)), m_host, SLOT(setIntensity(float)));
-    connect(m_intensitySlider, SIGNAL(valueSlided(float)), m_host, SLOT(setIntensity(float)));
+    connect(m_intensitySlider, SIGNAL(sliderMoved(float)), m_host, SLOT(setIntensity(float)));
     connect(m_colorEditSlider, SIGNAL(valueEdited(QVector3D)), m_host, SLOT(setColor(QVector3D)));
 
     connect(m_host, SIGNAL(enabledChanged(bool)), m_enabledCheckBox, SLOT(setChecked(bool)));

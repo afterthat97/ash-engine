@@ -1,18 +1,18 @@
 #include <Core/Light/AbstractLight.h>
 
-AbstractLight::AbstractLight(QObject* parent): QObject(parent) {
+AbstractLight::AbstractLight(): QObject(0) {
     m_color = QVector3D(1.0f, 1.0f, 1.0f);
     m_enabled = true;
     m_intensity = 1.0f;
 }
 
-AbstractLight::AbstractLight(QVector3D color, QObject * parent): QObject(parent) {
+AbstractLight::AbstractLight(QVector3D color): QObject(0) {
     m_color = color;
     m_enabled = true;
     m_intensity = 1.0f;
 }
 
-AbstractLight::AbstractLight(const AbstractLight & light) {
+AbstractLight::AbstractLight(const AbstractLight & light): QObject(0) {
     m_color = light.m_color;
     m_enabled = light.m_enabled;
     m_intensity = light.m_intensity;

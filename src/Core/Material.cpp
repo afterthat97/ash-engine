@@ -1,22 +1,26 @@
 #include <Core/Material.h>
 
-Material::Material(QObject* parent): QObject(parent) {
+Material::Material(QObject* parent): QObject(0) {
     m_color = QVector3D(1.0f, 1.0f, 1.0f);
     m_ambient = 0.2f;
     m_diffuse = 1.0f;
     m_specular = 0.5f;
     m_shininess = 32.0f;
+    setParent(parent);
 }
 
-Material::Material(QVector3D color, float ambient, float diffuse, float specular, QObject * parent): QObject(parent) {
+Material::Material(QVector3D color,
+                   float ambient, float diffuse, float specular,
+                   QObject * parent): QObject(0) {
     m_color = color;
     m_ambient = ambient;
     m_diffuse = diffuse;
     m_specular = specular;
     m_shininess = 32.0f;
+    setParent(parent);
 }
 
-Material::Material(const Material & material) {
+Material::Material(const Material & material): QObject(0) {
     m_color = material.m_color;
     m_ambient = material.m_ambient;
     m_diffuse = material.m_diffuse;

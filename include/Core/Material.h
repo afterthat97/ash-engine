@@ -8,7 +8,9 @@ class Material: public QObject {
 
 public:
     Material(QObject * parent = 0);
-    Material(QVector3D color, float ambient, float diffuse, float specular, QObject * parent = 0);
+    Material(QVector3D color,
+             float ambient, float diffuse, float specular,
+             QObject * parent = 0);
     Material(const Material& material);
 
     void dumpObjectInfo(int level = 0);

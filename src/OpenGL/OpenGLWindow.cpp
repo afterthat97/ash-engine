@@ -39,14 +39,26 @@ void OpenGLWindow::setCaptureUserInput(bool captureUserInput) {
     m_captureUserInput = captureUserInput;
 }
 
+void OpenGLWindow::childEvent(QChildEvent * e) {
+    if (e->added()) {
+        if (OpenGLRenderer* renderer = qobject_cast<OpenGLRenderer*>(e->child()))
+            setRenderer(renderer);
+    } else if (e->removed()) {
+        if (m_renderer == e->child())
+            setRenderer(0);
+    }
+}
+
 void OpenGLWindow::initializeGL() {
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
 }
 
 void OpenGLWindow::paintGL() {
-    if (!m_realTimeRendering) return;
-    if (m_captureUserInput) processUserInput();
+    if (!m_realTimeRendering)
+        return;
+    if (m_captureUserInput)
+        processUserInput();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(OpenGLConfig::getBackgroundColor()[0], OpenGLConfig::getBackgroundColor()[1], OpenGLConfig::getBackgroundColor()[2], 1.0f);
@@ -74,6 +86,11 @@ void OpenGLWindow::mousePressEvent(QMouseEvent * event) {
 
 void OpenGLWindow::mouseReleaseEvent(QMouseEvent * event) {
     m_keyPressed[event->button()] = false;
+}
+
+void OpenGLWindow::focusOutEvent(QFocusEvent *) {
+    for (int i = 0; i < m_keyPressed.keys().size(); i++)
+        m_keyPressed[m_keyPressed.keys()[i]] = false;
 }
 
 void OpenGLWindow::processUserInput() {
@@ -106,6 +123,5 @@ void OpenGLWindow::configSignals() {
 void OpenGLWindow::hostDestroyed(QObject * host) {
     if (host == m_host) {
         m_host = 0;
-        qWarning() << "Window::hostDestroyed";
     }
 }

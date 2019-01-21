@@ -6,8 +6,8 @@ class AbstractLight: public QObject {
     Q_OBJECT
 
 public:
-    AbstractLight(QObject* parent = 0);
-    AbstractLight(QVector3D color, QObject* parent = 0);
+    AbstractLight();
+    AbstractLight(QVector3D color);
     AbstractLight(const AbstractLight& light);
 
     virtual void dumpObjectInfo(int level = 0) = 0;

@@ -2,21 +2,23 @@
 #include <Core/Model.h>
 #include <Core/Material.h>
 
-Mesh::Mesh(QObject * parent): QObject(parent) {
+Mesh::Mesh(QObject * parent): QObject(0) {
     m_meshType = Triangle;
     m_visible = true;
     m_material = 0;
     resetTransformation();
+    setParent(parent);
 }
 
-Mesh::Mesh(MeshType _meshType, QObject * parent): QObject(parent) {
+Mesh::Mesh(MeshType _meshType, QObject * parent): QObject(0) {
     m_meshType = _meshType;
     m_visible = true;
     m_material = 0;
     resetTransformation();
+    setParent(parent);
 }
 
-Mesh::Mesh(const Mesh & mesh) {
+Mesh::Mesh(const Mesh & mesh): QObject(0) {
     m_visible = mesh.m_visible;
     m_meshType = mesh.m_meshType;
     m_position = mesh.m_position;
@@ -244,4 +246,16 @@ void Mesh::childEvent(QChildEvent * e) {
             m_material = 0;
         materialChanged(m_material);
     }
+}
+
+QDataStream & operator>>(QDataStream & in, Mesh::MeshType & meshType) {
+    qint32 t;
+    in >> t;
+    if (t == 0)
+        meshType = Mesh::Triangle;
+    else if (t == 1)
+        meshType = Mesh::Line;
+    else
+        meshType = Mesh::Point;
+    return in;
 }

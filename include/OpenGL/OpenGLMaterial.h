@@ -10,7 +10,7 @@ public:
     
     Material* host() const;
     void bind(QOpenGLShaderProgram* shader);
-    void release();
+    void release(QOpenGLShaderProgram* shader);
 
 private:
     Material* m_host;

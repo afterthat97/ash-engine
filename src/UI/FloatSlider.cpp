@@ -5,6 +5,7 @@ FloatSlider::FloatSlider(QWidget *parent): QWidget(parent) {
     m_intSlider->setMinimum(0);
     m_intSlider->setMaximum(10000);
     setRange(0.0f, 1.0f);
+    setValue(0.0f);
     configLayout();
     configSignals();
 }
@@ -14,6 +15,7 @@ FloatSlider::FloatSlider(Qt::Orientation orientation, float minimum, float maxim
     m_intSlider->setMinimum(0);
     m_intSlider->setMaximum(10000);
     setRange(minimum, maximum);
+    setValue(0.0f);
     configLayout();
     configSignals();
 }
@@ -60,10 +62,10 @@ void FloatSlider::configLayout() {
 }
 
 void FloatSlider::configSignals() {
-    connect(m_intSlider, SIGNAL(valueChanged(int)), this, SLOT(intSliderValueChanged(int)));
+    connect(m_intSlider, SIGNAL(sliderMoved(int)), this, SLOT(intSliderMoved(int)));
 }
 
-void FloatSlider::intSliderValueChanged(int) {
-    valueSlided(this->value());
+void FloatSlider::intSliderMoved(int) {
+    sliderMoved(this->value());
     valueChanged(this->value());
 }

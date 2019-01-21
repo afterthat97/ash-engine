@@ -10,7 +10,6 @@ public:
     FloatSlider(Qt::Orientation orientation,
                 float minimum, float maximum,
                 QWidget* parent = 0);
-    // TODO: Copy constructor
 
     Qt::Orientation	orientation() const;
     float maximum() const;
@@ -23,7 +22,7 @@ public slots:
     void setValue(float value);
 
 signals:
-    void valueSlided(float value);
+    void sliderMoved(float value);
     void valueChanged(float value);
 
 private:
@@ -34,5 +33,5 @@ private:
     void configSignals();
 
 private slots:
-    void intSliderValueChanged(int value);
+    void intSliderMoved(int value);
 };

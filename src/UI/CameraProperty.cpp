@@ -65,8 +65,8 @@ void CameraProperty::configSignals() {
     connect(m_positionEdit, SIGNAL(valueEdited(QVector3D)), m_host, SLOT(setPosition(QVector3D)));
     connect(m_directionEdit, SIGNAL(valueEdited(QVector3D)), m_host, SLOT(setDirection(QVector3D)));
     connect(m_resetButton, SIGNAL(clicked(bool)), m_host, SLOT(reset()));
-    connect(m_movingSpeedSlider, SIGNAL(valueSlided(float)), m_host, SLOT(setMovingSpeed(float)));
-    connect(m_fieldOfViewSlider, SIGNAL(valueSlided(float)), m_host, SLOT(setFieldOfView(float)));
+    connect(m_movingSpeedSlider, SIGNAL(sliderMoved(float)), m_host, SLOT(setMovingSpeed(float)));
+    connect(m_fieldOfViewSlider, SIGNAL(sliderMoved(float)), m_host, SLOT(setFieldOfView(float)));
 
     connect(m_host, SIGNAL(movingSpeedChanged(float)), m_movingSpeedEdit, SLOT(setValue(float)));
     connect(m_host, SIGNAL(fieldOfViewChanged(float)), m_fieldOfViewEdit, SLOT(setValue(float)));

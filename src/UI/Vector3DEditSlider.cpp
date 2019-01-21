@@ -32,7 +32,7 @@ void Vector3DEditSlider::configSignals() {
     for (int i = 0; i < 3; i++) {
         connect(m_floatEdits[i], SIGNAL(valueChanged(float)), m_floatSliders[i], SLOT(setValue(float)));
         connect(m_floatSliders[i], SIGNAL(valueChanged(float)), m_floatEdits[i], SLOT(setValue(float)));
-        connect(m_floatSliders[i], SIGNAL(valueSlided(float)), this, SLOT(floatSliderValueSlided(float)));
+        connect(m_floatSliders[i], SIGNAL(sliderMoved(float)), this, SLOT(floatSliderValueSlided(float)));
     }
 }
 

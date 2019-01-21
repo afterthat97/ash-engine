@@ -13,5 +13,17 @@
 
         <file>resources/shapes/PointLight.fbx</file>
         <file>resources/shapes/SpotLight.fbx</file>
+
+        <file>resources/icons/AmbientLightIcon.png</file>
+        <file>resources/icons/CameraIcon.png</file>
+        <file>resources/icons/ColorWheel.png</file>
+        <file>resources/icons/DirectionalLightIcon.png</file>
+        <file>resources/icons/GridlineIcon.png</file>
+        <file>resources/icons/MaterialIcon.png</file>
+        <file>resources/icons/MeshIcon.png</file>
+        <file>resources/icons/ModelIcon.png</file>
+        <file>resources/icons/PointLightIcon.png</file>
+        <file>resources/icons/SpotLightIcon.png</file>
+        <file>resources/icons/TextureIcon.png</file>
     </qresource>
 </RCC>

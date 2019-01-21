@@ -2,7 +2,6 @@
 #include <OpenGL/OpenGLManager.h>
 
 OpenGLTexture::OpenGLTexture(Texture * texture) {
-    qDebug() << "Sending to GPU:" << texture->filePath();
     m_host = texture;
     m_openGLTexture = new QOpenGLTexture(texture->image());
     m_openGLTexture->setMinificationFilter(QOpenGLTexture::Nearest);
@@ -18,7 +17,6 @@ OpenGLTexture::~OpenGLTexture() {
 
 void OpenGLTexture::bind(QOpenGLShaderProgram* shader) {
     if (!m_host->enabled()) return;
-    shader->bind();
     QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
     if (m_host->textureType() == Texture::Diffuse) { // Diffuse map
         glFuncs->glActiveTexture(GL_TEXTURE0 + 0);
@@ -37,7 +35,16 @@ void OpenGLTexture::bind(QOpenGLShaderProgram* shader) {
 
 void OpenGLTexture::release() {
     QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
-    glFuncs->glBindTexture(GL_TEXTURE_2D, 0);
+    if (m_host->textureType() == Texture::Diffuse) { // Diffuse map
+        glFuncs->glActiveTexture(GL_TEXTURE0 + 0);
+        glFuncs->glBindTexture(GL_TEXTURE_2D, 0);
+    } else if (m_host->textureType() == Texture::Specular) { // Specular map
+        glFuncs->glActiveTexture(GL_TEXTURE0 + 1);
+        glFuncs->glBindTexture(GL_TEXTURE_2D, 0);
+    } else if (m_host->textureType() == Texture::Bump) { // Bump map
+        glFuncs->glActiveTexture(GL_TEXTURE0 + 2);
+        glFuncs->glBindTexture(GL_TEXTURE_2D, 0);
+    }
 }
 
 void OpenGLTexture::imageChanged(const QImage& image) {

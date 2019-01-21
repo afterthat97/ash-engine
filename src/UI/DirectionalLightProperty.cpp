@@ -8,7 +8,7 @@ DirectionalLightProperty::DirectionalLightProperty(DirectionalLight * light, QWi
     m_intensityEdit   = new FloatEdit(0.0f, inf, 2, this);
     m_intensitySlider = new FloatSlider(Qt::Horizontal, 0.0f, 1.0f, this);
     m_colorEditSlider = new Vector3DEditSlider("Color", Qt::Horizontal, "R", "G", "B", 0.0f, 1.0f, 2, this);
-    m_directionEdit   = new Vector3DEdit("Position", Qt::Horizontal, "X", "Y", "Z", -inf, inf, 2, this);
+    m_directionEdit   = new Vector3DEdit("Direction", Qt::Horizontal, "X", "Y", "Z", -inf, inf, 2, this);
 
     m_enabledCheckBox->setChecked(m_host->enabled());
     m_intensityEdit->setValue(m_host->intensity());
@@ -37,7 +37,7 @@ void DirectionalLightProperty::configSignals() {
 
     connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_host, SLOT(setEnabled(bool)));
     connect(m_intensityEdit, SIGNAL(valueEdited(float)), m_host, SLOT(setIntensity(float)));
-    connect(m_intensitySlider, SIGNAL(valueSlided(float)), m_host, SLOT(setIntensity(float)));
+    connect(m_intensitySlider, SIGNAL(sliderMoved(float)), m_host, SLOT(setIntensity(float)));
     connect(m_colorEditSlider, SIGNAL(valueEdited(QVector3D)), m_host, SLOT(setColor(QVector3D)));
     connect(m_directionEdit, SIGNAL(valueEdited(QVector3D)), m_host, SLOT(setDirection(QVector3D)));
 

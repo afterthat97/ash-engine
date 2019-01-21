@@ -49,10 +49,10 @@ Mesh * OpenGLMesh::host() const {
 
 void OpenGLMesh::render(QOpenGLShaderProgram* shader) {
     if (!m_host->visible()) return;
-    if (m_host->material())
-        OpenGLManager<Material, OpenGLMaterial>::currentManager()->getOpenGLObject(m_host->material())->bind(shader);
     shader->bind();
     shader->setUniformValue("modelMat", m_host->globalModelMatrix());
+    if (m_host->material())
+        OpenGLManager<Material, OpenGLMaterial>::currentManager()->getOpenGLObject(m_host->material())->bind(shader);
     m_vao->bind();
     QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
     if (m_host->meshType() == Mesh::Triangle)
@@ -63,7 +63,7 @@ void OpenGLMesh::render(QOpenGLShaderProgram* shader) {
         glFuncs->glDrawElements(GL_POINTS, (GLsizei) m_host->indices().size(), GL_UNSIGNED_INT, 0);
     m_vao->release();
     if (m_host->material())
-        OpenGLManager<Material, OpenGLMaterial>::currentManager()->getOpenGLObject(m_host->material())->release();
+        OpenGLManager<Material, OpenGLMaterial>::currentManager()->getOpenGLObject(m_host->material())->release(shader);
 }
 
 void OpenGLMesh::geometryChanged(const QVector<Vertex>& vertices, const QVector<uint32_t>& indices) {
@@ -76,11 +76,13 @@ void OpenGLMesh::geometryChanged(const QVector<Vertex>& vertices, const QVector<
     m_vbo = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
     m_vbo->create();
     m_vbo->bind();
-    m_vbo->allocate(&vertices[0], int(sizeof(Vertex) * vertices.size()));
+    if (vertices.size())
+        m_vbo->allocate(&vertices[0], int(sizeof(Vertex) * vertices.size()));
     m_ebo = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
     m_ebo->create();
     m_ebo->bind();
-    m_ebo->allocate(&indices[0], int(sizeof(uint32_t) * indices.size()));
+    if (indices.size())
+        m_ebo->allocate(&indices[0], int(sizeof(uint32_t) * indices.size()));
     QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
     glFuncs->glEnableVertexAttribArray(0);
     glFuncs->glEnableVertexAttribArray(1);

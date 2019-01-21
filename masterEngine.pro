@@ -5,7 +5,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = masterEngine
 TEMPLATE = app
 VERSION = 1.0.0
-PREVIEW = -rc2
+PREVIEW = -rc3
 
 DEFINES += \
     QT_DEPRECATED_WARNINGS \
@@ -49,6 +49,7 @@ HEADERS += \
     include/IO/IO.h \
     include/IO/ModelLoader.h \
     include/IO/SceneLoader.h \
+    include/IO/SceneSaver.h \
     include/IO/TextureLoader.h \
     include/OpenGL/Common.h \
     include/OpenGL/FPSCounter.h \
@@ -80,7 +81,7 @@ HEADERS += \
     include/UI/MeshProperty.h \
     include/UI/ModelProperty.h \
     include/UI/PointLightProperty.h \
-    include/UI/SceneTreeView.h \
+    include/UI/SceneTreeWidget.h \
     include/UI/SpotLightProperty.h \
     include/UI/TextureProperty.h \
     include/UI/UI.h \
@@ -100,13 +101,15 @@ SOURCES += \
     src/Core/Model.cpp \
     src/Core/Scene.cpp \
     src/Core/Texture.cpp \
+    src/Core/Vertex.cpp \
     src/IO/ModelLoader.cpp \
     src/IO/SceneLoader.cpp \
+    src/IO/SceneSaver.cpp \
     src/IO/TextureLoader.cpp \
+    src/OpenGL/FPSCounter.cpp \
     src/OpenGL/OpenGLAmbientLight.cpp \
     src/OpenGL/OpenGLConfig.cpp \
     src/OpenGL/OpenGLDirectionalLight.cpp \
-    src/OpenGL/FPSCounter.cpp \
     src/OpenGL/OpenGLGridline.cpp \
     src/OpenGL/OpenGLManager.cpp \
     src/OpenGL/OpenGLMaterial.cpp \
@@ -130,7 +133,7 @@ SOURCES += \
     src/UI/MeshProperty.cpp \
     src/UI/ModelProperty.cpp \
     src/UI/PointLightProperty.cpp \
-    src/UI/SceneTreeView.cpp \
+    src/UI/SceneTreeWidget.cpp \
     src/UI/SpotLightProperty.cpp \
     src/UI/TextureProperty.cpp \
     src/UI/Vector3DEdit.cpp \

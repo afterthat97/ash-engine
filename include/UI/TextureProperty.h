@@ -11,7 +11,7 @@ public:
 private:
     Texture* m_host;
     QCheckBox * m_enabledCheckBox;
-    QLabel * m_textureTypeLabel, *m_filePathLabel, *m_imageLabel;
+    QLabel * m_textureTypeLabel, *m_imageLabel;
 
     void configLayout();
     void configSignals();

@@ -12,7 +12,6 @@ Material * OpenGLMaterial::host() const {
 }
 
 void OpenGLMaterial::bind(QOpenGLShaderProgram * shader) {
-    shader->bind();
     shader->setUniformValue("material.ambient", m_host->ambient());
     shader->setUniformValue("material.diffuse", m_host->diffuse());
     shader->setUniformValue("material.shininess", m_host->shininess());
@@ -40,7 +39,8 @@ void OpenGLMaterial::bind(QOpenGLShaderProgram * shader) {
     }
 }
 
-void OpenGLMaterial::release() {
+void OpenGLMaterial::release(QOpenGLShaderProgram * shader) {
+    shader->setUniformValue("material.color", QVector3D(0.0f, 0.0f, 0.0f));
     if (!m_host->diffuseTexture().isNull())
         OpenGLManager<Texture, OpenGLTexture>::currentManager()->getOpenGLObject(m_host->diffuseTexture().data())->release();
     if (!m_host->specularTexture().isNull())
