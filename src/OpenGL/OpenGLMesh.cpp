@@ -12,11 +12,13 @@ OpenGLMesh::OpenGLMesh(Mesh * mesh) {
     m_vbo = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
     m_vbo->create();
     m_vbo->bind();
-    m_vbo->allocate(&m_host->vertices()[0], int(sizeof(Vertex) * m_host->vertices().size()));
+    if (m_host->vertices().size())
+        m_vbo->allocate(&m_host->vertices()[0], int(sizeof(Vertex) * m_host->vertices().size()));
     m_ebo = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
     m_ebo->create();
     m_ebo->bind();
-    m_ebo->allocate(&m_host->indices()[0], int(sizeof(uint32_t) * m_host->indices().size()));
+    if (m_host->indices().size())
+        m_ebo->allocate(&m_host->indices()[0], int(sizeof(uint32_t) * m_host->indices().size()));
 
     QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
     glFuncs->glEnableVertexAttribArray(0);
