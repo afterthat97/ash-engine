@@ -25,8 +25,9 @@ int main(int argc, char *argv[]) {
 
     Scene* scene = new Scene;
     scene->addGridline(new Gridline);
+    scene->addDirectionalLight(new DirectionalLight);
 
-    MainWindow* window = new MainWindow(scene, 0);
+    MainWindow* window = new MainWindow(scene);
     window->show();
 
     return a.exec();

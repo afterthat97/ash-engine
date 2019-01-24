@@ -1,8 +1,6 @@
 #include <IO/TextureLoader.h>
 #include <QImageReader>
 
-// TODO: Debug info
-
 QHash<QString, QWeakPointer<Texture>> TextureLoader::cache;
 
 TextureLoader::TextureLoader() {}
@@ -14,8 +12,7 @@ QSharedPointer<Texture> TextureLoader::loadFromFile(Texture::TextureType texture
         QImageReader reader(filePath);
         texture->setImage(reader.read().mirrored());
         if (texture->image().isNull()) {
-            qDebug() << "Failed to load texture:" << reader.errorString();
-            m_log += "Failed to load texture " + filePath + ".\n";
+            m_log += "Failed to load texture " + filePath + ": " + reader.errorString() + '\n';
             return 0;
         }
         cache[filePath] = texture;
@@ -25,7 +22,7 @@ QSharedPointer<Texture> TextureLoader::loadFromFile(Texture::TextureType texture
 }
 
 bool TextureLoader::hasLog() { 
-    return m_log.length() != 0;
+    return m_log != "";
 }
 
 QString TextureLoader::log() {

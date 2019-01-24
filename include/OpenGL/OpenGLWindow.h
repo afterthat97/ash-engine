@@ -8,25 +8,21 @@ class OpenGLWindow: public QOpenGLWindow, protected QOpenGLFunctions {
     Q_OBJECT
 
 public:
-    OpenGLWindow();
+    OpenGLWindow(OpenGLRenderer* renderer);
     OpenGLWindow(Scene * scene, OpenGLRenderer* renderer);
 
     void setScene(Scene* scene);
-    void setRenderer(OpenGLRenderer* renderer);
-    void setRealTimeRendering(bool realTimeRendering);
     void setCaptureUserInput(bool captureUserInput);
 
 protected:
-    void childEvent(QChildEvent *event) override;
-
     void initializeGL() override;
     void paintGL() override;
-    void resizeGL(int width, int height) override;
 
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event);
     void focusOutEvent(QFocusEvent *event) override;
 
 signals:
@@ -35,7 +31,7 @@ signals:
 private:
     QHash<int, bool> m_keyPressed;
     QPoint m_lastCursorPos;
-    bool m_realTimeRendering, m_captureUserInput;
+    bool m_captureUserInput;
     OpenGLRenderer * m_renderer;
     Scene* m_host;
     FPSCounter* m_fpsCounter;

@@ -1,11 +1,10 @@
 #include <OpenGL/OpenGLWindow.h>
 #include <OpenGL/OpenGLConfig.h>
 
-OpenGLWindow::OpenGLWindow() {
+OpenGLWindow::OpenGLWindow(OpenGLRenderer* renderer) {
     m_lastCursorPos = QCursor::pos();
-    m_realTimeRendering = true;
     m_captureUserInput = true;
-    m_renderer = 0;
+    m_renderer = renderer;
     m_fpsCounter = new FPSCounter(this);
     setScene(0);
     configSignals();
@@ -13,7 +12,6 @@ OpenGLWindow::OpenGLWindow() {
 
 OpenGLWindow::OpenGLWindow(Scene * scene, OpenGLRenderer * renderer) {
     m_lastCursorPos = QCursor::pos();
-    m_realTimeRendering = true;
     m_captureUserInput = true;
     m_renderer = renderer;
     m_fpsCounter = new FPSCounter(this);
@@ -27,65 +25,68 @@ void OpenGLWindow::setScene(Scene * scene) {
         connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
 }
 
-void OpenGLWindow::setRenderer(OpenGLRenderer * renderer) {
-    m_renderer = renderer;
-}
-
-void OpenGLWindow::setRealTimeRendering(bool realTimeRendering) {
-    m_realTimeRendering = realTimeRendering;
-}
-
 void OpenGLWindow::setCaptureUserInput(bool captureUserInput) {
     m_captureUserInput = captureUserInput;
-}
-
-void OpenGLWindow::childEvent(QChildEvent * e) {
-    if (e->added()) {
-        if (OpenGLRenderer* renderer = qobject_cast<OpenGLRenderer*>(e->child()))
-            setRenderer(renderer);
-    } else if (e->removed()) {
-        if (m_renderer == e->child())
-            setRenderer(0);
-    }
 }
 
 void OpenGLWindow::initializeGL() {
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
+    if (m_renderer) {
+        if (!m_renderer->loadShaders()) {
+            QString log = m_renderer->log();
+            qWarning() << "OpenGLWindow::initializeGL(): Failed to initialize OpenGL: Error when loading shaders.";
+            qWarning() << log;
+            QMessageBox::critical(0, "Failed to load shaders", log);
+        }
+    } else {
+        qWarning() << "OpenGLWindow::initializeGL(): Failed to initialize OpenGL: Renderer not specified.";
+    }
 }
 
 void OpenGLWindow::paintGL() {
-    if (!m_realTimeRendering)
-        return;
     if (m_captureUserInput)
         processUserInput();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(OpenGLConfig::getBackgroundColor()[0], OpenGLConfig::getBackgroundColor()[1], OpenGLConfig::getBackgroundColor()[2], 1.0f);
 
-    if (m_host)
+    if (m_host) {
+        m_host->camera()->setAspectRatio(float(width()) / height());
         m_renderer->render(m_host);
-}
-
-void OpenGLWindow::resizeGL(int width, int height) {
-    if (m_host) m_host->camera()->setAspectRatio(1.0 * width / height);
+    }
 }
 
 void OpenGLWindow::keyPressEvent(QKeyEvent * event) {
     m_keyPressed[event->key()] = true;
+    event->accept();
 }
 
 void OpenGLWindow::keyReleaseEvent(QKeyEvent * event) {
     m_keyPressed[event->key()] = false;
+    event->accept();
 }
 
 void OpenGLWindow::mousePressEvent(QMouseEvent * event) {
     m_lastCursorPos = QCursor::pos();
     m_keyPressed[event->button()] = true;
+    event->accept();
 }
 
 void OpenGLWindow::mouseReleaseEvent(QMouseEvent * event) {
     m_keyPressed[event->button()] = false;
+    event->accept();
+}
+
+void OpenGLWindow::wheelEvent(QWheelEvent * event) {
+    if (!m_captureUserInput || !m_host) return;
+
+    if (!event->pixelDelta().isNull())
+        m_host->camera()->moveForward(event->pixelDelta().y());
+    else if (!event->angleDelta().isNull())
+        m_host->camera()->moveForward(event->angleDelta().y());
+
+    event->accept();
 }
 
 void OpenGLWindow::focusOutEvent(QFocusEvent *) {
@@ -94,7 +95,7 @@ void OpenGLWindow::focusOutEvent(QFocusEvent *) {
 }
 
 void OpenGLWindow::processUserInput() {
-    if (m_host == 0) return;
+    if (!m_host) return;
     float shift = 1.0f;
     if (m_keyPressed[Qt::Key_Shift]) shift *= 5.0f;
     if (m_keyPressed[Qt::Key_W]) m_host->camera()->moveForward(shift);
@@ -121,7 +122,6 @@ void OpenGLWindow::configSignals() {
 }
 
 void OpenGLWindow::hostDestroyed(QObject * host) {
-    if (host == m_host) {
+    if (host == m_host)
         m_host = 0;
-    }
 }

@@ -12,3 +12,4 @@
 #include <QOpenGLContext>
 
 #include <QMimeData>
+#include <QMessageBox>

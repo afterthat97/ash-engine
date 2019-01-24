@@ -48,9 +48,6 @@ Model * ModelLoader::loadFromFile(QString filePath) {
         return 0;
     }
 
-    //delete m_aiScenePtr;
-    //m_aiScenePtr = 0;
-
     return loadModel(m_aiScenePtr->mRootNode);
 }
 

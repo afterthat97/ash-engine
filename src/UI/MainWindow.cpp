@@ -55,7 +55,14 @@ void MainWindow::dropEvent(QDropEvent * event) {
     if (!m_host) return;
     foreach(const QUrl &url, event->mimeData()->urls()) {
         ModelLoader loader;
-        m_host->addModel(loader.loadFromFile(url.toLocalFile()));
+        Model* model = loader.loadFromFile(url.toLocalFile());
+        if (model == 0) {
+            QString log = loader.log();
+            qWarning() << "Failed to load" << url.toLocalFile();
+            qWarning() << log;
+            QMessageBox::critical(0, "Failed to load file", log);
+        } else
+            m_host->addModel(model);
     }
 }
 
@@ -187,6 +194,7 @@ void MainWindow::fileNew() {
     delete m_host;
     m_host = new Scene;
     m_host->addGridline(new Gridline);
+    m_host->addDirectionalLight(new DirectionalLight);
     m_sceneTreeWidget->setScene(m_host);
     m_openGLWindow->setScene(m_host);
 }
@@ -195,7 +203,12 @@ void MainWindow::fileOpen() {
     QString filePath = QFileDialog::getOpenFileName(this, "Open Project", "", "Ash Engine Project (*.aeproj)");
     SceneLoader loader;
     Scene* scene = loader.loadFromFile(filePath);
-    if (scene) {
+    if (scene == 0) {
+        QString log = loader.log();
+        qWarning() << "Failed to load" << filePath;
+        qWarning() << log;
+        QMessageBox::critical(0, "Failed to load file", log);
+    } else {
         m_propertyWidget = new QWidget(this);
         delete m_splitter->replaceWidget(2, m_propertyWidget);
         delete m_host;
@@ -208,8 +221,14 @@ void MainWindow::fileOpen() {
 void MainWindow::fileLoadModel() {
     QString filePath = QFileDialog::getOpenFileName(this, "Load Model", "", "All Files (*)");
     ModelLoader loader;
-    Model* loadedModel = loader.loadFromFile(filePath);
-    m_host->addModel(loadedModel);
+    Model* model = loader.loadFromFile(filePath);
+    if (model == 0) {
+        QString log = loader.log();
+        qWarning() << "Failed to load" << filePath;
+        qWarning() << log;
+        QMessageBox::critical(0, "Failed to load file", log);
+    } else 
+        m_host->addModel(model);
 }
 
 void MainWindow::fileSave() {

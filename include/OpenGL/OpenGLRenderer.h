@@ -9,11 +9,15 @@ public:
     OpenGLRenderer(QObject* parent = 0);
     OpenGLRenderer(const OpenGLRenderer& renderer);
 
-    void loadShaders();
+    bool hasLog();
+    QString log();
+
+    bool loadShaders();
     void render(Scene* scene);
 
 private:
-    QOpenGLShaderProgram * basicShader, *phongShader;
+    QString m_log;
+    QOpenGLShaderProgram * m_basicShader, *m_phongShader;
 
     QOpenGLShaderProgram * loadShaderFromFile(QString vertexShaderFile, QString fragmentShaderFile, QString geometryShaderFile = "");
 };
