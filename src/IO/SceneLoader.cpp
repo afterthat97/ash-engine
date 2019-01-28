@@ -9,6 +9,9 @@ Scene * SceneLoader::loadFromFile(QString filePath) {
     file.open(QIODevice::ReadOnly);
 
     if (!file.isOpen()) {
+#ifdef _DEBUG
+        qDebug() << "Failed to open file:" << file.errorString();
+#endif
         m_log += "Failed to open file: " + file.errorString();
         return 0;
     }
@@ -18,6 +21,9 @@ Scene * SceneLoader::loadFromFile(QString filePath) {
     quint32 magicNumber;
     in >> magicNumber;
     if (magicNumber != 0xA0B0C0D0) {
+#ifdef _DEBUG
+        qDebug() << "Failed to load file" << file.errorString() << ":" << "invalid file format";
+#endif
         m_log += "Invalid File Format";
         return 0;
     }
@@ -25,6 +31,9 @@ Scene * SceneLoader::loadFromFile(QString filePath) {
     quint32 versionNumber;
     in >> versionNumber;
     if (versionNumber > 100) {
+#ifdef _DEBUG
+        qDebug() << "Failed to load file" << file.errorString() << ":" << "version not supported";
+#endif
         m_log += "Version not supported";
         return 0;
     }
@@ -39,6 +48,9 @@ Scene * SceneLoader::loadFromFile(QString filePath) {
     int cameraNum;
     in >> cameraNum;
     if (cameraNum != 1) {
+#ifdef _DEBUG
+        qDebug() << "Failed to load file" << file.errorString() << ":" << "unknown error";
+#endif
         m_log += "Unknown error";
         return 0;
     }
@@ -331,12 +343,14 @@ Material * SceneLoader::loadMaterial(QDataStream & in) {
 QSharedPointer<Texture> SceneLoader::loadTexture(QDataStream & in) {
     Texture* texture = new Texture;
 
+    QString name;
     bool enabled;
     Texture::TextureType textureType;
     QImage image;
     
-    in >> enabled >> textureType >> image;
+    in >> name >> enabled >> textureType >> image;
     
+    texture->setObjectName(name);
     texture->setEnabled(enabled);
     texture->setTextureType(textureType);
     texture->setImage(image);

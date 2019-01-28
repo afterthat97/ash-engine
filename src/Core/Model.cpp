@@ -20,6 +20,12 @@ Model::Model(const Model & model): QObject(0) {
         addChildModel(new Model(*model.m_childModels[i]));
 }
 
+Model::~Model() {
+#ifdef _DEBUG
+    qDebug() << "Model" << this->objectName() << "is destroyed";
+#endif
+}
+
 bool Model::addChildMesh(Mesh * mesh) {
     if (!mesh || m_childMeshes.contains(mesh))
         return false;
@@ -27,6 +33,10 @@ bool Model::addChildMesh(Mesh * mesh) {
     mesh->setParent(this);
     connect(mesh, SIGNAL(materialChanged(Material*)), this, SIGNAL(childrenChanged()));
     childrenChanged();
+    childMeshAdded(mesh);
+#ifdef _DEBUG
+    qDebug() << "Mesh" << mesh->objectName() << "is added to model" << this->objectName() << "as child";
+#endif
     return true;
 }
 
@@ -37,6 +47,10 @@ bool Model::addChildModel(Model * model) {
     model->setParent(this);
     connect(model, SIGNAL(childrenChanged()), this, SIGNAL(childrenChanged()));
     childrenChanged();
+    childModelAdded(model);
+#ifdef _DEBUG
+    qDebug() << "Model" << model->objectName() << "is added to model" << this->objectName() << "as child";
+#endif
     return true;
 }
 
@@ -45,6 +59,10 @@ bool Model::removeChildMesh(QObject * mesh, bool recursive) {
         if (m_childMeshes[i] == mesh) {
             m_childMeshes.erase(m_childMeshes.begin() + i);
             childrenChanged();
+            childMeshRemoved(mesh);
+#ifdef _DEBUG
+            qDebug() << "Child mesh" << mesh->objectName() << "is removed from model" << this->objectName();
+#endif
             return true;
         }
     if (!recursive) return false;
@@ -59,6 +77,10 @@ bool Model::removeChildModel(QObject * model, bool recursive) {
         if (m_childModels[i] == model) {
             m_childModels.erase(m_childModels.begin() + i);
             childrenChanged();
+            childModelRemoved(model);
+#ifdef _DEBUG
+            qDebug() << "Child model" << model->objectName() << "is removed from model" << this->objectName();
+#endif
             return true;
         }
     if (!recursive) return false;
@@ -230,12 +252,18 @@ void Model::setScaling(QVector3D scaling) {
 
 void Model::childEvent(QChildEvent * e) {
     if (e->added()) {
+#ifdef _DEBUG
+        qDebug() << "Model" << this->objectName() << "received child event (Type: Added)";
+#endif
         if (Model* model = qobject_cast<Model*>(e->child()))
             addChildModel(model);
         else if (Mesh* mesh = qobject_cast<Mesh*>(e->child()))
             addChildMesh(mesh);
     } else if (e->removed()) {
-        removeChildModel(e->child(), false);
-        removeChildMesh(e->child(), false);
+#ifdef _DEBUG
+        qDebug() << "Model" << this->objectName() << "received child event (Type: Removed)";
+#endif     
+        if (removeChildModel(e->child(), false)) return;
+        if (removeChildMesh(e->child(), false)) return;
     }
 }

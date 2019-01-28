@@ -18,6 +18,12 @@ AbstractLight::AbstractLight(const AbstractLight & light): QObject(0) {
     m_intensity = light.m_intensity;
 }
 
+AbstractLight::~AbstractLight() {
+#ifdef _DEBUG
+    qDebug() << "Light" << this->objectName() << "is destroyed";
+#endif
+}
+
 QVector3D AbstractLight::color() {
     return m_color;
 }

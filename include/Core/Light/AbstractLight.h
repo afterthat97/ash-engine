@@ -9,6 +9,7 @@ public:
     AbstractLight();
     AbstractLight(QVector3D color);
     AbstractLight(const AbstractLight& light);
+    ~AbstractLight();
 
     virtual void dumpObjectInfo(int level = 0) = 0;
     virtual void dumpObjectTree(int level = 0) = 0;

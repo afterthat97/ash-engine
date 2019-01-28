@@ -9,6 +9,7 @@ public:
     Camera(QObject* parent = 0);
     Camera(QVector3D position, QVector3D direction, QObject* parent = 0);
     Camera(const Camera& camera);
+    ~Camera();
 
     void moveForward(float shift);
     void moveRight(float shift);

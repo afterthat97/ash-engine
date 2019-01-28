@@ -6,9 +6,9 @@ void initApplication() {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
-# ifdef WIN32
+#ifdef WIN32
     QApplication::setFont(QFont("Microsoft YaHei UI", 9));
-# endif
+#endif
 
     QSurfaceFormat openGLFormat;
     openGLFormat.setVersion(3, 3);

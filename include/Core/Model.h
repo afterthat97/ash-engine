@@ -10,6 +10,7 @@ class Model: public QObject {
 public:
     Model(QObject * parent = 0);
     Model(const Model& model);
+    ~Model();
 
     bool addChildMesh(Mesh* mesh);
     bool addChildModel(Model* model);
@@ -52,6 +53,10 @@ signals:
     void positionChanged(QVector3D position);
     void rotationChanged(QVector3D rotation);
     void scalingChanged(QVector3D scaling);
+    void childMeshAdded(Mesh* mesh);
+    void childMeshRemoved(QObject* object);
+    void childModelAdded(Model* model);
+    void childModelRemoved(QObject* object);
     void childrenChanged();
 
 protected:

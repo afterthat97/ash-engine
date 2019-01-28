@@ -31,6 +31,12 @@ Material::Material(const Material & material): QObject(0) {
     m_bumpTexture = material.m_bumpTexture;
 }
 
+Material::~Material() {
+#ifdef _DEBUG
+    qDebug() << "Material" << this->objectName() << "is destroyed";
+#endif
+}
+
 void Material::dumpObjectInfo(int l) {
     qDebug().nospace() << tab(l) << "Phong Material: " << objectName();
     qDebug().nospace() << tab(l + 1) << "Color: " << m_color;

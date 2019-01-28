@@ -17,6 +17,7 @@ class Scene: public QObject {
 public:
     Scene();
     Scene(const Scene& scene);
+    ~Scene();
 
     bool setCamera(Camera* camera);
     bool addGridline(Gridline* gridline);
@@ -44,6 +45,12 @@ public:
     const QVector<Model*>& models() const;
 
 signals:
+    void gridlineAdded(Gridline* gridline);
+    void gridlineRemoved(QObject* object);
+    void lightAdded(AbstractLight* light);
+    void lightRemoved(QObject* object);
+    void modelAdded(Model* model);
+    void modelRemoved(QObject* object);
     void childrenChanged();
 
 protected:

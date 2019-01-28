@@ -33,18 +33,19 @@ void OpenGLScene::renderGridlines(QOpenGLShaderProgram * shader) {
 
 void OpenGLScene::bindLights(QOpenGLShaderProgram * shader) {
     int ambientLightNum = 0, directionalLightNum = 0, pointLightNum = 0, spotLightNum = 0;
-    for (int i = 0; i < m_host->lights().size(); i++) {
-        if (!m_host->lights()[i]->enabled()) continue;
-        if (SpotLight* light = qobject_cast<SpotLight*>(m_host->lights()[i])) {
-            OpenGLManager<SpotLight, OpenGLSpotLight>::currentManager()->getOpenGLObject(light)->bind(shader, spotLightNum++);
-        } else if (AmbientLight* light = qobject_cast<AmbientLight*>(m_host->lights()[i])) {
-            OpenGLManager<AmbientLight, OpenGLAmbientLight>::currentManager()->getOpenGLObject(light)->bind(shader, ambientLightNum++);
-        } else if (DirectionalLight* light = qobject_cast<DirectionalLight*>(m_host->lights()[i])) {
-            OpenGLManager<DirectionalLight, OpenGLDirectionalLight>::currentManager()->getOpenGLObject(light)->bind(shader, directionalLightNum++);
-        } else if (PointLight* light = qobject_cast<PointLight*>(m_host->lights()[i])) {
-            OpenGLManager<PointLight, OpenGLPointLight>::currentManager()->getOpenGLObject(light)->bind(shader, pointLightNum++);
-        }
-    }
+
+    for (int i = 0; i < m_host->ambientLights().size(); i++)
+        OpenGLManager<AmbientLight, OpenGLAmbientLight>::currentManager()->getOpenGLObject(m_host->ambientLights()[i])->bind(shader, ambientLightNum++);
+
+    for (int i = 0; i < m_host->directionalLights().size(); i++)
+        OpenGLManager<DirectionalLight, OpenGLDirectionalLight>::currentManager()->getOpenGLObject(m_host->directionalLights()[i])->bind(shader, directionalLightNum++);
+
+    for (int i = 0; i < m_host->pointLights().size(); i++)
+        OpenGLManager<PointLight, OpenGLPointLight>::currentManager()->getOpenGLObject(m_host->pointLights()[i])->bind(shader, pointLightNum++);
+
+    for (int i = 0; i < m_host->spotLights().size(); i++)
+        OpenGLManager<SpotLight, OpenGLSpotLight>::currentManager()->getOpenGLObject(m_host->spotLights()[i])->bind(shader, spotLightNum++);
+
     shader->bind();
     shader->setUniformValue("ambientLightNum", ambientLightNum);
     shader->setUniformValue("directionalLightNum", directionalLightNum);
@@ -53,12 +54,11 @@ void OpenGLScene::bindLights(QOpenGLShaderProgram * shader) {
 }
 
 void OpenGLScene::renderLights(QOpenGLShaderProgram * shader) {
-    for (int i = 0; i < m_host->lights().size(); i++)
-        if (SpotLight* light = qobject_cast<SpotLight*>(m_host->lights()[i])) {
-            OpenGLManager<SpotLight, OpenGLSpotLight>::currentManager()->getOpenGLObject(light)->render(shader);
-        } else if (PointLight* light = qobject_cast<PointLight*>(m_host->lights()[i])) {
-            OpenGLManager<PointLight, OpenGLPointLight>::currentManager()->getOpenGLObject(light)->render(shader);
-        }
+    for (int i = 0; i < m_host->pointLights().size(); i++)
+        OpenGLManager<PointLight, OpenGLPointLight>::currentManager()->getOpenGLObject(m_host->pointLights()[i])->render(shader);
+
+    for (int i = 0; i < m_host->spotLights().size(); i++)
+        OpenGLManager<SpotLight, OpenGLSpotLight>::currentManager()->getOpenGLObject(m_host->spotLights()[i])->render(shader);
 }
 
 void OpenGLScene::renderModels(QOpenGLShaderProgram * shader) {

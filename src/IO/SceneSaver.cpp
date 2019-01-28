@@ -13,6 +13,9 @@ bool SceneSaver::saveToFile(QString filePath) {
     file.open(QIODevice::WriteOnly);
 
     if (!file.isOpen()) {
+#ifdef _DEBUG
+        qDebug() << "Failed to open file:" << file.errorString();
+#endif
         m_log += "Failed to open file: " + file.errorString();
         return false;
     }
@@ -207,6 +210,7 @@ void SceneSaver::saveMaterial(Material * material, QDataStream & out) {
 }
 
 void SceneSaver::saveTexture(QSharedPointer<Texture> texture, QDataStream & out) {
+    out << texture->objectName();
     out << texture->enabled();
     out << texture->textureType();
     out << texture->image();

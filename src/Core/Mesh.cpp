@@ -29,6 +29,12 @@ Mesh::Mesh(const Mesh & mesh): QObject(0) {
     m_material = new Material(*mesh.m_material);
 }
 
+Mesh::~Mesh() {
+#ifdef _DEBUG
+    qDebug() << "Mesh" << this->objectName() << "is destroyed";
+#endif
+}
+
 // Transform functions
 
 void Mesh::translate(QVector3D delta) {
@@ -228,20 +234,31 @@ void Mesh::setGeometry(const QVector<Vertex>& vertices, const QVector<uint32_t>&
 void Mesh::setMaterial(Material * material) {
     if (material == 0 || m_material == material) return;
     if (m_material) {
-        qWarning("Mesh::setMaterial: Existed material will be overrided.");
+#ifdef _DEBUG
+        qDebug() << "Material" << m_material->objectName() << "will be replaced by" << material->objectName();
+#endif
         delete m_material;
     }
     m_material = material;
     m_material->setParent(this);
     materialChanged(m_material);
+#ifdef _DEBUG
+    qDebug() << "Material" << material->objectName() << "is assigned to mesh" << this->objectName();
+#endif
 }
 
 // Protected
 
 void Mesh::childEvent(QChildEvent * e) {
     if (e->added()) {
+#ifdef _DEBUG
+        qDebug() << "Mesh" << this->objectName() << "received child event (Type: Added)";
+#endif
         setMaterial(static_cast<Material*>(e->child()));
     } else if (e->removed()) {
+#ifdef _DEBUG
+        qDebug() << "Mesh" << this->objectName() << "received child event (Type: Removed)";
+#endif   
         if (e->child() == m_material)
             m_material = 0;
         materialChanged(m_material);

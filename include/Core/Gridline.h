@@ -8,6 +8,7 @@ class Gridline: public QObject {
 public:
     Gridline(QObject* parent = 0);
     Gridline(const Gridline& gridline);
+    ~Gridline();
 
     void dumpObjectInfo(int level = 0);
     void dumpObjectTree(int level = 0);

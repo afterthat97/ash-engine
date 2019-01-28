@@ -13,6 +13,7 @@ public:
     };
     Texture(TextureType textureType = Diffuse);
     Texture(const Texture& texture);
+    ~Texture();
 
     void dumpObjectInfo(int level = 0);
     void dumpObjectTree(int level = 0);

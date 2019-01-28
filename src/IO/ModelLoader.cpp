@@ -16,7 +16,13 @@ ModelLoader::~ModelLoader() {
 }
 
 Model * ModelLoader::loadFromFile(QString filePath) {
+#ifdef _DEBUG
+    qDebug() << "ModelLoader::loadFromFile: loading" << filePath;
+#endif
     if (filePath == "") {
+#ifdef _DEBUG
+        qDebug() << "ModelLoader::loadFromFile: invalid file path";
+#endif
         m_log += "Invalid file path.";
         return 0;
     }
@@ -44,6 +50,9 @@ Model * ModelLoader::loadFromFile(QString filePath) {
     }
 
     if (!m_aiScenePtr || !m_aiScenePtr->mRootNode || m_aiScenePtr->mFlags == AI_SCENE_FLAGS_INCOMPLETE) {
+#ifdef _DEBUG
+        qDebug() << "ModelLoader::loadFromFile:" << importer.GetErrorString();
+#endif
         m_log += importer.GetErrorString();
         return 0;
     }
@@ -94,6 +103,9 @@ QString ModelLoader::log() {
 Model * ModelLoader::loadModel(const aiNode * aiNodePtr) {
     Model* model = new Model;
     model->setObjectName(aiNodePtr->mName.length ? aiNodePtr->mName.C_Str() : "Untitled");
+#ifdef _DEBUG
+    qDebug() << "New model" << model->objectName() << "is created";
+#endif
     for (uint32_t i = 0; i < aiNodePtr->mNumMeshes; i++)
         model->addChildMesh(loadMesh(m_aiScenePtr->mMeshes[aiNodePtr->mMeshes[i]]));
     for (uint32_t i = 0; i < aiNodePtr->mNumChildren; i++)
@@ -102,6 +114,12 @@ Model * ModelLoader::loadModel(const aiNode * aiNodePtr) {
 }
 
 Mesh * ModelLoader::loadMesh(const aiMesh * aiMeshPtr) {
+    Mesh* mesh = new Mesh;
+    mesh->setObjectName(aiMeshPtr->mName.length ? aiMeshPtr->mName.C_Str() : "Untitled");
+#ifdef _DEBUG
+    qDebug() << "New mesh" << mesh->objectName() << "is created";
+#endif
+
     QVector<Vertex> vertices;
     QVector<uint32_t> indices;
 
@@ -133,8 +151,6 @@ Mesh * ModelLoader::loadMesh(const aiMesh * aiMeshPtr) {
         for (uint32_t j = 0; j < 3; j++)
             indices.push_back(aiMeshPtr->mFaces[i].mIndices[j]);
 
-    Mesh* mesh = new Mesh;
-    mesh->setObjectName(aiMeshPtr->mName.length ? aiMeshPtr->mName.C_Str() : "Untitled");
     mesh->setGeometry(vertices, indices);
     mesh->setMaterial(loadMaterial(m_aiScenePtr->mMaterials[aiMeshPtr->mMaterialIndex]));
 

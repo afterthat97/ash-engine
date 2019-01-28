@@ -12,6 +12,7 @@ public:
              float ambient, float diffuse, float specular,
              QObject * parent = 0);
     Material(const Material& material);
+    ~Material();
 
     void dumpObjectInfo(int level = 0);
     void dumpObjectTree(int level = 0);

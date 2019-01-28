@@ -18,6 +18,12 @@ Gridline::Gridline(const Gridline & gridline): QObject(0) {
     m_color = gridline.m_color;
 }
 
+Gridline::~Gridline() {
+#ifdef _DEBUG
+    qDebug() << "Gridline" << this->objectName() << "is destroyed";
+#endif
+}
+
 void Gridline::dumpObjectInfo(int l) {
     qDebug().nospace() << tab(l) << "Gridline: " << objectName();
     qDebug().nospace() << tab(l + 1) << "X Range: " << m_xRange;

@@ -12,6 +12,12 @@ Texture::Texture(const Texture & texture) {
     m_image = texture.m_image;
 }
 
+Texture::~Texture() {
+#ifdef _DEBUG
+    qDebug() << "Texture" << this->objectName() << "is destroyed";
+#endif
+}
+
 void Texture::dumpObjectInfo(int l) {
     qDebug().nospace() << tab(l) << "Texture: " << objectName();
     qDebug().nospace() << tab(l + 1) << "Enabled: " << m_enabled;

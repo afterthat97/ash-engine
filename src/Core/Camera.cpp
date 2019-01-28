@@ -27,6 +27,12 @@ Camera::Camera(const Camera & camera): QObject(0) {
     m_up = camera.m_up;
 }
 
+Camera::~Camera() {
+#ifdef _DEBUG
+    qDebug() << "Camera" << this->objectName() << "is destroyed";
+#endif
+}
+
 void Camera::moveForward(float shift) {
     setPosition(m_position + m_direction * shift * m_movingSpeed);
 }
