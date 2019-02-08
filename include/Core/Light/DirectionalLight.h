@@ -9,6 +9,7 @@ public:
     DirectionalLight(QObject* parent = 0);
     DirectionalLight(QVector3D color, QVector3D direction, QObject* parent = 0);
     DirectionalLight(const DirectionalLight& light);
+    ~DirectionalLight();
 
     void dumpObjectInfo(int level = 0) override;
     void dumpObjectTree(int level = 0) override;

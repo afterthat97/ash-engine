@@ -1,9 +1,11 @@
-#version 330 core
-
 out vec4 fragColor;
 
-uniform vec3 color;
-
 void main() {
-    fragColor = vec4(color, 1.0f);
+    fragColor = vec4(vec3(material.color), 1.0f);
+    
+    if (highlighted == 1)
+        fragColor += vec4(0.2, 0.2, 0.2, 0);
+    
+    if (selected == 1)
+        fragColor += vec4(0, 0, 0.4, 0);
 }

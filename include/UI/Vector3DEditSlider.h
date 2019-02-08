@@ -1,6 +1,5 @@
 #pragma once
 
-#include <UI/Common.h>
 #include <UI/FloatSlider.h>
 #include <UI/Vector3DEdit.h>
 

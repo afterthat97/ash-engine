@@ -1,19 +1,13 @@
 #include <Core/Model.h>
 #include <Core/Mesh.h>
 
-Model::Model(QObject * parent): QObject(0) {
+Model::Model(QObject * parent): AbstractEntity(0) {
     m_visible = true;
     resetTransformation();
     setParent(parent);
 }
 
-// Add & remove members
-
-Model::Model(const Model & model): QObject(0) {
-    m_visible = model.m_visible;
-    m_position = model.m_position;
-    m_rotation = model.m_rotation;
-    m_scaling = model.m_scaling;
+Model::Model(const Model & model): AbstractEntity(model) {
     for (int i = 0; i < model.m_childMeshes.size(); i++)
         addChildMesh(new Mesh(*model.m_childMeshes[i]));
     for (int i = 0; i < model.m_childModels.size(); i++)
@@ -31,8 +25,6 @@ bool Model::addChildMesh(Mesh * mesh) {
         return false;
     m_childMeshes.push_back(mesh);
     mesh->setParent(this);
-    connect(mesh, SIGNAL(materialChanged(Material*)), this, SIGNAL(childrenChanged()));
-    childrenChanged();
     childMeshAdded(mesh);
 #ifdef _DEBUG
     qDebug() << "Mesh" << mesh->objectName() << "is added to model" << this->objectName() << "as child";
@@ -45,8 +37,6 @@ bool Model::addChildModel(Model * model) {
         return false;
     m_childModels.push_back(model);
     model->setParent(this);
-    connect(model, SIGNAL(childrenChanged()), this, SIGNAL(childrenChanged()));
-    childrenChanged();
     childModelAdded(model);
 #ifdef _DEBUG
     qDebug() << "Model" << model->objectName() << "is added to model" << this->objectName() << "as child";
@@ -58,7 +48,6 @@ bool Model::removeChildMesh(QObject * mesh, bool recursive) {
     for (int i = 0; i < m_childMeshes.size(); i++)
         if (m_childMeshes[i] == mesh) {
             m_childMeshes.erase(m_childMeshes.begin() + i);
-            childrenChanged();
             childMeshRemoved(mesh);
 #ifdef _DEBUG
             qDebug() << "Child mesh" << mesh->objectName() << "is removed from model" << this->objectName();
@@ -76,7 +65,6 @@ bool Model::removeChildModel(QObject * model, bool recursive) {
     for (int i = 0; i < m_childModels.size(); i++)
         if (m_childModels[i] == model) {
             m_childModels.erase(m_childModels.begin() + i);
-            childrenChanged();
             childModelRemoved(model);
 #ifdef _DEBUG
             qDebug() << "Child model" << model->objectName() << "is removed from model" << this->objectName();
@@ -88,24 +76,6 @@ bool Model::removeChildModel(QObject * model, bool recursive) {
         if (m_childModels[i]->removeChildModel(model, recursive))
             return true;
     return false;
-}
-
-// Transform functions
-
-void Model::translate(QVector3D delta) {
-    setPosition(m_position + delta);
-}
-
-void Model::rotate(QQuaternion _rotation) {
-    setRotation(_rotation * m_rotation);
-}
-
-void Model::rotate(QVector3D _rotation) {
-    setRotation(QQuaternion::fromEulerAngles(_rotation) * m_rotation);
-}
-
-void Model::scale(QVector3D _scaling) {
-    setScaling(m_scaling * _scaling);
 }
 
 // Dump info
@@ -128,15 +98,18 @@ void Model::dumpObjectTree(int l) {
         m_childModels[i]->dumpObjectTree(l + 1);
 }
 
-// Others
-
 QVector3D Model::centerOfMass() const {
     QVector3D centerOfMass;
-    for (int i = 0; i < m_childMeshes.size(); i++)
+    float totalMass = 0;
+    for (int i = 0; i < m_childMeshes.size(); i++) {
         centerOfMass += m_childMeshes[i]->centerOfMass() * m_childMeshes[i]->mass();
-    for (int i = 0; i < m_childModels.size(); i++)
+        totalMass += m_childMeshes[i]->mass();
+    }
+    for (int i = 0; i < m_childModels.size(); i++) {
         centerOfMass += m_childModels[i]->centerOfMass() * m_childModels[i]->mass();
-    return centerOfMass / mass();
+        totalMass += m_childModels[i]->mass();
+    }
+    return centerOfMass / totalMass;
 }
 
 float Model::mass() const {
@@ -148,44 +121,21 @@ float Model::mass() const {
     return totalMass;
 }
 
-// Get properties
-
-bool Model::visible() const {
-    return m_visible;
-}
-
-QVector3D Model::localPosition() const {
-    return m_position;
-}
-
-QVector3D Model::globalPosition() const {
-    if (Model* par = qobject_cast<Model*>(parent()))
-        return par->globalModelMatrix() * localPosition();
-    else
-        return localPosition();
-}
-
-QVector3D Model::localRotation() const {
-    return m_rotation;
-}
-
-QVector3D Model::localScaling() const {
-    return m_scaling;
-}
-
-QMatrix4x4 Model::localModelMatrix() const {
-    QMatrix4x4 model;
-    model.translate(m_position);
-    model.rotate(QQuaternion::fromEulerAngles(m_rotation));
-    model.scale(m_scaling);
-    return model;
-}
-
-QMatrix4x4 Model::globalModelMatrix() const {
-    if (Model* par = qobject_cast<Model*>(parent()))
-        return par->globalModelMatrix() * localModelMatrix();
-    else
-        return localModelMatrix();
+Mesh * Model::assemble() const {
+    Mesh* assembledMesh = 0;
+    for (int i = 0; i < m_childMeshes.size(); i++) {
+        Mesh* old = assembledMesh;
+        assembledMesh = Mesh::merge(old, m_childMeshes[i]);
+        if (old) delete old;
+    }
+    for (int i = 0; i < m_childModels.size(); i++) {
+        Mesh* old1 = assembledMesh;
+        Mesh* old2 = m_childModels[i]->assemble();
+        assembledMesh = Mesh::merge(old1, old2);
+        if (old1) delete old1;
+        if (old2) delete old2;
+    }
+    return assembledMesh;
 }
 
 const QVector<Mesh*>& Model::childMeshes() const {
@@ -196,55 +146,12 @@ const QVector<Model*>& Model::childModels() const {
     return m_childModels;
 }
 
-// Public slots
-
-void Model::resetTransformation() {
-    setPosition(QVector3D());
-    setRotation(QVector3D());
-    setScaling(QVector3D(1.0f, 1.0f, 1.0f));
-}
-
 void Model::resetChildrenTransformation() {
     for (int i = 0; i < m_childMeshes.size(); i++)
         m_childMeshes[i]->resetTransformation();
     for (int i = 0; i < m_childModels.size(); i++) {
         m_childModels[i]->resetTransformation();
         m_childModels[i]->resetChildrenTransformation();
-    }
-}
-
-void Model::setVisible(bool visible) {
-    if (m_visible != visible) {
-        m_visible = visible;
-        visibleChanged(m_visible);
-    }
-}
-
-void Model::setPosition(QVector3D position) {
-    if (!qFuzzyCompare(m_position, position)) {
-        m_position = position;
-        positionChanged(m_position);
-    }
-}
-
-void Model::setRotation(QQuaternion rotation) {
-    if (!qFuzzyCompare(m_rotation, rotation.toEulerAngles())) {
-        m_rotation = rotation.toEulerAngles();
-        rotationChanged(m_rotation);
-    }
-}
-
-void Model::setRotation(QVector3D rotation) {
-    if (!qFuzzyCompare(m_rotation, rotation)) {
-        m_rotation = rotation;
-        rotationChanged(m_rotation);
-    }
-}
-
-void Model::setScaling(QVector3D scaling) {
-    if (!qFuzzyCompare(m_scaling, scaling)) {
-        m_scaling = scaling;
-        scalingChanged(m_scaling);
     }
 }
 

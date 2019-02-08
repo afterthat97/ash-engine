@@ -1,6 +1,6 @@
 #pragma once
 
-#include <UI/Common.h>
+#include <Core/Model.h>
 #include <UI/Vector3DEditSlider.h>
 
 class ModelProperty: public QWidget {

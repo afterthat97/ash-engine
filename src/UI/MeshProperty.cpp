@@ -9,9 +9,9 @@ MeshProperty::MeshProperty(Mesh * mesh, QWidget * parent): QWidget(parent) {
     m_scalingEdit = new Vector3DEdit("Scaling", Qt::Horizontal, "X", "Y", "Z", 0.0f, inf, 2, this);
 
     m_visibleCheckBox->setChecked(m_host->visible());
-    m_positionEdit->setValue(m_host->localPosition());
-    m_rotationEditSlider->setValue(m_host->localRotation());
-    m_scalingEdit->setValue(m_host->localScaling());
+    m_positionEdit->setValue(m_host->position());
+    m_rotationEditSlider->setValue(m_host->rotation());
+    m_scalingEdit->setValue(m_host->scaling());
 
     configLayout();
     configSignals();

@@ -1,0 +1,14 @@
+# File produced by Open Asset Import Library (http://www.assimp.sf.net)
+# (assimp v4.1.0)
+
+newmtl /Game/StarterContent/Props/Materials/M_Chair_M_Chair
+Kd 0.6000000238418579 0.6000000238418579 0.6000000238418579
+Ka 0 0 0
+Ks 0 0 0
+Ns 32
+illum 2
+map_Kd textures/D_2950852040336.png
+map_Ks textures/S_2950852040848.png
+bump textures/N_2950852042384.png
+map_bump textures/N_2950852042384.png
+

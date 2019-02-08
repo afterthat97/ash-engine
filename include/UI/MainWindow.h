@@ -1,8 +1,7 @@
 #pragma once
 
-#include <UI/Common.h>
+#include <OpenGL/OpenGLWindow.h>
 #include <UI/SceneTreeWidget.h>
-#include <OpenGL/OpenGLWidget.h>
 
 class MainWindow: public QMainWindow {
     Q_OBJECT
@@ -12,28 +11,17 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
-    void dragEnterEvent(QDragEnterEvent *event) override;
-    void dragMoveEvent(QDragMoveEvent *event) override;
-    void dropEvent(QDropEvent *event) override;
 
 private:
     Scene *m_host;
+    AbstractEntity* m_copyedObject;
 
-    QMenuBar *m_menuBar;
-    QWidget* m_centralWidget;
     QSplitter * m_splitter;
-    QStatusBar * m_statusBar;
     QLabel* m_fpsLabel;
 
     SceneTreeWidget *m_sceneTreeWidget;
     OpenGLWindow *m_openGLWindow;
     QWidget *m_propertyWidget;
-
-    QAction *actionFileNew, *actionFileOpen, *actionFileLoadModel, *actionFileSave, *actionFileExit;
-    QAction *actionCreateGridline;
-    QAction *actionCreateAmbientLight, *actionCreateDirectionalLight, *actionCreatePointLight, *actionCreateSpotLight;
-    QAction *actionCreateBasicCone, *actionCreateBasicCube, *actionCreateBasicCylinder, *actionCreateBasicPlane, *actionCreateBasicSphere;
-    QAction *actionHelpAbout, *actionHelpCheckUpdate;
 
     void configMenu();
     void configLayout();
@@ -44,26 +32,35 @@ private slots:
     void itemSelected(QVariant item);
     void itemDeselected(QVariant item);
 
-    void fileNew();
-    void fileOpen();
-    void fileLoadModel();
-    void fileSave();
-    void fileExit();
+    void fileNewScene();
+    void fileOpenScene();
+    void fileImportModel();
+    void fileExportModel();
+    void fileSaveScene();
+    void fileSaveAsScene();
+    void fileQuit();
+
+    void editCopy();
+    void editPaste();
+    void editRemove();
 
     void createGridline();
-
     void createAmbientLight();
     void createDirectionalLight();
     void createPointLight();
     void createSpotLight();
-    
     void createBasicCone();
     void createBasicCube();
     void createBasicCylinder();
     void createBasicPlane();
     void createBasicSphere();
+
+    void setAxisTypeTranslate();
+    void setAxisTypeRotate();
+    void setAxisTypeScale();
     
     void helpAbout();
+    void helpSourceCode();
     void helpCheckForUpdates();
     void replyOfUpdates(QNetworkReply* reply);
 };

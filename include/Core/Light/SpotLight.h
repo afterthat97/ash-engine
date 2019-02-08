@@ -9,6 +9,7 @@ public:
     SpotLight(QObject* parent = 0);
     SpotLight(QVector3D color, QVector3D position, QVector3D direction, QObject* parent = 0);
     SpotLight(const SpotLight& light);
+    ~SpotLight();
 
     void translate(QVector3D delta);
 
@@ -24,8 +25,11 @@ public:
     float attenuationQuadratic() const;
     float attenuationLinear() const;
     float attenuationConstant() const;
+    Mesh* marker() const override;
 
 public slots:
+    void setColor(QVector3D color) override;
+    void setEnabled(bool enabled) override;
     void setPosition(QVector3D position);
     void setDirection(QVector3D direction);
     void setInnerCutOff(float innerCutOff);
@@ -52,4 +56,5 @@ protected:
     float m_innerCutOff, m_outerCutOff;
     bool m_enableAttenuation;
     float m_attenuationQuadratic, m_attenuationLinear, m_attenuationConstant;
+    Mesh* m_flashLightMesh;
 };

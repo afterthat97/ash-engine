@@ -1,18 +1,32 @@
 <RCC>
     <qresource prefix="/">
+        <file>resources/shaders/define.glsl</file>
+        <file>resources/shaders/ubo.glsl</file>
         <file>resources/shaders/basic.vert</file>
         <file>resources/shaders/basic.frag</file>
         <file>resources/shaders/phong.vert</file>
         <file>resources/shaders/phong.frag</file>
+        <file>resources/shaders/picking.vert</file>
+        <file>resources/shaders/picking.frag</file>
 
-        <file>resources/shapes/Cone.fbx</file>
-        <file>resources/shapes/Cube.fbx</file>
-        <file>resources/shapes/Cylinder.fbx</file>
-        <file>resources/shapes/Plane.fbx</file>
-        <file>resources/shapes/Sphere.fbx</file>
+        <file>resources/shapes/Cone.obj</file>
+        <file>resources/shapes/Cube.obj</file>
+        <file>resources/shapes/Cylinder.obj</file>
+        <file>resources/shapes/Plane.obj</file>
+        <file>resources/shapes/Sphere.obj</file>
 
-        <file>resources/shapes/PointLight.fbx</file>
-        <file>resources/shapes/SpotLight.fbx</file>
+        <file>resources/shapes/PointLight.obj</file>
+        <file>resources/shapes/SpotLight.obj</file>
+
+        <file>resources/shapes/TransX.obj</file>
+        <file>resources/shapes/TransY.obj</file>
+        <file>resources/shapes/TransZ.obj</file>
+        <file>resources/shapes/RotX.obj</file>
+        <file>resources/shapes/RotY.obj</file>
+        <file>resources/shapes/RotZ.obj</file>
+        <file>resources/shapes/ScaleX.obj</file>
+        <file>resources/shapes/ScaleY.obj</file>
+        <file>resources/shapes/ScaleZ.obj</file>
 
         <file>resources/icons/AmbientLightIcon.png</file>
         <file>resources/icons/CameraIcon.png</file>

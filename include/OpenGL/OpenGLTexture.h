@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Texture.h>
 #include <OpenGL/Common.h>
 
 class OpenGLTexture: public QObject {
@@ -9,7 +10,7 @@ public:
     OpenGLTexture(Texture* texture);
     ~OpenGLTexture();
 
-    void bind(QOpenGLShaderProgram* shader);
+    void bind();
     void release();
 
 private:

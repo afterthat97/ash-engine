@@ -15,6 +15,12 @@ DirectionalLight::DirectionalLight(const DirectionalLight & light): AbstractLigh
     m_direction = light.m_direction;
 }
 
+DirectionalLight::~DirectionalLight() {
+#ifdef _DEBUG
+    qDebug() << "Directional Light" << this->objectName() << "is destroyed";
+#endif
+}
+
 void DirectionalLight::dumpObjectInfo(int l) {
     qDebug().nospace() << tab(l) << "Directional Light: " << objectName();
     qDebug().nospace() << tab(l + 1) << "Enabled: " << m_enabled;

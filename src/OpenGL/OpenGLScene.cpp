@@ -1,15 +1,85 @@
 #include <OpenGL/OpenGLScene.h>
 #include <OpenGL/OpenGLConfig.h>
-#include <OpenGL/OpenGLManager.h>
-#include <OpenGL/OpenGLGridline.h>
-#include <OpenGL/OpenGLAmbientLight.h>
-#include <OpenGL/OpenGLDirectionalLight.h>
-#include <OpenGL/OpenGLPointLight.h>
-#include <OpenGL/OpenGLSpotLight.h>
-#include <OpenGL/OpenGLModel.h>
+
+struct ShaderAxisInfo { // struct size: 64
+    //                         // base align  // aligned offset
+    float hostModelMat[16];    // 64          // 0
+} shaderAxisInfo;
+
+struct ShaderCameraInfo { // struct size: 144
+    //                         // base align  // aligned offset
+    float projMat[16];         // 64          // 0
+    float viewMat[16];         // 64          // 64
+    QVector4D cameraPos;       // 16          // 128
+} shaderCameraInfo;
+
+struct ShaderAmbientLight { // struct size: 16
+    //                         // base align  // aligned offset
+    QVector4D color;           // 16          // 0
+};
+
+struct ShaderDirectionalLight { // struct size: 32
+    //                         // base align  // aligned offset
+    QVector4D color;           // 16          // 0
+    QVector4D direction;       // 16          // 16
+};
+
+struct ShaderPointLight { // struct size: 48
+    //                           // base align  // aligned offset
+    QVector4D color;             // 16          // 0
+    QVector4D pos;               // 16          // 16
+    float enableAttenuation;     // 4           // 32
+    float attenuationQuadratic;  // 4           // 36
+    float attenuationLinear;     // 4           // 40
+    float attenuationConstant;   // 4           // 44
+};
+
+struct ShaderSpotLight { // struct size: 80
+    //                           // base align  // aligned offset
+    QVector4D color;             // 16          // 0
+    QVector4D pos;               // 16          // 16
+    QVector4D direction;         // 16          // 32
+    float innerCutOff;           // 4           // 48
+    float outerCutOff;           // 4           // 52
+    float enableAttenuation;     // 4           // 56
+    float attenuationQuadratic;  // 4           // 60
+    float attenuationLinear;     // 4           // 64
+    float attenuationConstant;   // 4           // 68
+    float padding1;              // 4           // 72
+    float padding2;              // 4           // 76
+};
+
+struct ShaderLightingInfo { // struct size: 1424
+    //                                          // base align  // aligned offset
+    int ambientLightNum;                        // 4           // 0
+    int directionalLightNum;                    // 4           // 4
+    int pointLightNum;                          // 4           // 8
+    int spotLightNum;                           // 4           // 12
+    ShaderAmbientLight ambientLight[8];         // 16          // 16
+    ShaderDirectionalLight directionalLight[8]; // 32          // 144
+    ShaderPointLight pointLight[8];             // 48          // 400
+    ShaderSpotLight spotLight[8];               // 80          // 784
+} shaderLightingInfo;
+
+OpenGLUniformBufferObject *OpenGLScene::m_cameraInfo = 0;
+OpenGLUniformBufferObject *OpenGLScene::m_lightingInfo = 0;
 
 OpenGLScene::OpenGLScene(Scene * scene) {
     m_host = scene;
+    
+    this->axisAdded(m_host->axis());
+    for (int i = 0; i < m_host->gridlines().size(); i++)
+        this->gridlineAdded(m_host->gridlines()[i]);
+    for (int i = 0; i < m_host->pointLights().size(); i++)
+        this->lightAdded(m_host->pointLights()[i]);
+    for (int i = 0; i < m_host->spotLights().size(); i++)
+        this->lightAdded(m_host->spotLights()[i]);
+    for (int i = 0; i < m_host->models().size(); i++)
+        this->modelAdded(m_host->models()[i]);
+
+    connect(m_host, SIGNAL(gridlineAdded(Gridline*)), this, SLOT(gridlineAdded(Gridline*)));
+    connect(m_host, SIGNAL(lightAdded(AbstractLight*)), this, SLOT(lightAdded(AbstractLight*)));
+    connect(m_host, SIGNAL(modelAdded(Model*)), this, SLOT(modelAdded(Model*)));
     connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
 }
 
@@ -17,61 +87,157 @@ Scene * OpenGLScene::host() const {
     return m_host;
 }
 
-void OpenGLScene::bindCamera(QOpenGLShaderProgram * shader) {
-    shader->bind();
-    shader->setUniformValue("projMat", m_host->camera()->projectionMatrix());
-    shader->setUniformValue("viewMat", m_host->camera()->viewMatrix());
-    shader->setUniformValue("viewPos", m_host->camera()->position());
+OpenGLMesh * OpenGLScene::pick(uint32_t pickingID) {
+    if (pickingID >= 1000 && pickingID - 1000 < (uint32_t) m_normalMeshes.size())
+        return m_normalMeshes[pickingID - 1000];
+    else if (pickingID >= 100 && pickingID - 100 < (uint32_t) m_lightMeshes.size())
+        return m_lightMeshes[pickingID - 100];
+    else if (pickingID >= 90 && pickingID - 90 < (uint32_t) m_axisMeshes.size())
+        return m_axisMeshes[pickingID - 90];
+    return 0;
 }
 
-void OpenGLScene::renderGridlines(QOpenGLShaderProgram * shader) {
-    for (int i = 0; i < m_host->gridlines().size(); i++) {
-        Gridline* gridline = m_host->gridlines()[i];
-        OpenGLManager<Gridline, OpenGLGridline>::currentManager()->getOpenGLObject(gridline)->render(shader);
+void OpenGLScene::renderAxis() {
+    glClear(GL_DEPTH_BUFFER_BIT);
+    for (int i = 0; i < m_axisMeshes.size(); i++) {
+        m_axisMeshes[i]->setPickingID(90 + i);
+        m_axisMeshes[i]->render();
     }
 }
 
-void OpenGLScene::bindLights(QOpenGLShaderProgram * shader) {
+void OpenGLScene::renderGridlines() {
+    for (int i = 0; i < m_gridlineMeshes.size(); i++)
+        m_gridlineMeshes[i]->render();
+}
+
+void OpenGLScene::renderLights() {
+    for (int i = 0; i < m_lightMeshes.size(); i++) {
+        m_lightMeshes[i]->setPickingID(100 + i);
+        m_lightMeshes[i]->render();
+    }
+}
+
+void OpenGLScene::renderModels() {
+    for (int i = 0; i < m_normalMeshes.size(); i++) {
+        m_normalMeshes[i]->setPickingID(1000 + i);
+        m_normalMeshes[i]->render();
+    }
+}
+
+void OpenGLScene::commitCameraInfo() {
+    memcpy(shaderCameraInfo.projMat, m_host->camera()->projectionMatrix().constData(), 64);
+    memcpy(shaderCameraInfo.viewMat, m_host->camera()->viewMatrix().constData(), 64);
+    shaderCameraInfo.cameraPos = m_host->camera()->position();
+    
+    if (m_cameraInfo == 0) {
+        m_cameraInfo = new OpenGLUniformBufferObject;
+        m_cameraInfo->create();
+        m_cameraInfo->bind();
+        m_cameraInfo->allocate(0, NULL, sizeof(ShaderCameraInfo));
+        m_cameraInfo->release();
+    }
+    
+    m_cameraInfo->bind();
+    m_cameraInfo->write(0, &shaderCameraInfo, sizeof(ShaderCameraInfo));
+    m_cameraInfo->release();
+}
+
+void OpenGLScene::commitLightingInfo() {
     int ambientLightNum = 0, directionalLightNum = 0, pointLightNum = 0, spotLightNum = 0;
-
     for (int i = 0; i < m_host->ambientLights().size(); i++)
-        OpenGLManager<AmbientLight, OpenGLAmbientLight>::currentManager()->getOpenGLObject(m_host->ambientLights()[i])->bind(shader, ambientLightNum++);
-
+        if (m_host->ambientLights()[i]->enabled()) {
+            shaderLightingInfo.ambientLight[ambientLightNum].color = m_host->ambientLights()[i]->color();
+            ambientLightNum++;
+        }
     for (int i = 0; i < m_host->directionalLights().size(); i++)
-        OpenGLManager<DirectionalLight, OpenGLDirectionalLight>::currentManager()->getOpenGLObject(m_host->directionalLights()[i])->bind(shader, directionalLightNum++);
-
+        if (m_host->directionalLights()[i]->enabled()) {
+            shaderLightingInfo.directionalLight[directionalLightNum].color = m_host->directionalLights()[i]->color();
+            shaderLightingInfo.directionalLight[directionalLightNum].direction = m_host->directionalLights()[i]->direction();
+            directionalLightNum++;
+        }
     for (int i = 0; i < m_host->pointLights().size(); i++)
-        OpenGLManager<PointLight, OpenGLPointLight>::currentManager()->getOpenGLObject(m_host->pointLights()[i])->bind(shader, pointLightNum++);
-
+        if (m_host->pointLights()[i]->enabled()) {
+            shaderLightingInfo.pointLight[pointLightNum].color = m_host->pointLights()[i]->color();
+            shaderLightingInfo.pointLight[pointLightNum].pos = m_host->pointLights()[i]->position();
+            shaderLightingInfo.pointLight[pointLightNum].enableAttenuation = m_host->pointLights()[i]->enableAttenuation();
+            shaderLightingInfo.pointLight[pointLightNum].attenuationQuadratic = m_host->pointLights()[i]->attenuationQuadratic();
+            shaderLightingInfo.pointLight[pointLightNum].attenuationLinear = m_host->pointLights()[i]->attenuationLinear();
+            shaderLightingInfo.pointLight[pointLightNum].attenuationConstant = m_host->pointLights()[i]->attenuationConstant();
+            pointLightNum++;
+        }
     for (int i = 0; i < m_host->spotLights().size(); i++)
-        OpenGLManager<SpotLight, OpenGLSpotLight>::currentManager()->getOpenGLObject(m_host->spotLights()[i])->bind(shader, spotLightNum++);
+        if (m_host->spotLights()[i]->enabled()) {
+            shaderLightingInfo.spotLight[spotLightNum].color = m_host->spotLights()[i]->color();
+            shaderLightingInfo.spotLight[spotLightNum].pos = m_host->spotLights()[i]->position();
+            shaderLightingInfo.spotLight[spotLightNum].direction = m_host->spotLights()[i]->direction();
+            shaderLightingInfo.spotLight[spotLightNum].innerCutOff = m_host->spotLights()[i]->innerCutOff();
+            shaderLightingInfo.spotLight[spotLightNum].outerCutOff = m_host->spotLights()[i]->outerCutOff();
+            shaderLightingInfo.spotLight[spotLightNum].enableAttenuation = m_host->spotLights()[i]->enableAttenuation();
+            shaderLightingInfo.spotLight[spotLightNum].attenuationQuadratic = m_host->spotLights()[i]->attenuationQuadratic();
+            shaderLightingInfo.spotLight[spotLightNum].attenuationLinear = m_host->spotLights()[i]->attenuationLinear();
+            shaderLightingInfo.spotLight[spotLightNum].attenuationConstant = m_host->spotLights()[i]->attenuationConstant();
+            spotLightNum++;
+        }
 
-    shader->bind();
-    shader->setUniformValue("ambientLightNum", ambientLightNum);
-    shader->setUniformValue("directionalLightNum", directionalLightNum);
-    shader->setUniformValue("pointLightNum", pointLightNum);
-    shader->setUniformValue("spotLightNum", spotLightNum);
-}
+    shaderLightingInfo.ambientLightNum = ambientLightNum;
+    shaderLightingInfo.directionalLightNum = directionalLightNum;
+    shaderLightingInfo.pointLightNum = pointLightNum;
+    shaderLightingInfo.spotLightNum = spotLightNum;
 
-void OpenGLScene::renderLights(QOpenGLShaderProgram * shader) {
-    for (int i = 0; i < m_host->pointLights().size(); i++)
-        OpenGLManager<PointLight, OpenGLPointLight>::currentManager()->getOpenGLObject(m_host->pointLights()[i])->render(shader);
-
-    for (int i = 0; i < m_host->spotLights().size(); i++)
-        OpenGLManager<SpotLight, OpenGLSpotLight>::currentManager()->getOpenGLObject(m_host->spotLights()[i])->render(shader);
-}
-
-void OpenGLScene::renderModels(QOpenGLShaderProgram * shader) {
-    for (int i = 0; i < m_host->models().size(); i++) {
-        Model* model = m_host->models()[i];
-        OpenGLManager<Model, OpenGLModel>::currentManager()->getOpenGLObject(model)->render(shader);
+    if (m_lightingInfo == 0) {
+        m_lightingInfo = new OpenGLUniformBufferObject;
+        m_lightingInfo->create();
+        m_lightingInfo->bind();
+        m_lightingInfo->allocate(3, NULL, sizeof(ShaderLightingInfo));
+        m_lightingInfo->release();
     }
+    m_lightingInfo->bind();
+    m_lightingInfo->write(0, &shaderLightingInfo, sizeof(ShaderLightingInfo));
+    m_lightingInfo->release();
+}
+
+void OpenGLScene::childEvent(QChildEvent * e) {
+    if (e->removed()) {
+#ifdef _DEBUG
+        qDebug() << "OpenGLScene" << m_host->objectName() << "received child event (Type: Removed)";
+#endif
+        for (int i = 0; i < m_gridlineMeshes.size(); i++)
+            if (m_gridlineMeshes[i] == e->child())
+                m_gridlineMeshes.removeAt(i);
+        for (int i = 0; i < m_lightMeshes.size(); i++)
+            if (m_lightMeshes[i] == e->child())
+                m_lightMeshes.removeAt(i);
+        for (int i = 0; i < m_normalMeshes.size(); i++)
+            if (m_normalMeshes[i] == e->child())
+                m_normalMeshes.removeAt(i);
+    }
+}
+
+void OpenGLScene::axisAdded(Axis * axis) {
+    m_axisMeshes.resize(9);
+    for (int i = 0; i < axis->markers().size(); i++) {
+        m_axisMeshes[i] = new OpenGLMesh(axis->markers()[i], this);
+        m_axisMeshes[i]->setSizeFixed(true);
+    }
+}
+
+void OpenGLScene::gridlineAdded(Gridline * gridline) {
+    m_gridlineMeshes.push_back(new OpenGLMesh(gridline->gridlineMesh(), this));
+}
+
+void OpenGLScene::lightAdded(AbstractLight * light) {
+    if (light->marker())
+        m_lightMeshes.push_back(new OpenGLMesh(light->marker(), this));
+}
+
+void OpenGLScene::modelAdded(Model * model) {
+    for (int i = 0; i < model->childMeshes().size(); i++)
+        m_normalMeshes.push_back(new OpenGLMesh(model->childMeshes()[i], this));
+    for (int i = 0; i < model->childModels().size(); i++)
+        this->modelAdded(model->childModels()[i]);
 }
 
 void OpenGLScene::hostDestroyed(QObject *) {
-    // Remove entry
-    OpenGLManager<Scene, OpenGLScene>::currentManager()->removeOpenGLObject(m_host);
-
     // Commit suicide
     delete this;
 }

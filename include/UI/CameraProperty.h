@@ -1,6 +1,6 @@
 #pragma once
 
-#include <UI/Common.h>
+#include <Core/Camera.h>
 #include <UI/Vector3DEdit.h>
 #include <UI/FloatSlider.h>
 

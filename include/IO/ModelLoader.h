@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Core/Core.h>
 #include <IO/TextureLoader.h>
+#include <Core/Model.h>
 
 struct aiScene;
 struct aiNode;
@@ -13,7 +13,8 @@ public:
     ModelLoader();
     ~ModelLoader();
     
-    Model* loadFromFile(QString filePath);
+    Model* loadModelFromFile(QString filePath);
+    Mesh* loadMeshFromFile(QString filePath);
 
     static Model* loadConeModel();
     static Model* loadCubeModel();

@@ -1,4 +1,5 @@
 #include <Core/Light/SpotLight.h>
+#include <IO/ModelLoader.h>
 
 SpotLight::SpotLight(QObject * parent): AbstractLight() {
     m_color = QVector3D(1.0f, 1.0f, 1.0f);
@@ -10,6 +11,13 @@ SpotLight::SpotLight(QObject * parent): AbstractLight() {
     m_attenuationQuadratic = 0.0007f;
     m_attenuationLinear = 0.014f;
     m_attenuationConstant = 1.0f;
+
+    ModelLoader loader;
+    m_flashLightMesh = loader.loadMeshFromFile(":/resources/shapes/SpotLight.obj");
+    m_flashLightMesh->setPosition(this->position());
+    m_flashLightMesh->setRotation(QQuaternion::rotationTo(QVector3D(0, -1, 0), this->direction()));
+    m_flashLightMesh->setParent(this);
+
     setParent(parent);
 }
 
@@ -35,6 +43,13 @@ SpotLight::SpotLight(const SpotLight & light): AbstractLight(light) {
     m_attenuationQuadratic = light.m_attenuationQuadratic;
     m_attenuationLinear = light.m_attenuationLinear;
     m_attenuationConstant = light.m_attenuationConstant;
+}
+
+SpotLight::~SpotLight() {
+    delete m_flashLightMesh;
+#ifdef _DEBUG
+    qDebug() << "Spot Light" << this->objectName() << "is destroyed";
+#endif
 }
 
 void SpotLight::translate(QVector3D delta) {
@@ -98,9 +113,24 @@ float SpotLight::attenuationConstant() const {
     return m_attenuationConstant;
 }
 
+Mesh * SpotLight::marker() const {
+    return m_flashLightMesh;
+}
+
+void SpotLight::setColor(QVector3D color) {
+    AbstractLight::setColor(color);
+    m_flashLightMesh->material()->setColor(color);
+}
+
+void SpotLight::setEnabled(bool enabled) {
+    AbstractLight::setEnabled(enabled);
+    m_flashLightMesh->setVisible(enabled);
+}
+
 void SpotLight::setPosition(QVector3D position) {
     if (!qFuzzyCompare(m_position, position)) {
         m_position = position;
+        m_flashLightMesh->setPosition(m_position);
         positionChanged(m_position);
     }
 }
@@ -108,6 +138,7 @@ void SpotLight::setPosition(QVector3D position) {
 void SpotLight::setDirection(QVector3D direction) {
     if (!qFuzzyCompare(m_direction, direction)) {
         m_direction = direction;
+        m_flashLightMesh->setRotation(QQuaternion::rotationTo(QVector3D(0, -1, 0), m_direction));
         directionChanged(m_direction);
     }
 }

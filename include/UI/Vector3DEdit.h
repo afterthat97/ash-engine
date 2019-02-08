@@ -1,6 +1,5 @@
 #pragma once
 
-#include <UI/Common.h>
 #include <UI/FloatEdit.h>
 
 class Vector3DEdit: public QGroupBox {
@@ -13,7 +12,6 @@ public:
                  QString label0, QString label1, QString label2,
                  float minimum, float maximum, int decimals,
                  QWidget* parent = 0);
-    // TODO: Copy constructor
 
     QVector3D value();
 

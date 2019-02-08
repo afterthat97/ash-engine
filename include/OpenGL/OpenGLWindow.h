@@ -1,23 +1,24 @@
 #pragma once
 
 #include <OpenGL/Common.h>
+#include <OpenGL/OpenGLScene.h>
 #include <OpenGL/OpenGLRenderer.h>
 #include <OpenGL/FPSCounter.h>
 
-class OpenGLWindow: public QOpenGLWindow, protected QOpenGLFunctions {
+class OpenGLWindow: public QOpenGLWindow, protected QOpenGLFunctions_4_2_Core {
     Q_OBJECT
 
 public:
     OpenGLWindow(OpenGLRenderer* renderer);
-    OpenGLWindow(Scene * scene, OpenGLRenderer* renderer);
+    OpenGLWindow(OpenGLScene* openGLScene, OpenGLRenderer* renderer);
 
-    void setScene(Scene* scene);
+    void setScene(OpenGLScene* openGLScene);
     void setCaptureUserInput(bool captureUserInput);
 
 protected:
     void initializeGL() override;
     void paintGL() override;
-
+    bool event(QEvent *ev) override;
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
@@ -31,14 +32,15 @@ signals:
 private:
     QHash<int, bool> m_keyPressed;
     QPoint m_lastCursorPos;
+    QTime m_lastMousePressTime;
     bool m_captureUserInput;
+    OpenGLScene* m_openGLScene;
     OpenGLRenderer * m_renderer;
-    Scene* m_host;
     FPSCounter* m_fpsCounter;
 
     void processUserInput();
     void configSignals();
 
 private slots:
-    void hostDestroyed(QObject* host);
+    void sceneDestroyed(QObject* host);
 };

@@ -1,10 +1,12 @@
 #pragma once
 
+#include <Core/AbstractEntity.h>
 #include <Core/Vertex.h>
+#include <Core/Material.h>
 
-class Material;
+class ModelLoader;
 
-class Mesh: public QObject {
+class Mesh: public AbstractEntity {
     Q_OBJECT
 
 public:
@@ -19,59 +21,40 @@ public:
     Mesh(const Mesh& mesh);
     ~Mesh();
 
-    void translate(QVector3D delta);
-    void rotate(QQuaternion rotation);
-    void rotate(QVector3D rotation);
-    void scale(QVector3D scaling);
-
-    void dumpObjectInfo(int level = 0);
-    void dumpObjectTree(int level = 0);
+    void dumpObjectInfo(int level = 0) override;
+    void dumpObjectTree(int level = 0) override;
     
+    bool isOnlyChild() const;
     QVector3D centerOfMass() const;
     float mass() const;
 
-    bool visible() const;
     MeshType meshType() const;
-    QVector3D localPosition() const;
-    QVector3D globalPosition() const;
-    QVector3D localRotation() const;
-    QVector3D localScaling() const;
-    QMatrix4x4 localModelMatrix() const;
-    QMatrix4x4 globalModelMatrix() const;
     const QVector<Vertex> & vertices() const;
     const QVector<uint32_t> & indices() const;
     Material* material() const;
 
+    static Mesh* merge(const Mesh* mesh1, const Mesh* mesh2);
+
 public slots:
-    void resetTransformation();
-    void setVisible(bool visible);
     void setMeshType(MeshType meshType);
-    void setPosition(QVector3D position);
-    void setRotation(QQuaternion rotation);
-    void setRotation(QVector3D rotation);
-    void setScaling(QVector3D scaling);
     void setGeometry(const QVector<Vertex>& vertices, const QVector<uint32_t>& indices);
     void setMaterial(Material *newMaterial);
 
 signals:
-    void visibleChanged(bool visible);
     void meshTypeChanged(MeshType meshType);
-    void positionChanged(QVector3D position);
-    void rotationChanged(QVector3D rotation);
-    void scalingChanged(QVector3D scaling);
     void geometryChanged(const QVector<Vertex>& vertices, const QVector<uint32_t>& indices);
     void materialChanged(Material* material);
 
 protected:
     void childEvent(QChildEvent *event) override;
 
-private:
-    bool m_visible;
+protected:
     MeshType m_meshType;
-    QVector3D m_position, m_rotation, m_scaling;
     QVector<Vertex> m_vertices;
     QVector<uint32_t> m_indices;
     Material *m_material;
+
+    friend ModelLoader;
 };
 
 QDataStream &operator>>(QDataStream &in, Mesh::MeshType& meshType);

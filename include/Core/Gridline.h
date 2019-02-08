@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Common.h>
+#include <Core/Mesh.h>
 
 class Gridline: public QObject {
     Q_OBJECT
@@ -20,29 +20,16 @@ public:
     float yStride() const;
     float zStride() const;
     QVector3D color() const;
+    Mesh* gridlineMesh();
 
 public slots:
     void reset();
-    void setXRange(float start, float end);
-    void setYRange(float start, float end);
-    void setZRange(float start, float end);
-    void setXStride(float xStride);
-    void setYStride(float yStride);
-    void setZStride(float zStride);
-    void setStride(float xStride, float yStride, float zStride);
     void setXArguments(QVector3D xargs);
     void setYArguments(QVector3D yargs);
     void setZArguments(QVector3D zargs);
     void setColor(QVector3D color);
 
 signals:
-    void xRangeChanged(float start, float end);
-    void yRangeChanged(float start, float end);
-    void zRangeChanged(float start, float end);
-    void xStrideChanged(float xStride);
-    void yStrideChanged(float yStride);
-    void zStrideChanged(float zStride);
-    void strideChanged(float xStride, float yStride, float zStride);
     void xArgumentsChanged(QVector3D xargs);
     void yArgumentsChanged(QVector3D yargs);
     void zArgumentsChanged(QVector3D zargs);
@@ -52,4 +39,7 @@ private:
     QPair<float, float> m_xRange, m_yRange, m_zRange;
     float m_xStride, m_yStride, m_zStride;
     QVector3D m_color;
+    Mesh* m_gridlineMesh;
+
+    void update();
 };

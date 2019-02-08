@@ -1,16 +1,21 @@
 #include <Core/Light/PointLight.h>
+#include <IO/ModelLoader.h>
 
 PointLight::PointLight(QObject * parent): AbstractLight() {
-    m_color = QVector3D(1.0f, 1.0f, 1.0f);
-    m_position = QVector3D(0.0f, 0.0f, 0.0f);
     m_enableAttenuation = false;
     m_attenuationQuadratic = 0.0007f;
     m_attenuationLinear = 0.014f;
     m_attenuationConstant = 1.0f;
+
+    ModelLoader loader;
+    m_marker = loader.loadMeshFromFile(":/resources/shapes/PointLight.obj");
+    m_marker->setPosition(this->position());
+    m_marker->setParent(this);
+
     setParent(parent);
 }
 
-PointLight::PointLight(QVector3D color, QVector3D position, QObject * parent) : AbstractLight(color) {
+PointLight::PointLight(QVector3D color, QVector3D position, QObject * parent): AbstractLight(color) {
     m_position = position;
     m_enableAttenuation = false;
     m_attenuationQuadratic = 0.0007f;
@@ -27,8 +32,10 @@ PointLight::PointLight(const PointLight & light): AbstractLight(light) {
     m_attenuationConstant = light.m_attenuationConstant;
 }
 
-void PointLight::translate(QVector3D delta) {
-    setPosition(m_position + delta);
+PointLight::~PointLight() {
+#ifdef _DEBUG
+    qDebug() << "Point Light" << this->objectName() << "is destroyed";
+#endif
 }
 
 void PointLight::dumpObjectInfo(int l) {
@@ -73,11 +80,25 @@ float PointLight::attenuationConstant() const {
     return m_attenuationConstant;
 }
 
+Mesh * PointLight::marker() const {
+    return m_marker;
+}
+
+void PointLight::setColor(QVector3D color) {
+    AbstractLight::setColor(color);
+    m_marker->material()->setColor(color);
+}
+
 void PointLight::setPosition(QVector3D position) {
     if (!qFuzzyCompare(m_position, position)) {
         m_position = position;
         positionChanged(m_position);
     }
+}
+
+void PointLight::setEnabled(bool enabled) {
+    AbstractLight::setEnabled(enabled);
+    m_marker->setVisible(enabled);
 }
 
 void PointLight::setEnableAttenuation(bool enabled) {

@@ -81,6 +81,7 @@ void SceneSaver::getAllTextures(Model * model) {
     for (int i = 0; i < model->childMeshes().size(); i++)
         if (model->childMeshes()[i]->material()) {
             Material * material = model->childMeshes()[i]->material();
+            if (material == 0) continue;
             if (!material->diffuseTexture().isNull() && !m_textures.contains(material->diffuseTexture()))
                 m_textures.push_back(material->diffuseTexture());
             if (!material->specularTexture().isNull() && !m_textures.contains(material->specularTexture()))
@@ -151,9 +152,9 @@ void SceneSaver::saveSpotLight(SpotLight * light, QDataStream & out) {
 void SceneSaver::saveModel(Model * model, QDataStream & out) {
     out << model->objectName();
     out << model->visible();
-    out << model->localPosition();
-    out << model->localRotation();
-    out << model->localScaling();
+    out << model->position();
+    out << model->rotation();
+    out << model->scaling();
 
     out << model->childMeshes().size();
     for (int i = 0; i < model->childMeshes().size(); i++)
@@ -168,9 +169,9 @@ void SceneSaver::saveMesh(Mesh * mesh, QDataStream & out) {
     out << mesh->objectName();
     out << mesh->visible();
     out << mesh->meshType();
-    out << mesh->localPosition();
-    out << mesh->localRotation();
-    out << mesh->localScaling();
+    out << mesh->position();
+    out << mesh->rotation();
+    out << mesh->scaling();
     out << mesh->vertices();
     out << mesh->indices();
 

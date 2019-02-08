@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Common.h>
+#include <Core/Mesh.h>
 
 class AbstractLight: public QObject {
     Q_OBJECT
@@ -17,11 +18,12 @@ public:
     QVector3D color();
     bool enabled();
     float intensity();
+    virtual Mesh* marker() const;
 
 public slots:
-    void setColor(QVector3D color);
-    void setEnabled(bool enabled);
-    void setIntensity(float intensity);
+    virtual void setColor(QVector3D color);
+    virtual void setEnabled(bool enabled);
+    virtual void setIntensity(float intensity);
 
 signals:
     void colorChanged(QVector3D color);

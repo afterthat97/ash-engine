@@ -1,7 +1,10 @@
 #include <Core/Gridline.h>
 #include <Core/Model.h>
+#include <Core/Material.h>
 
 Gridline::Gridline(QObject* parent): QObject(0) {
+    m_gridlineMesh = new Mesh(Mesh::Line, this);
+    m_gridlineMesh->setMaterial(new Material);
     reset();
     setParent(parent);
 }
@@ -9,6 +12,9 @@ Gridline::Gridline(QObject* parent): QObject(0) {
 // Dump info
 
 Gridline::Gridline(const Gridline & gridline): QObject(0) {
+    setObjectName(gridline.objectName());
+    m_gridlineMesh = new Mesh(Mesh::Line, 0);
+    m_gridlineMesh->setMaterial(new Material);
     m_xRange = gridline.m_xRange;
     m_yRange = gridline.m_yRange;
     m_zRange = gridline.m_zRange;
@@ -16,9 +22,11 @@ Gridline::Gridline(const Gridline & gridline): QObject(0) {
     m_yStride = gridline.m_yStride;
     m_zStride = gridline.m_zStride;
     m_color = gridline.m_color;
+    update();
 }
 
 Gridline::~Gridline() {
+    delete m_gridlineMesh;
 #ifdef _DEBUG
     qDebug() << "Gridline" << this->objectName() << "is destroyed";
 #endif
@@ -69,92 +77,73 @@ QVector3D Gridline::color() const {
     return m_color;
 }
 
+Mesh * Gridline::gridlineMesh() {
+    return m_gridlineMesh;
+}
+
 // Public slots
 
 void Gridline::reset() {
-    setXRange(-20.0f, 20.0f);
-    setYRange(0.0f, 0.0f);
-    setZRange(-20.0f, 20.0f);
-    setStride(1.0f, 1.0f, 1.0f);
-    setColor(QVector3D(0.4f, 0.4f, 0.4f));
-}
-
-void Gridline::setXRange(float start, float end) {
-    if (!qFuzzyCompare(m_xRange.first, start) || !qFuzzyCompare(m_xRange.second, end)) {
-        m_xRange = { start, end };
-        xRangeChanged(m_xRange.first, m_xRange.second);
-        xArgumentsChanged(QVector3D(m_xRange.first, m_xRange.second, m_xStride));
-    }
-}
-
-void Gridline::setYRange(float start, float end) {
-    if (!qFuzzyCompare(m_yRange.first, start) || !qFuzzyCompare(m_yRange.second, end)) {
-        m_yRange = { start, end };
-        yRangeChanged(m_yRange.first, m_yRange.second);
-        yArgumentsChanged(QVector3D(m_yRange.first, m_yRange.second, m_yStride));
-    }
-}
-
-void Gridline::setZRange(float start, float end) {
-    if (!qFuzzyCompare(m_zRange.first, start) || !qFuzzyCompare(m_zRange.second, end)) {
-        m_zRange = { start, end };
-        zRangeChanged(m_zRange.first, m_zRange.second);
-        zArgumentsChanged(QVector3D(m_zRange.first, m_zRange.second, m_zStride));
-    }
-}
-
-void Gridline::setXStride(float xStride) {
-    if (!qFuzzyCompare(m_xStride, xStride)) {
-        m_xStride = xStride;
-        strideChanged(m_xStride, m_yStride, m_zStride);
-        xArgumentsChanged(QVector3D(m_xRange.first, m_xRange.second, m_xStride));
-    }
-}
-
-void Gridline::setYStride(float yStride) {
-    if (!qFuzzyCompare(m_yStride, yStride)) {
-        m_yStride = yStride;
-        strideChanged(m_xStride, m_yStride, m_zStride);
-        yArgumentsChanged(QVector3D(m_yRange.first, m_yRange.second, m_yStride));
-    }
-}
-
-void Gridline::setZStride(float zStride) {
-    if (!qFuzzyCompare(m_zStride, zStride)) {
-        m_zStride = zStride;
-        strideChanged(m_xStride, m_yStride, m_zStride);
-        zArgumentsChanged(QVector3D(m_zRange.first, m_zRange.second, m_zStride));
-    }
-}
-
-void Gridline::setStride(float x, float y, float z) {
-    if (!qFuzzyCompare(m_xStride, x) || !qFuzzyCompare(m_yStride, y) || !qFuzzyCompare(m_zStride, z)) {
-        m_xStride = x; m_yStride = y; m_zStride = z;
-        strideChanged(m_xStride, m_yStride, m_zStride);
-        xArgumentsChanged(QVector3D(m_xRange.first, m_xRange.second, m_xStride));
-        yArgumentsChanged(QVector3D(m_yRange.first, m_yRange.second, m_yStride));
-        zArgumentsChanged(QVector3D(m_zRange.first, m_zRange.second, m_zStride));
-    }
+    m_xRange = { -20, 20 };
+    m_yRange = { 0, 0 };
+    m_zRange = { -20, 20 };
+    m_xStride = m_yStride = m_zStride = 1;
+    m_color = QVector3D(0.4f, 0.4f, 0.4f);
+    update();
 }
 
 void Gridline::setXArguments(QVector3D xargs) {
-    setXRange(xargs[0], xargs[1]);
-    setXStride(xargs[2]);
+    if (!qFuzzyCompare(m_xRange.first, xargs[0]) || !qFuzzyCompare(m_xRange.second, xargs[1]) || !qFuzzyCompare(m_xStride, xargs[2])) {
+        m_xRange = { xargs[0], xargs[1] };
+        m_xStride = xargs[2];
+        update();
+        xArgumentsChanged(xargs);
+    }
 }
 
 void Gridline::setYArguments(QVector3D yargs) {
-    setYRange(yargs[0], yargs[1]);
-    setYStride(yargs[2]);
+    if (!qFuzzyCompare(m_yRange.first, yargs[0]) || !qFuzzyCompare(m_yRange.second, yargs[1]) || !qFuzzyCompare(m_yStride, yargs[2])) {
+        m_yRange = { yargs[0], yargs[1] };
+        m_yStride = yargs[2];
+        update();
+        yArgumentsChanged(yargs);
+    }
 }
 
 void Gridline::setZArguments(QVector3D zargs) {
-    setZRange(zargs[0], zargs[1]);
-    setZStride(zargs[2]);
+    if (!qFuzzyCompare(m_zRange.first, zargs[0]) || !qFuzzyCompare(m_zRange.second, zargs[1]) || !qFuzzyCompare(m_zStride, zargs[2])) {
+        m_zRange = { zargs[0], zargs[1] };
+        m_zStride = zargs[2];
+        update();
+        zArgumentsChanged(zargs);
+    }
 }
 
 void Gridline::setColor(QVector3D color) {
     if (!qFuzzyCompare(m_color, color)) {
         m_color = color;
+        m_gridlineMesh->material()->setColor(m_color);
         colorChanged(m_color);
     }
+}
+
+void Gridline::update() {
+    QVector<Vertex> vertices;
+    QVector<uint32_t> indices;
+    for (float yValue = m_yRange.first; yValue < m_yRange.second + 0.01f; yValue += m_yStride) {
+        for (float xValue = m_xRange.first; xValue < m_xRange.second + 0.01f; xValue += m_xStride) {
+            vertices.push_back(Vertex(QVector3D(xValue, yValue, m_zRange.first)));
+            vertices.push_back(Vertex(QVector3D(xValue, yValue, m_zRange.second)));
+            indices.push_back((uint32_t) vertices.size() - 2);
+            indices.push_back((uint32_t) vertices.size() - 1);
+        }
+        for (float zValue = m_zRange.first; zValue < m_zRange.second + 0.01f; zValue += m_zStride) {
+            vertices.push_back(Vertex(QVector3D(m_xRange.first, yValue, zValue)));
+            vertices.push_back(Vertex(QVector3D(m_xRange.second, yValue, zValue)));
+            indices.push_back((uint32_t) vertices.size() - 2);
+            indices.push_back((uint32_t) vertices.size() - 1);
+        }
+    }
+    m_gridlineMesh->setGeometry(vertices, indices);
+    m_gridlineMesh->material()->setColor(m_color);
 }

@@ -1,11 +1,10 @@
-#version 330 core
-
 layout (location = 0) in vec3 position;
 
-uniform mat4 projMat;
-uniform mat4 viewMat;
-uniform mat4 modelMat;
-
 void main() {
-    gl_Position = projMat * viewMat * modelMat * vec4(position, 1.0f);
+    mat4 MVP = projMat * viewMat * modelMat;
+    gl_Position = MVP * vec4(position, 1.0f);
+    if (sizeFixed == 1) {
+        float w = (MVP * vec4(0.0f, 0.0f, 0.0f, 1.0f)).w / 100;
+        gl_Position = MVP * vec4(position * w, 1.0f);
+    }
 }

@@ -1,5 +1,3 @@
-#version 330 core
-
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
 layout (location = 2) in vec3 tangent;
@@ -10,17 +8,19 @@ out vec3 fragPos;
 out vec2 fragTexCoords;
 out mat3 TBN;
 
-uniform mat4 projMat;
-uniform mat4 viewMat;
-uniform mat4 modelMat;
-
 void main() {
     vec3 T = normalize(mat3(modelMat) * tangent);
     vec3 B = normalize(mat3(modelMat) * bitangent);
-    vec3 N = normalize(transpose(inverse(mat3(modelMat))) * normal);
-
-    gl_Position = projMat * viewMat * modelMat * vec4(position, 1.0f);
+    vec3 N = normalize(mat3(normalMat) * normal);
+    
     fragPos = vec3(modelMat * vec4(position, 1.0f));
     fragTexCoords = texCoords;
     TBN = mat3(T, B, N);
+
+    mat4 MVP = projMat * viewMat * modelMat;
+    gl_Position = MVP * vec4(position, 1.0f);
+    if (sizeFixed == 1) {
+        float w = (MVP * vec4(0.0f, 0.0f, 0.0f, 1.0f)).w / 100;
+        gl_Position = MVP * vec4(position * w, 1.0f);
+    }
 }

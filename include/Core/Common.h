@@ -17,6 +17,7 @@
 #include <QPoint>
 #include <QTime>
 #include <QFile>
+#include <QFileInfo>
 #include <QFont>
 #include <QTimer>
 #include <QString>
@@ -30,6 +31,6 @@
 #include <QMatrix4x4>
 #include <QQuaternion>
 
+#define dout ((qDebug().noquote().nospace() << __FUNCTION__ << "(" << QFileInfo(__FILE__).fileName() << ":" << __LINE__ << "):").quote().space())
 #define tab(n) (QByteArray((n) * 4, ' ').data())
-
 #define inf (1000000.0f)

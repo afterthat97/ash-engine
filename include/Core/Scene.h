@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Axis.h>
 #include <Core/Camera.h>
 #include <Core/Gridline.h>
 #include <Core/Light/AmbientLight.h>
@@ -35,6 +36,7 @@ public:
     void dumpObjectInfo(int level = 0);
     void dumpObjectTree(int level = 0);
 
+    Axis* axis() const;
     Camera* camera() const;
     const QVector<Gridline*>& gridlines() const;
     QVector<AbstractLight*> lights() const;
@@ -51,12 +53,12 @@ signals:
     void lightRemoved(QObject* object);
     void modelAdded(Model* model);
     void modelRemoved(QObject* object);
-    void childrenChanged();
 
 protected:
     void childEvent(QChildEvent *event) override;
 
 private:
+    Axis * m_axis;
     Camera * m_camera;
     QVector<Gridline*> m_gridlines;
     QVector<AmbientLight*> m_ambientLights;

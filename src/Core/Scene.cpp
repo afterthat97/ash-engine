@@ -6,6 +6,7 @@
 
 Scene::Scene(): QObject(0) {
     setObjectName("Untitled Scene");
+    m_axis = new Axis(this);
     m_camera = new Camera(this);
     m_gridlineNameCounter = 1;
     m_ambientLightNameCounter = 1;
@@ -54,7 +55,6 @@ bool Scene::addGridline(Gridline * gridline) {
     m_gridlines.push_back(gridline);
     gridline->setParent(this);
     gridline->setObjectName("Gridline" + QString::number(m_gridlineNameCounter++));
-    childrenChanged();
     gridlineAdded(gridline);
 #ifdef _DEBUG
     qDebug() << "Gridline" << gridline->objectName() << "is added to scene" << this->objectName();
@@ -81,7 +81,6 @@ bool Scene::addAmbientLight(AmbientLight * light) {
     m_ambientLights.push_back(light);
     light->setParent(this);
     light->setObjectName("AmbientLight" + QString::number(m_ambientLightNameCounter++));
-    childrenChanged();
     lightAdded(light);
 #ifdef _DEBUG
     qDebug() << "Ambient light" << light->objectName() << "is added to scene" << this->objectName();
@@ -95,7 +94,6 @@ bool Scene::addDirectionalLight(DirectionalLight * light) {
     m_directionalLights.push_back(light);
     light->setParent(this);
     light->setObjectName("DirectionalLight" + QString::number(m_directionalLightNameCounter++));
-    childrenChanged();
     lightAdded(light);
 #ifdef _DEBUG
     qDebug() << "Directional light" << light->objectName() << "is added to scene" << this->objectName();
@@ -109,7 +107,6 @@ bool Scene::addPointLight(PointLight * light) {
     m_pointLights.push_back(light);
     light->setParent(this);
     light->setObjectName("PointLight" + QString::number(m_pointLightNameCounter++));
-    childrenChanged();
     lightAdded(light);
 #ifdef _DEBUG
     qDebug() << "Point light" << light->objectName() << "is added to scene" << this->objectName();
@@ -123,7 +120,6 @@ bool Scene::addSpotLight(SpotLight * light) {
     m_spotLights.push_back(light);
     light->setParent(this);
     light->setObjectName("SpotLight" + QString::number(m_spotLightNameCounter++));
-    childrenChanged();
     lightAdded(light);
 #ifdef _DEBUG
     qDebug() << "Spot light" << light->objectName() << "is added to scene" << this->objectName();
@@ -136,8 +132,6 @@ bool Scene::addModel(Model * model) {
         return false;
     m_models.push_back(model);
     model->setParent(this);
-    connect(model, SIGNAL(childrenChanged()), this, SIGNAL(childrenChanged()));
-    childrenChanged();
     modelAdded(model);
 #ifdef _DEBUG
     qDebug() << "Model" << model->objectName() << "is added to scene" << this->objectName();
@@ -149,7 +143,6 @@ bool Scene::removeGridline(QObject * gridline) {
     for (int i = 0; i < m_gridlines.size(); i++)
         if (m_gridlines[i] == gridline) {
             m_gridlines.erase(m_gridlines.begin() + i);
-            childrenChanged();
             gridlineRemoved(gridline);
 #ifdef _DEBUG
             qDebug() << "Gridline" << gridline->objectName() << "is removed from scene" << this->objectName();
@@ -163,7 +156,6 @@ bool Scene::removeLight(QObject * light) {
     for (int i = 0; i < m_ambientLights.size(); i++)
         if (m_ambientLights[i] == light) {
             m_ambientLights.erase(m_ambientLights.begin() + i);
-            childrenChanged();
             lightRemoved(light);
 #ifdef _DEBUG
             qDebug() << "Ambient light" << light->objectName() << "is removed from scene" << this->objectName();
@@ -173,7 +165,6 @@ bool Scene::removeLight(QObject * light) {
     for (int i = 0; i < m_directionalLights.size(); i++)
         if (m_directionalLights[i] == light) {
             m_directionalLights.erase(m_directionalLights.begin() + i);
-            childrenChanged();
             lightRemoved(light);
 #ifdef _DEBUG
             qDebug() << "Directional light" << light->objectName() << "is removed from scene" << this->objectName();
@@ -183,7 +174,6 @@ bool Scene::removeLight(QObject * light) {
     for (int i = 0; i < m_pointLights.size(); i++)
         if (m_pointLights[i] == light) {
             m_pointLights.erase(m_pointLights.begin() + i);
-            childrenChanged();
             lightRemoved(light);
 #ifdef _DEBUG
             qDebug() << "Point light" << light->objectName() << "is removed from scene" << this->objectName();
@@ -193,7 +183,6 @@ bool Scene::removeLight(QObject * light) {
     for (int i = 0; i < m_spotLights.size(); i++)
         if (m_spotLights[i] == light) {
             m_spotLights.erase(m_spotLights.begin() + i);
-            childrenChanged();
             lightRemoved(light);
 #ifdef _DEBUG
             qDebug() << "Spot light" << light->objectName() << "is removed from scene" << this->objectName();
@@ -207,7 +196,6 @@ bool Scene::removeModel(QObject * model, bool recursive) {
     for (int i = 0; i < m_models.size(); i++)
         if (m_models[i] == model) {
             m_models.erase(m_models.begin() + i);
-            childrenChanged();
             modelRemoved(model);
 #ifdef _DEBUG
             qDebug() << "Model" << model->objectName() << "is removed from scene" << this->objectName();
@@ -225,12 +213,13 @@ bool Scene::removeModel(QObject * model, bool recursive) {
 
 void Scene::dumpObjectInfo(int l) {
     qDebug().nospace() << tab(l) << "Scene: " << objectName();
-    qDebug("%s%d camera, %d gridline(s), %d light(s), %d model(s)",
-           tab(l), m_camera != 0, m_gridlines.size(), this->lights().size(), m_models.size());
+    qDebug("%s%d gridline(s), %d light(s), %d model(s)",
+           tab(l), m_gridlines.size(), this->lights().size(), m_models.size());
 }
 
 void Scene::dumpObjectTree(int l) {
     dumpObjectInfo(l);
+    m_axis->dumpObjectTree(l + 1);
     m_camera->dumpObjectTree(l + 1);
     for (int i = 0; i < m_gridlines.size(); i++)
         m_gridlines[i]->dumpObjectTree(l + 1);
@@ -241,6 +230,10 @@ void Scene::dumpObjectTree(int l) {
 }
 
 // Get properties
+
+Axis * Scene::axis() const {
+    return m_axis;
+}
 
 Camera * Scene::camera() const {
     return m_camera;

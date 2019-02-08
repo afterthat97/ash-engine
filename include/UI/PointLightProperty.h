@@ -1,6 +1,6 @@
 #pragma once
 
-#include <UI/Common.h>
+#include <Core/Light/PointLight.h>
 #include <UI/Vector3DEditSlider.h>
 
 class PointLightProperty: public QWidget {

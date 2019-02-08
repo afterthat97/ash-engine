@@ -1,6 +1,6 @@
 #pragma once
 
-#include <UI/Common.h>
+#include <Core/Mesh.h>
 #include <UI/Vector3DEditSlider.h>
 
 class MeshProperty: public QWidget {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <UI/Common.h>
+#include <Core/Gridline.h>
 #include <UI/Vector3DEditSlider.h>
 
 class GridlineProperty: public QWidget {

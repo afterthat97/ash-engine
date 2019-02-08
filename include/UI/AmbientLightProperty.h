@@ -1,6 +1,6 @@
 #pragma once
 
-#include <UI/Common.h>
+#include <Core/Light/AmbientLight.h>
 #include <UI/Vector3DEditSlider.h>
 
 class AmbientLightProperty: public QWidget {

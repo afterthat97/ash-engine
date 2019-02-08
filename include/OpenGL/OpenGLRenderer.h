@@ -1,6 +1,7 @@
 #pragma once
 
 #include <OpenGL/Common.h>
+#include <OpenGL/OpenGLScene.h>
 
 class OpenGLRenderer: public QObject {
     Q_OBJECT
@@ -13,11 +14,16 @@ public:
     QString log();
 
     bool loadShaders();
-    void render(Scene* scene);
+    uint32_t pickingPass(OpenGLScene* openGLScene, QPoint cursorPos);
+    void render(OpenGLScene* openGLScene);
 
 private:
     QString m_log;
-    QOpenGLShaderProgram * m_basicShader, *m_phongShader;
+    QOpenGLShaderProgram *m_basicShader, *m_pickingShader, *m_phongShader;
+    QOpenGLFramebufferObject *m_pickingPassFBO;
 
-    QOpenGLShaderProgram * loadShaderFromFile(QString vertexShaderFile, QString fragmentShaderFile, QString geometryShaderFile = "");
+    QOpenGLShaderProgram * loadShaderFromFile(
+        QString vertexShaderFilePath,
+        QString fragmentShaderFilePath,
+        QString geometryShaderFilePath = "");
 };

@@ -11,7 +11,7 @@ void initApplication() {
 #endif
 
     QSurfaceFormat openGLFormat;
-    openGLFormat.setVersion(3, 3);
+    openGLFormat.setVersion(4, 2);
     openGLFormat.setProfile(QSurfaceFormat::CoreProfile);
     openGLFormat.setDepthBufferSize(24);
     openGLFormat.setStencilBufferSize(8);
@@ -26,8 +26,9 @@ int main(int argc, char *argv[]) {
     Scene* scene = new Scene;
     scene->addGridline(new Gridline);
     scene->addDirectionalLight(new DirectionalLight);
+    scene->addModel(ModelLoader::loadCubeModel());
 
-    MainWindow* window = new MainWindow(scene);
+    MainWindow *window = new MainWindow(scene);
     window->show();
 
     return a.exec();

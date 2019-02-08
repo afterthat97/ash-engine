@@ -36,6 +36,10 @@ float AbstractLight::intensity() {
     return m_intensity;
 }
 
+Mesh * AbstractLight::marker() const {
+    return nullptr;
+}
+
 void AbstractLight::setColor(QVector3D color) {
     if (!qFuzzyCompare(m_color, color)) {
         m_color = color;

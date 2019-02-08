@@ -8,26 +8,21 @@
 #include <UI/ModelProperty.h>
 #include <UI/MeshProperty.h>
 #include <UI/MaterialProperty.h>
+#include <IO/IO.h>
 
 MainWindow::MainWindow(Scene * scene, QWidget * parent): QMainWindow(parent) {
     m_host = scene;
-
-    m_menuBar = new QMenuBar(this);
-    m_centralWidget = new QWidget(this);
-    m_splitter = new QSplitter(this);
-    m_statusBar = new QStatusBar(this);
+    m_copyedObject = 0;
     m_fpsLabel = new QLabel(this);
-    m_statusBar->addPermanentWidget(m_fpsLabel);
-
     m_sceneTreeWidget = new SceneTreeWidget(m_host, this);
-    m_openGLWindow = new OpenGLWindow(m_host, new OpenGLRenderer);
+    m_openGLWindow = new OpenGLWindow(new OpenGLScene(m_host), new OpenGLRenderer);
     m_propertyWidget = new QWidget(this);
+    
+    statusBar()->addPermanentWidget(m_fpsLabel);
 
-    setMenuBar(m_menuBar);
-    setCentralWidget(m_centralWidget);
-    setStatusBar(m_statusBar);
     setAcceptDrops(true);
     setFocusPolicy(Qt::StrongFocus);
+    setCentralWidget(new QWidget);
 
     configMenu();
     configLayout();
@@ -41,83 +36,64 @@ void MainWindow::resizeEvent(QResizeEvent *) {
     m_splitter->setSizes(QList<int>{160, width() - 160 - 300, 300});
 }
 
-void MainWindow::dragEnterEvent(QDragEnterEvent * event) {
-    if (event->mimeData()->hasUrls())
-        event->acceptProposedAction();
-}
-
-void MainWindow::dragMoveEvent(QDragMoveEvent * event) {
-    if (event->mimeData()->hasUrls())
-        event->acceptProposedAction();
-}
-
-void MainWindow::dropEvent(QDropEvent * event) {
-    if (!m_host) return;
-    foreach(const QUrl &url, event->mimeData()->urls()) {
-        ModelLoader loader;
-        Model* model = loader.loadFromFile(url.toLocalFile());
-        if (model == 0) {
-            QString log = loader.log();
-            qWarning() << "Failed to load" << url.toLocalFile();
-            qWarning() << log;
-            QMessageBox::critical(0, "Failed to load file", log);
-        } else
-            m_host->addModel(model);
-    }
-}
-
 void MainWindow::configMenu() {
-    actionFileNew = new QAction("New", this);
-    actionFileOpen = new QAction("Open", this);
-    actionFileLoadModel = new QAction("Load Model", this);
-    actionFileSave = new QAction("Save", this);
-    actionFileExit = new QAction("Exit", this);
+    QMenu *menuFile = menuBar()->addMenu("File");
+    menuFile->addAction("New Scene", this, SLOT(fileNewScene()), QKeySequence(Qt::CTRL + Qt::Key_N));
+    menuFile->addAction("Open Scene", this, SLOT(fileOpenScene()), QKeySequence(Qt::CTRL + Qt::Key_O));
+    menuFile->addSeparator();
+    menuFile->addAction("Import Model", this, SLOT(fileImportModel()));
+    menuFile->addAction("Export Model", this, SLOT(fileExportModel()));
+    menuFile->addSeparator();
+    menuFile->addAction("Save Scene", this, SLOT(fileSaveScene()), QKeySequence(Qt::CTRL + Qt::Key_S));
+    menuFile->addAction("Save Scene As", this, SLOT(fileSaveAsScene()));
+    menuFile->addSeparator();
+    menuFile->addAction("Quit", this, SLOT(fileQuit()), QKeySequence(Qt::CTRL + Qt::Key_Q));
 
-    actionCreateGridline = new QAction("Gridline", this);
+    QMenu *menuEdit = menuBar()->addMenu("Edit");
+    menuEdit->addAction("Copy", this, SLOT(editCopy()), QKeySequence(Qt::CTRL + Qt::Key_C));
+    menuEdit->addAction("Paste", this, SLOT(editPaste()), QKeySequence(Qt::CTRL + Qt::Key_V));
+    menuEdit->addSeparator();
+    menuEdit->addAction("Remove", this, SLOT(editRemove()), QKeySequence(Qt::Key_Backspace));
 
-    actionCreateAmbientLight = new QAction("Ambient Light", this);
-    actionCreateDirectionalLight = new QAction("Directional Light", this);
-    actionCreatePointLight = new QAction("Point Light", this);
-    actionCreateSpotLight = new QAction("Spot Light", this);
-
-    actionCreateBasicCone = new QAction("Cone", this);
-    actionCreateBasicCube = new QAction("Cube", this);
-    actionCreateBasicCylinder = new QAction("Cylinder", this);
-    actionCreateBasicPlane = new QAction("Plane", this);
-    actionCreateBasicSphere = new QAction("Sphere", this);
-
-    actionHelpAbout = new QAction("About", this);
-    actionHelpCheckUpdate = new QAction("Check for Update", this);
-
-    QMenu *menuFile = m_menuBar->addMenu("File");
-    menuFile->addAction(actionFileNew);
-    menuFile->addAction(actionFileOpen);
-    menuFile->addAction(actionFileLoadModel);
-    menuFile->addAction(actionFileSave);
-    menuFile->addAction(actionFileExit);
-
-    QMenu *menuCreate = m_menuBar->addMenu("Create");
-    menuCreate->addAction(actionCreateGridline);
+    QMenu *menuCreate = menuBar()->addMenu("Create");
+    menuCreate->addAction("Gridline", this, SLOT(createGridline()));
 
     QMenu *menuCreateLight = menuCreate->addMenu("Light");
-    menuCreateLight->addAction(actionCreateAmbientLight);
-    menuCreateLight->addAction(actionCreateDirectionalLight);
-    menuCreateLight->addAction(actionCreatePointLight);
-    menuCreateLight->addAction(actionCreateSpotLight);
+    menuCreateLight->addAction("Ambient Light", this, SLOT(createAmbientLight()));
+    menuCreateLight->addAction("Directional Light", this, SLOT(createDirectionalLight()));
+    menuCreateLight->addAction("Point Light", this, SLOT(createPointLight()));
+    menuCreateLight->addAction("Spot Light", this, SLOT(createSpotLight()));
 
     QMenu *menuCreateBasicShapes = menuCreate->addMenu("Basic Shape");
-    menuCreateBasicShapes->addAction(actionCreateBasicCone);
-    menuCreateBasicShapes->addAction(actionCreateBasicCube);
-    menuCreateBasicShapes->addAction(actionCreateBasicCylinder);
-    menuCreateBasicShapes->addAction(actionCreateBasicPlane);
-    menuCreateBasicShapes->addAction(actionCreateBasicSphere);
+    menuCreateBasicShapes->addAction("Cone", this, SLOT(createBasicCone()));
+    menuCreateBasicShapes->addAction("Cube", this, SLOT(createBasicCube()));
+    menuCreateBasicShapes->addAction("Cylinder", this, SLOT(createBasicCylinder()));
+    menuCreateBasicShapes->addAction("Plane", this, SLOT(createBasicPlane()));
+    menuCreateBasicShapes->addAction("Sphere", this, SLOT(createBasicSphere()));
 
-    QMenu *menuHelp = m_menuBar->addMenu("Help");
-    menuHelp->addAction(actionHelpAbout);
-    menuHelp->addAction(actionHelpCheckUpdate);
+    QMenu *menuAxisType = menuBar()->addMenu("Axis Type");
+    QAction *actionAxisTypeTranslate = menuAxisType->addAction("Translate", this, SLOT(setAxisTypeTranslate()), QKeySequence(Qt::CTRL + Qt::Key_F1));
+    QAction *actionAxisTypeRotate = menuAxisType->addAction("Rotate", this, SLOT(setAxisTypeRotate()), QKeySequence(Qt::CTRL + Qt::Key_F2));
+    QAction *actionAxisTypeScale = menuAxisType->addAction("Scale", this, SLOT(setAxisTypeScale()), QKeySequence(Qt::CTRL + Qt::Key_F3));
+    actionAxisTypeTranslate->setCheckable(true);
+    actionAxisTypeRotate->setCheckable(true);
+    actionAxisTypeScale->setCheckable(true);
+
+    QActionGroup *actionAxisTypeGroup = new QActionGroup(menuAxisType);
+    actionAxisTypeGroup->addAction(actionAxisTypeTranslate);
+    actionAxisTypeGroup->addAction(actionAxisTypeRotate);
+    actionAxisTypeGroup->addAction(actionAxisTypeScale);
+    actionAxisTypeTranslate->setChecked(true);
+
+    QMenu *menuHelp = menuBar()->addMenu("Help");
+    menuHelp->addAction("Source Code (GitHub)", this, SLOT(helpSourceCode()));
+    menuHelp->addAction("Check for Update", this, SLOT(helpCheckForUpdates()));
+    menuHelp->addSeparator();
+    menuHelp->addAction("About", this, SLOT(helpAbout()));
 }
 
 void MainWindow::configLayout() {
+    m_splitter = new QSplitter(this);
     m_splitter->addWidget(m_sceneTreeWidget);
     m_splitter->addWidget(QWidget::createWindowContainer(m_openGLWindow));
     m_splitter->addWidget(m_propertyWidget);
@@ -125,35 +101,13 @@ void MainWindow::configLayout() {
 
     QHBoxLayout * mainLayout = new QHBoxLayout;
     mainLayout->addWidget(m_splitter);
-    m_centralWidget->setLayout(mainLayout);
+    centralWidget()->setLayout(mainLayout);
 }
 
 void MainWindow::configSignals() {
     connect(m_openGLWindow, SIGNAL(fpsChanged(int)), this, SLOT(fpsChanged(int)));
     connect(m_sceneTreeWidget, SIGNAL(itemSelected(QVariant)), this, SLOT(itemSelected(QVariant)));
     connect(m_sceneTreeWidget, SIGNAL(itemDeselected(QVariant)), this, SLOT(itemDeselected(QVariant)));
-
-    connect(actionFileNew, SIGNAL(triggered(bool)), this, SLOT(fileNew()));
-    connect(actionFileOpen, SIGNAL(triggered(bool)), this, SLOT(fileOpen()));
-    connect(actionFileLoadModel, SIGNAL(triggered(bool)), this, SLOT(fileLoadModel()));
-    connect(actionFileSave, SIGNAL(triggered(bool)), this, SLOT(fileSave()));
-    connect(actionFileExit, SIGNAL(triggered(bool)), this, SLOT(fileExit()));
-
-    connect(actionCreateGridline, SIGNAL(triggered(bool)), this, SLOT(createGridline()));
-
-    connect(actionCreateAmbientLight, SIGNAL(triggered(bool)), this, SLOT(createAmbientLight()));
-    connect(actionCreateDirectionalLight, SIGNAL(triggered(bool)), this, SLOT(createDirectionalLight()));
-    connect(actionCreatePointLight, SIGNAL(triggered(bool)), this, SLOT(createPointLight()));
-    connect(actionCreateSpotLight, SIGNAL(triggered(bool)), this, SLOT(createSpotLight()));
-
-    connect(actionCreateBasicCone, SIGNAL(triggered(bool)), this, SLOT(createBasicCone()));
-    connect(actionCreateBasicCube, SIGNAL(triggered(bool)), this, SLOT(createBasicCube()));
-    connect(actionCreateBasicCylinder, SIGNAL(triggered(bool)), this, SLOT(createBasicCylinder()));
-    connect(actionCreateBasicPlane, SIGNAL(triggered(bool)), this, SLOT(createBasicPlane()));
-    connect(actionCreateBasicSphere, SIGNAL(triggered(bool)), this, SLOT(createBasicSphere()));
-
-    connect(actionHelpAbout, SIGNAL(triggered(bool)), this, SLOT(helpAbout()));
-    connect(actionHelpCheckUpdate, SIGNAL(triggered(bool)), this, SLOT(helpCheckForUpdates()));
 }
 
 void MainWindow::fpsChanged(int fps) {
@@ -188,7 +142,7 @@ void MainWindow::itemDeselected(QVariant) {
     delete m_splitter->replaceWidget(2, m_propertyWidget);
 }
 
-void MainWindow::fileNew() {
+void MainWindow::fileNewScene() {
     m_propertyWidget = new QWidget(this);
     delete m_splitter->replaceWidget(2, m_propertyWidget);
     delete m_host;
@@ -196,10 +150,10 @@ void MainWindow::fileNew() {
     m_host->addGridline(new Gridline);
     m_host->addDirectionalLight(new DirectionalLight);
     m_sceneTreeWidget->setScene(m_host);
-    m_openGLWindow->setScene(m_host);
+    m_openGLWindow->setScene(new OpenGLScene(m_host));
 }
 
-void MainWindow::fileOpen() {
+void MainWindow::fileOpenScene() {
     QString filePath = QFileDialog::getOpenFileName(this, "Open Project", "", "Ash Engine Project (*.aeproj)");
     SceneLoader loader;
     Scene* scene = loader.loadFromFile(filePath);
@@ -214,14 +168,14 @@ void MainWindow::fileOpen() {
         delete m_host;
         m_host = scene;
         m_sceneTreeWidget->setScene(m_host);
-        m_openGLWindow->setScene(m_host);
+        m_openGLWindow->setScene(new OpenGLScene(m_host));
     }
 }
 
-void MainWindow::fileLoadModel() {
+void MainWindow::fileImportModel() {
     QString filePath = QFileDialog::getOpenFileName(this, "Load Model", "", "All Files (*)");
     ModelLoader loader;
-    Model* model = loader.loadFromFile(filePath);
+    Model* model = loader.loadModelFromFile(filePath);
     if (model == 0) {
         QString log = loader.log();
         qWarning() << "Failed to load" << filePath;
@@ -231,14 +185,74 @@ void MainWindow::fileLoadModel() {
         m_host->addModel(model);
 }
 
-void MainWindow::fileSave() {
+void MainWindow::fileExportModel() {
+    if (AbstractEntity::getSelected() == 0 || qobject_cast<AbstractLight*>(AbstractEntity::getSelected()->parent())) {
+        QMessageBox::warning(0, "Failed to export model", "Select a Model/Mesh to export.");
+        return;
+    }
+
+    QString filter = "X Files (*.x);;";
+    filter += "Step Files (*.stp);;";
+    filter += "Wavefront OBJ format (*.obj);;";
+    filter += "Stereolithography (*.stl);;";
+    filter += "Stanford Polygon Library (*.ply);;";
+    filter += "Autodesk 3DS (legacy) (*.3ds);;";
+    filter += "Extensible 3D (*.x3d);;";
+    filter += "3MF File Format (*.3mf);;";
+    QString filePath = QFileDialog::getSaveFileName(this, "Export Model", "", filter);
+    
+    ModelExporter exporter;
+    if (Model* model = qobject_cast<Model*>(AbstractEntity::getSelected()))
+        exporter.saveToFile(model, filePath);
+    else if (Mesh* mesh = qobject_cast<Mesh*>(AbstractEntity::getSelected())) 
+        exporter.saveToFile(mesh, filePath);
+
+    if (exporter.hasLog()) {
+        QString log = exporter.log();
+        qWarning() << "Failed to export model to" << filePath;
+        qWarning() << log;
+        QMessageBox::critical(0, "Failed to export model", log);
+    }
+}
+
+void MainWindow::fileSaveScene() {
     QString filePath = QFileDialog::getSaveFileName(this, "Save Project", "", "Ash Engine Project (*.aeproj)");
     SceneSaver saver(m_host);
     saver.saveToFile(filePath);
 }
 
-void MainWindow::fileExit() {
+void MainWindow::fileSaveAsScene() {}
+
+void MainWindow::fileQuit() {
     QApplication::quit();
+}
+
+void MainWindow::editCopy() {
+    m_copyedObject = AbstractEntity::getSelected();
+}
+
+void MainWindow::editPaste() {
+    if (m_copyedObject == 0) return;
+    if (PointLight* light = qobject_cast<PointLight*>(m_copyedObject->parent())) {
+        PointLight* newLight = new PointLight(*light);
+        newLight->setParent(light->parent());
+    } else if (SpotLight* light = qobject_cast<SpotLight*>(m_copyedObject->parent())) {
+        SpotLight* newLight = new SpotLight(*light);
+        newLight->setParent(light->parent());
+    } else if (Model* model = qobject_cast<Model*>(m_copyedObject)) {
+        Model* newModel = new Model(*model);
+        newModel->setParent(model->parent());
+    } else if (Mesh* mesh = qobject_cast<Mesh*>(m_copyedObject)) {
+        Mesh* newMesh = new Mesh(*mesh);
+        newMesh->setParent(mesh->parent());
+    }
+}
+
+void MainWindow::editRemove() {
+    if (m_copyedObject == AbstractEntity::getSelected())
+        m_copyedObject = 0;
+    if (AbstractEntity::getSelected())
+        delete AbstractEntity::getSelected();
 }
 
 void MainWindow::createGridline() {
@@ -281,12 +295,28 @@ void MainWindow::createBasicSphere() {
     m_host->addModel(ModelLoader::loadSphereModel());
 }
 
+void MainWindow::setAxisTypeTranslate() {
+    m_host->axis()->setAxisType(Axis::Translate);
+}
+
+void MainWindow::setAxisTypeRotate() {
+    m_host->axis()->setAxisType(Axis::Rotate);
+}
+
+void MainWindow::setAxisTypeScale() {
+    m_host->axis()->setAxisType(Axis::Scale);
+}
+
 void MainWindow::helpAbout() {
     QString info = "Current version: " + QString(APP_VERSION) + "\n\n";
     info += "masterEngine is a cross-platform 3D engine for learning purpose, based on Qt, OpenGL and Assimp.\n\n";
     info += "Author: Alfred Liu\n";
     info += "Email:  afterthat97@foxmail.com";
     QMessageBox::about(this, "About", info);
+}
+
+void MainWindow::helpSourceCode() {
+    QDesktopServices::openUrl(QUrl("https://github.com/afterthat97/masterEngine"));
 }
 
 void MainWindow::helpCheckForUpdates() {

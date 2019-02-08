@@ -1,8 +1,6 @@
 #pragma once
 
-#include <Core/Core.h>
-#include <IO/IO.h>
-#include <OpenGL/OpenGL.h>
+#include <Core/Common.h>
 
 #include <QApplication>
 #include <QSurfaceFormat>

@@ -1,8 +1,14 @@
 #include <OpenGL/OpenGLTexture.h>
-#include <OpenGL/OpenGLManager.h>
 
 OpenGLTexture::OpenGLTexture(Texture * texture) {
     m_host = texture;
+
+    if (m_host->property("OpenGLTexturePointer").isValid()) {
+        qFatal("Multiple OpenGLTexture instances bound to a single core Texture!");
+        exit(-1);
+    }
+    m_host->setProperty("OpenGLTexturePointer", QVariant::fromValue(this));
+
     m_openGLTexture = new QOpenGLTexture(texture->image());
     m_openGLTexture->setMinificationFilter(QOpenGLTexture::Nearest);
     m_openGLTexture->setMagnificationFilter(QOpenGLTexture::Linear);
@@ -13,23 +19,21 @@ OpenGLTexture::OpenGLTexture(Texture * texture) {
 
 OpenGLTexture::~OpenGLTexture() {
     delete m_openGLTexture;
+    m_host->setProperty("OpenGLTexturePointer", QVariant());
 }
 
-void OpenGLTexture::bind(QOpenGLShaderProgram* shader) {
+void OpenGLTexture::bind() {
     if (!m_host->enabled()) return;
     QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
     if (m_host->textureType() == Texture::Diffuse) { // Diffuse map
         glFuncs->glActiveTexture(GL_TEXTURE0 + 0);
         glFuncs->glBindTexture(GL_TEXTURE_2D, m_openGLTexture->textureId());
-        shader->setUniformValue("material.diffuseMap", 0);
     } else if (m_host->textureType() == Texture::Specular) { // Specular map
         glFuncs->glActiveTexture(GL_TEXTURE0 + 1);
         glFuncs->glBindTexture(GL_TEXTURE_2D, m_openGLTexture->textureId());
-        shader->setUniformValue("material.specularMap", 1);
     } else if (m_host->textureType() == Texture::Bump) { // Bump map
         glFuncs->glActiveTexture(GL_TEXTURE0 + 2);
         glFuncs->glBindTexture(GL_TEXTURE_2D, m_openGLTexture->textureId());
-        shader->setUniformValue("material.bumpMap", 2);
     }
 }
 
@@ -56,9 +60,6 @@ void OpenGLTexture::imageChanged(const QImage& image) {
 }
 
 void OpenGLTexture::hostDestroyed(QObject *) {
-    // Remove entry
-    OpenGLManager<Texture, OpenGLTexture>::currentManager()->removeOpenGLObject(m_host);
-
     // Commit suicide
     delete this;
 }

@@ -21,6 +21,7 @@ Material::Material(QVector3D color,
 }
 
 Material::Material(const Material & material): QObject(0) {
+    setObjectName(material.objectName());
     m_color = material.m_color;
     m_ambient = material.m_ambient;
     m_diffuse = material.m_diffuse;

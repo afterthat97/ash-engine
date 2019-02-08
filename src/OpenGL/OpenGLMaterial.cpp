@@ -1,58 +1,115 @@
 #include <OpenGL/OpenGLMaterial.h>
 #include <OpenGL/OpenGLTexture.h>
-#include <OpenGL/OpenGLManager.h>
 
-OpenGLMaterial::OpenGLMaterial(Material * material) {
+struct ShaderMaterialInfo {
+    QVector4D color;      // 16          // 0
+    float ambient;        // 4           // 16
+    float diffuse;        // 4           // 20
+    float specular;       // 4           // 24
+    float shininess;      // 4           // 28
+    int useDiffuseMap;    // 4           // 32
+    int useSpecularMap;   // 4           // 36
+    int useBumpMap;       // 4           // 40
+    int padding;          // 4           // 44
+} shaderMaterialInfo;
+
+OpenGLUniformBufferObject *OpenGLMaterial::m_materialInfo = 0;
+
+OpenGLMaterial::OpenGLMaterial(Material * material, QObject* parent): QObject(0) {
     m_host = material;
+    
+    this->diffuseTextureChanged(m_host->diffuseTexture());
+    this->specularTextureChanged(m_host->specularTexture());
+    this->bumpTextureChanged(m_host->bumpTexture());
+
+    connect(m_host, SIGNAL(diffuseTextureChanged(QSharedPointer<Texture>)), this, SLOT(diffuseTextureChanged(QSharedPointer<Texture>)));
+    connect(m_host, SIGNAL(specularTextureChanged(QSharedPointer<Texture>)), this, SLOT(specularTextureChanged(QSharedPointer<Texture>)));
+    connect(m_host, SIGNAL(bumpTextureChanged(QSharedPointer<Texture>)), this, SLOT(bumpTextureChanged(QSharedPointer<Texture>)));
     connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
+
+    setParent(parent);
 }
 
 Material * OpenGLMaterial::host() const {
     return m_host;
 }
 
-void OpenGLMaterial::bind(QOpenGLShaderProgram * shader) {
-    shader->setUniformValue("material.ambient", m_host->ambient());
-    shader->setUniformValue("material.diffuse", m_host->diffuse());
-    shader->setUniformValue("material.shininess", m_host->shininess());
-    shader->setUniformValue("material.diffuseMap", 0);
-    shader->setUniformValue("material.specularMap", 1);
-    shader->setUniformValue("material.bumpMap", 2);
+void OpenGLMaterial::bind() {
+    if (m_openGLDiffuseTexture) m_openGLDiffuseTexture->bind();
+    if (m_openGLSpecularTexture) m_openGLSpecularTexture->bind();
+    if (m_openGLBumpTexture) m_openGLBumpTexture->bind();
 
-    if (m_host->diffuseTexture().isNull()) {
-        shader->setUniformValue("material.color", m_host->color());
-    } else {
-        shader->setUniformValue("material.color", QVector3D(0, 0, 0));
-        OpenGLManager<Texture, OpenGLTexture>::currentManager()->getOpenGLObject(m_host->diffuseTexture().data())->bind(shader);
+    shaderMaterialInfo.color = m_host->color();
+    shaderMaterialInfo.ambient = m_host->ambient();
+    shaderMaterialInfo.diffuse = m_host->diffuse();
+    shaderMaterialInfo.specular = m_host->specular();
+    shaderMaterialInfo.shininess = m_host->shininess();
+    shaderMaterialInfo.useDiffuseMap = !m_host->diffuseTexture().isNull();
+    shaderMaterialInfo.useSpecularMap = !m_host->specularTexture().isNull();
+    shaderMaterialInfo.useBumpMap = !m_host->bumpTexture().isNull();
+
+    if (m_materialInfo == 0) {
+        m_materialInfo = new OpenGLUniformBufferObject;
+        m_materialInfo->create();
+        m_materialInfo->bind();
+        m_materialInfo->allocate(2, NULL, sizeof(ShaderMaterialInfo));
+        m_materialInfo->release();
     }
-    if (m_host->specularTexture().isNull()) {
-        shader->setUniformValue("material.specular", m_host->specular());
-    } else {
-        shader->setUniformValue("material.specular", 0.0f);
-        OpenGLManager<Texture, OpenGLTexture>::currentManager()->getOpenGLObject(m_host->specularTexture().data())->bind(shader);
-    }
-    if (m_host->bumpTexture().isNull()) {
-        shader->setUniformValue("material.bump", QVector3D(0.5, 0.5, 1));
-    } else {
-        shader->setUniformValue("material.bump", QVector3D(0, 0, 0));
-        OpenGLManager<Texture, OpenGLTexture>::currentManager()->getOpenGLObject(m_host->bumpTexture().data())->bind(shader);
-    }
+    m_materialInfo->bind();
+    m_materialInfo->write(0, &shaderMaterialInfo, sizeof(ShaderMaterialInfo));
+    m_materialInfo->release();
 }
 
-void OpenGLMaterial::release(QOpenGLShaderProgram * shader) {
-    shader->setUniformValue("material.color", QVector3D(0.0f, 0.0f, 0.0f));
-    if (!m_host->diffuseTexture().isNull())
-        OpenGLManager<Texture, OpenGLTexture>::currentManager()->getOpenGLObject(m_host->diffuseTexture().data())->release();
-    if (!m_host->specularTexture().isNull())
-        OpenGLManager<Texture, OpenGLTexture>::currentManager()->getOpenGLObject(m_host->specularTexture().data())->release();
-    if (!m_host->bumpTexture().isNull())
-        OpenGLManager<Texture, OpenGLTexture>::currentManager()->getOpenGLObject(m_host->bumpTexture().data())->release();
+void OpenGLMaterial::release() {
+    if (m_openGLDiffuseTexture) m_openGLDiffuseTexture->release();
+    if (m_openGLSpecularTexture) m_openGLSpecularTexture->release();
+    if (m_openGLBumpTexture) m_openGLBumpTexture->release();
+
+    shaderMaterialInfo.color = QVector3D(0, 0, 0);
+    shaderMaterialInfo.useDiffuseMap = 0;
+    shaderMaterialInfo.useSpecularMap = 0;
+    shaderMaterialInfo.useBumpMap = 0;
+
+    if (m_materialInfo == 0) {
+        m_materialInfo = new OpenGLUniformBufferObject;
+        m_materialInfo->create();
+        m_materialInfo->bind();
+        m_materialInfo->allocate(3, NULL, sizeof(ShaderMaterialInfo));
+        m_materialInfo->release();
+    }
+    m_materialInfo->bind();
+    m_materialInfo->write(0, &shaderMaterialInfo, sizeof(ShaderMaterialInfo));
+    m_materialInfo->release();
+}
+
+void OpenGLMaterial::diffuseTextureChanged(QSharedPointer<Texture> diffuseTexture) {
+    if (diffuseTexture.isNull())
+        m_openGLDiffuseTexture = 0;
+    else if (diffuseTexture->property("OpenGLTexturePointer").isValid())
+        m_openGLDiffuseTexture = diffuseTexture->property("OpenGLTexturePointer").value<OpenGLTexture*>();
+    else
+        m_openGLDiffuseTexture = new OpenGLTexture(diffuseTexture.data());
+}
+
+void OpenGLMaterial::specularTextureChanged(QSharedPointer<Texture> specularTexture) {
+    if (specularTexture.isNull())
+        m_openGLSpecularTexture = 0;
+    else if (specularTexture->property("OpenGLTexturePointer").isValid())
+        m_openGLSpecularTexture = specularTexture->property("OpenGLTexturePointer").value<OpenGLTexture*>();
+    else
+        m_openGLSpecularTexture = new OpenGLTexture(specularTexture.data());
+}
+
+void OpenGLMaterial::bumpTextureChanged(QSharedPointer<Texture> bumpTexture) {
+    if (bumpTexture.isNull())
+        m_openGLBumpTexture = 0;
+    else if (bumpTexture->property("OpenGLTexturePointer").isValid())
+        m_openGLBumpTexture = bumpTexture->property("OpenGLTexturePointer").value<OpenGLTexture*>();
+    else
+        m_openGLBumpTexture = new OpenGLTexture(bumpTexture.data());
 }
 
 void OpenGLMaterial::hostDestroyed(QObject *) {
-    // Remove entry
-    OpenGLManager<Material, OpenGLMaterial>::currentManager()->removeOpenGLObject(m_host);
-
     // Commit suicide
     delete this;
 }

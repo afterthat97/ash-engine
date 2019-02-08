@@ -3,6 +3,7 @@
 
 // Assimp: 3D model loader
 #include <assimp/Importer.hpp>
+#include <assimp/importerdesc.h>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
@@ -15,13 +16,14 @@ ModelLoader::~ModelLoader() {
     delete textureLoader;
 }
 
-Model * ModelLoader::loadFromFile(QString filePath) {
+Model * ModelLoader::loadModelFromFile(QString filePath) {
 #ifdef _DEBUG
-    qDebug() << "ModelLoader::loadFromFile: loading" << filePath;
+    dout << "Loading" << filePath;
 #endif
+
     if (filePath == "") {
 #ifdef _DEBUG
-        qDebug() << "ModelLoader::loadFromFile: invalid file path";
+        dout << "Failed to load from file: Invalid file path";
 #endif
         m_log += "Invalid file path.";
         return 0;
@@ -60,33 +62,40 @@ Model * ModelLoader::loadFromFile(QString filePath) {
     return loadModel(m_aiScenePtr->mRootNode);
 }
 
+Mesh * ModelLoader::loadMeshFromFile(QString filePath) {
+    Model* model = loadModelFromFile(filePath);
+    Mesh* assembledMesh = model->assemble();
+    delete model;
+    return assembledMesh;
+}
+
 Model * ModelLoader::loadConeModel() {
     static ModelLoader * loader = new ModelLoader;
-    Model* model = loader->loadFromFile(":/resources/shapes/Cone.fbx");
+    Model* model = loader->loadModelFromFile(":/resources/shapes/Cone.obj");
     return model;
 }
 
 Model * ModelLoader::loadCubeModel() {
     static ModelLoader * loader = new ModelLoader;
-    Model* model = loader->loadFromFile(":/resources/shapes/Cube.fbx");
+    Model* model = loader->loadModelFromFile(":/resources/shapes/Cube.obj");
     return model;
 }
 
 Model * ModelLoader::loadCylinderModel() {
     static ModelLoader * loader = new ModelLoader;
-    Model* model = loader->loadFromFile(":/resources/shapes/Cylinder.fbx");
+    Model* model = loader->loadModelFromFile(":/resources/shapes/Cylinder.obj");
     return model;
 }
 
 Model * ModelLoader::loadPlaneModel() {
     static ModelLoader * loader = new ModelLoader;
-    Model* model = loader->loadFromFile(":/resources/shapes/Plane.fbx");
+    Model* model = loader->loadModelFromFile(":/resources/shapes/Plane.obj");
     return model;
 }
 
 Model * ModelLoader::loadSphereModel() {
     static ModelLoader * loader = new ModelLoader;
-    Model* model = loader->loadFromFile(":/resources/shapes/Sphere.fbx");
+    Model* model = loader->loadModelFromFile(":/resources/shapes/Sphere.obj");
     return model;
 }
 
@@ -103,25 +112,26 @@ QString ModelLoader::log() {
 Model * ModelLoader::loadModel(const aiNode * aiNodePtr) {
     Model* model = new Model;
     model->setObjectName(aiNodePtr->mName.length ? aiNodePtr->mName.C_Str() : "Untitled");
-#ifdef _DEBUG
-    qDebug() << "New model" << model->objectName() << "is created";
-#endif
     for (uint32_t i = 0; i < aiNodePtr->mNumMeshes; i++)
         model->addChildMesh(loadMesh(m_aiScenePtr->mMeshes[aiNodePtr->mMeshes[i]]));
     for (uint32_t i = 0; i < aiNodePtr->mNumChildren; i++)
         model->addChildModel(loadModel(aiNodePtr->mChildren[i]));
+
+    QVector3D center = model->centerOfMass();
+    
+    for (int i = 0; i < model->childMeshes().size(); i++)
+        model->childMeshes()[i]->translate(-center);
+    for (int i = 0; i < model->childModels().size(); i++)
+        model->childModels()[i]->translate(-center);
+
+    model->translate(center);
+
     return model;
 }
 
 Mesh * ModelLoader::loadMesh(const aiMesh * aiMeshPtr) {
     Mesh* mesh = new Mesh;
     mesh->setObjectName(aiMeshPtr->mName.length ? aiMeshPtr->mName.C_Str() : "Untitled");
-#ifdef _DEBUG
-    qDebug() << "New mesh" << mesh->objectName() << "is created";
-#endif
-
-    QVector<Vertex> vertices;
-    QVector<uint32_t> indices;
 
     for (uint32_t i = 0; i < aiMeshPtr->mNumVertices; i++) {
         Vertex vertex;
@@ -133,7 +143,7 @@ Mesh * ModelLoader::loadMesh(const aiMesh * aiMeshPtr) {
             // Assimp use left-handed tangent space
             vertex.tangent = QVector3D(aiMeshPtr->mTangents[i].x, aiMeshPtr->mTangents[i].y, aiMeshPtr->mTangents[i].z);
             vertex.bitangent = QVector3D(aiMeshPtr->mBitangents[i].x, aiMeshPtr->mBitangents[i].y, aiMeshPtr->mBitangents[i].z);
-            
+
             // Gram-Schmidt process, re-orthogonalize the TBN vectors
             vertex.tangent -= QVector3D::dotProduct(vertex.tangent, vertex.normal) * vertex.normal;
             vertex.tangent.normalize();
@@ -144,14 +154,19 @@ Mesh * ModelLoader::loadMesh(const aiMesh * aiMeshPtr) {
         }
         if (aiMeshPtr->HasTextureCoords(0))
             vertex.texCoords = QVector2D(aiMeshPtr->mTextureCoords[0][i].x, aiMeshPtr->mTextureCoords[0][i].y);
-        vertices.push_back(vertex);
+        mesh->m_vertices.push_back(vertex);
     }
 
     for (uint32_t i = 0; i < aiMeshPtr->mNumFaces; i++)
         for (uint32_t j = 0; j < 3; j++)
-            indices.push_back(aiMeshPtr->mFaces[i].mIndices[j]);
+            mesh->m_indices.push_back(aiMeshPtr->mFaces[i].mIndices[j]);
 
-    mesh->setGeometry(vertices, indices);
+    QVector3D center = mesh->centerOfMass();
+
+    for (int i = 0; i < mesh->m_vertices.size(); i++)
+        mesh->m_vertices[i].position -= center;
+
+    mesh->m_position = center;
     mesh->setMaterial(loadMaterial(m_aiScenePtr->mMaterials[aiMeshPtr->mMaterialIndex]));
 
     return mesh;

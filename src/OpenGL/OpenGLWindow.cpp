@@ -1,5 +1,6 @@
 #include <OpenGL/OpenGLWindow.h>
 #include <OpenGL/OpenGLConfig.h>
+#include <IO/ModelLoader.h>
 
 OpenGLWindow::OpenGLWindow(OpenGLRenderer* renderer) {
     m_lastCursorPos = QCursor::pos();
@@ -10,19 +11,19 @@ OpenGLWindow::OpenGLWindow(OpenGLRenderer* renderer) {
     configSignals();
 }
 
-OpenGLWindow::OpenGLWindow(Scene * scene, OpenGLRenderer * renderer) {
+OpenGLWindow::OpenGLWindow(OpenGLScene * openGLScene, OpenGLRenderer * renderer) {
     m_lastCursorPos = QCursor::pos();
     m_captureUserInput = true;
     m_renderer = renderer;
     m_fpsCounter = new FPSCounter(this);
-    setScene(scene);
+    setScene(openGLScene);
     configSignals();
 }
 
-void OpenGLWindow::setScene(Scene * scene) {
-    m_host = scene;
-    if (m_host)
-        connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
+void OpenGLWindow::setScene(OpenGLScene* openGLScene) {
+    m_openGLScene = openGLScene;
+    if (m_openGLScene)
+        connect(m_openGLScene, SIGNAL(destroyed(QObject*)), this, SLOT(sceneDestroyed(QObject*)));
 }
 
 void OpenGLWindow::setCaptureUserInput(bool captureUserInput) {
@@ -48,13 +49,57 @@ void OpenGLWindow::paintGL() {
     if (m_captureUserInput)
         processUserInput();
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(OpenGLConfig::getBackgroundColor()[0], OpenGLConfig::getBackgroundColor()[1], OpenGLConfig::getBackgroundColor()[2], 1.0f);
+    if (m_openGLScene) {
+        m_openGLScene->host()->camera()->setAspectRatio(float(width()) / height());
+        m_openGLScene->commitCameraInfo();
+        m_openGLScene->commitLightingInfo();
 
-    if (m_host) {
-        m_host->camera()->setAspectRatio(float(width()) / height());
-        m_renderer->render(m_host);
+        if (!m_keyPressed[Qt::LeftButton]) {
+            uint32_t pickingID = m_renderer->pickingPass(m_openGLScene, mapFromGlobal(QCursor::pos()) * devicePixelRatioF());
+            OpenGLMesh* pickedOpenGLMesh = m_openGLScene->pick(pickingID);
+            if (pickedOpenGLMesh) {
+                Mesh* pickedMesh = pickedOpenGLMesh->host();
+                if (pickedMesh->isOnlyChild())
+                    qobject_cast<Model*>(pickedMesh->parent())->setHighlighted(true);
+                else
+                    pickedMesh->setHighlighted(true);
+            } else if (Mesh::getHighlighted())
+                Mesh::getHighlighted()->setHighlighted(false);
+        }
+
+        m_renderer->render(m_openGLScene);
     }
+}
+
+bool OpenGLWindow::event(QEvent * event) {
+    if (QOpenGLWindow::event(event)) return true;
+    if (event->type() == QEvent::DragEnter) {
+        QDragEnterEvent* dragEnterEvent = static_cast<QDragEnterEvent*>(event);
+        if (dragEnterEvent->mimeData()->hasUrls())
+            dragEnterEvent->acceptProposedAction();
+        return true;
+    } else if (event->type() == QEvent::DragMove) {
+        QDragMoveEvent* dragMoveEvent = static_cast<QDragMoveEvent*>(event);
+        if (dragMoveEvent->mimeData()->hasUrls())
+            dragMoveEvent->acceptProposedAction();
+        return true;
+    } else if (event->type() == QEvent::Drop) {
+        if (!m_openGLScene) return true;
+        QDropEvent* dropEvent = static_cast<QDropEvent*>(event);
+        foreach(const QUrl &url, dropEvent->mimeData()->urls()) {
+            ModelLoader loader;
+            Model* model = loader.loadModelFromFile(url.toLocalFile());
+            if (model == 0) {
+                QString log = loader.log();
+                qWarning() << "Failed to load" << url.toLocalFile();
+                qWarning() << log;
+                QMessageBox::critical(0, "Failed to load file", log);
+            } else
+                m_openGLScene->host()->addModel(model);
+        }
+        return true;
+    }
+    return false;
 }
 
 void OpenGLWindow::keyPressEvent(QKeyEvent * event) {
@@ -68,23 +113,45 @@ void OpenGLWindow::keyReleaseEvent(QKeyEvent * event) {
 }
 
 void OpenGLWindow::mousePressEvent(QMouseEvent * event) {
-    m_lastCursorPos = QCursor::pos();
+    m_lastCursorPos = mapFromGlobal(QCursor::pos());
+    m_lastMousePressTime = QTime::currentTime();
     m_keyPressed[event->button()] = true;
+    if (event->button() == Qt::LeftButton && Mesh::getHighlighted()) {
+        if (Axis* axis = qobject_cast<Axis*>(Mesh::getHighlighted()->parent())) {
+            for (int i = 0; i < 9; i++)
+                if (axis->markers()[i] == Mesh::getHighlighted())
+                    axis->setTransformMode(static_cast<Axis::TransformationMode>(Axis::None + i + 1));
+        }
+    }
     event->accept();
 }
 
 void OpenGLWindow::mouseReleaseEvent(QMouseEvent * event) {
+        m_openGLScene->host()->axis()->setTransformMode(Axis::None);
+    if (m_lastMousePressTime.msecsTo(QTime::currentTime()) < 200) { // click
+        if (AbstractEntity::getHighlighted()) {
+            if (Axis* axis = qobject_cast<Axis*>(AbstractEntity::getHighlighted()->parent())) {
+                axis->setTransformMode(Axis::None);
+            } else {
+                AbstractEntity::getHighlighted()->setSelected(true);
+                m_openGLScene->host()->axis()->bindTo(Mesh::getSelected());
+            }
+        } else if (AbstractEntity::getSelected()) {
+            AbstractEntity::getSelected()->setSelected(false);
+            m_openGLScene->host()->axis()->unbind();
+        }
+    }
     m_keyPressed[event->button()] = false;
     event->accept();
 }
 
 void OpenGLWindow::wheelEvent(QWheelEvent * event) {
-    if (!m_captureUserInput || !m_host) return;
+    if (!m_captureUserInput || !m_openGLScene) return;
 
     if (!event->pixelDelta().isNull())
-        m_host->camera()->moveForward(event->pixelDelta().y());
+        m_openGLScene->host()->camera()->moveForward(event->pixelDelta().y());
     else if (!event->angleDelta().isNull())
-        m_host->camera()->moveForward(event->angleDelta().y());
+        m_openGLScene->host()->camera()->moveForward(event->angleDelta().y());
 
     event->accept();
 }
@@ -95,23 +162,29 @@ void OpenGLWindow::focusOutEvent(QFocusEvent *) {
 }
 
 void OpenGLWindow::processUserInput() {
-    if (!m_host) return;
+    if (!m_openGLScene) return;
     float shift = 1.0f;
     if (m_keyPressed[Qt::Key_Shift]) shift *= 5.0f;
-    if (m_keyPressed[Qt::Key_W]) m_host->camera()->moveForward(shift);
-    if (m_keyPressed[Qt::Key_S]) m_host->camera()->moveForward(-shift);
-    if (m_keyPressed[Qt::Key_A]) m_host->camera()->moveRight(-shift);
-    if (m_keyPressed[Qt::Key_D]) m_host->camera()->moveRight(shift);
-    if (m_keyPressed[Qt::Key_Q]) m_host->camera()->moveUp(-shift);
-    if (m_keyPressed[Qt::Key_E]) m_host->camera()->moveUp(shift);
+    if (m_keyPressed[Qt::Key_W]) m_openGLScene->host()->camera()->moveForward(shift);
+    if (m_keyPressed[Qt::Key_S]) m_openGLScene->host()->camera()->moveForward(-shift);
+    if (m_keyPressed[Qt::Key_A]) m_openGLScene->host()->camera()->moveRight(-shift);
+    if (m_keyPressed[Qt::Key_D]) m_openGLScene->host()->camera()->moveRight(shift);
+    if (m_keyPressed[Qt::Key_Q]) m_openGLScene->host()->camera()->moveUp(-shift);
+    if (m_keyPressed[Qt::Key_E]) m_openGLScene->host()->camera()->moveUp(shift);
 
     if (m_keyPressed[Qt::LeftButton]) {
-        QPoint cntCursorPos = QCursor::pos();
-        int dx = cntCursorPos.x() - m_lastCursorPos.x();
-        int dy = cntCursorPos.y() - m_lastCursorPos.y();
+        QPoint cntCursorPos = mapFromGlobal(QCursor::pos());
+        Axis* axis = m_openGLScene->host()->axis();
+        if (axis->host() && axis->transformMode() != Axis::None) {
+            axis->drag(m_lastCursorPos, cntCursorPos,
+                       width(), height(),
+                       m_openGLScene->host()->camera()->projectionMatrix(),
+                       m_openGLScene->host()->camera()->viewMatrix());
+        } else {
+            m_openGLScene->host()->camera()->turnLeft((m_lastCursorPos.x() - cntCursorPos.x()) / 10.0f);
+            m_openGLScene->host()->camera()->lookUp((m_lastCursorPos.y() - cntCursorPos.y()) / 10.0f);
+        }
         m_lastCursorPos = cntCursorPos;
-        m_host->camera()->turnLeft(-dx / 10.0f);
-        m_host->camera()->lookUp(-dy / 10.0f);
     }
 }
 
@@ -121,7 +194,7 @@ void OpenGLWindow::configSignals() {
     connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
 }
 
-void OpenGLWindow::hostDestroyed(QObject * host) {
-    if (host == m_host)
-        m_host = 0;
+void OpenGLWindow::sceneDestroyed(QObject * host) {
+    if (host == m_openGLScene)
+        m_openGLScene = 0;
 }
