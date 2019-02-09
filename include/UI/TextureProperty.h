@@ -1,7 +1,6 @@
 #pragma once
 
-#include <Core/Texture.h>
-#include <UI/Common.h>
+#include <Texture.h>
 
 class TexturePropertyWidget: public QWidget {
     Q_OBJECT

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Texture.h>
+#include <Texture.h>
 
 class Material: public QObject {
     Q_OBJECT

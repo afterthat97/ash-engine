@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Mesh.h>
+#include <Mesh.h>
 
 class Model: public AbstractEntity {
     Q_OBJECT

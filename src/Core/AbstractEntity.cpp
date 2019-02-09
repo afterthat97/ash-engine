@@ -1,4 +1,4 @@
-#include <Core/AbstractEntity.h>
+#include <AbstractEntity.h>
 
 AbstractEntity* AbstractEntity::m_highlightedObject = 0;
 AbstractEntity* AbstractEntity::m_selectedObject = 0;
@@ -42,7 +42,7 @@ void AbstractEntity::translate(QVector3D delta) {
 }
 
 void AbstractEntity::rotate(QQuaternion rotation) {
-    if (m_host) 
+    if (m_host)
         m_host->rotate(rotation);
     else
         setRotation(QQuaternion::fromEulerAngles(m_rotation) * rotation);
@@ -56,7 +56,7 @@ void AbstractEntity::rotate(QVector3D rotation) {
 }
 
 void AbstractEntity::scale(QVector3D scaling) {
-    if (m_host) 
+    if (m_host)
         m_host->scale(scaling);
     else
         setScaling(m_scaling * scaling);
@@ -134,7 +134,7 @@ QMatrix4x4 AbstractEntity::localModelMatrix() const {
 QMatrix4x4 AbstractEntity::localModelMatrix(bool includeTranslation, bool includeRotation, bool includeScaling) const {
     if (m_host)
         return m_host->localModelMatrix(includeTranslation, includeRotation, includeScaling);
-    
+
     QMatrix4x4 model;
     if (includeTranslation && m_canTranslate)
         model.translate(m_position);
@@ -159,7 +159,7 @@ QMatrix4x4 AbstractEntity::globalModelMatrix() const {
 QMatrix4x4 AbstractEntity::globalModelMatrix(bool includeTranslation, bool includeRotation, bool includeScaling) const {
     if (m_host)
         return m_host->globalModelMatrix(includeTranslation, includeRotation, includeScaling);
-    
+
     includeTranslation = includeTranslation && m_canTranslate;
     includeRotation = includeRotation && m_canRotate;
     includeScaling = includeScaling && m_canScale;

@@ -1,6 +1,11 @@
 #pragma once
 
-#include <OpenGL/Common.h>
+#include <Common.h>
+
+#define CAMERA_INFO_BINDING_POINT 0
+#define MODEL_INFO_BINDING_POINT 1
+#define MATERIAL_INFO_BINDING_POINT 2
+#define LIGHT_INFO_BINDING_POINT 3
 
 class OpenGLUniformBufferObject {
 
@@ -18,7 +23,9 @@ public:
     void write(int offset, const void* data, int count);
     void release();
 
+    static void bindUniformBlock(QOpenGLShaderProgram * shader);
+
 private:
     GLuint m_id;
-    QOpenGLFunctions_3_3_Core * glFuncs;
+    static QOpenGLFunctions_3_3_Core* glFuncs;
 };

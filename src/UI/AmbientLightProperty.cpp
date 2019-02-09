@@ -1,4 +1,4 @@
-#include <UI/AmbientLightProperty.h>
+#include <AmbientLightProperty.h>
 
 AmbientLightProperty::AmbientLightProperty(AmbientLight * light, QWidget * parent): QWidget(parent) {
     m_host = light;

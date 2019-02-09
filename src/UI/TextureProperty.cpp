@@ -1,4 +1,4 @@
-#include <UI/TextureProperty.h>
+#include <TextureProperty.h>
 
 TexturePropertyWidget::TexturePropertyWidget(Texture * texture, QWidget * parent): QWidget(parent) {
     m_host = texture;

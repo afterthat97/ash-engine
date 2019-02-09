@@ -1,16 +1,15 @@
 #pragma once
 
-#include <Core/Scene.h>
-#include <OpenGL/Common.h>
-#include <OpenGL/OpenGLMesh.h>
-#include <OpenGL/OpenGLUniformBufferObject.h>
+#include <Scene.h>
+#include <OpenGLMesh.h>
+#include <OpenGLUniformBufferObject.h>
 
 class OpenGLScene: public QObject {
     Q_OBJECT
 
 public:
     OpenGLScene(Scene* scene);
-    
+
     Scene* host() const;
 
     OpenGLMesh* pick(uint32_t pickingID);
@@ -21,7 +20,7 @@ public:
     void renderModels();
 
     void commitCameraInfo();
-    void commitLightingInfo();
+    void commitLightInfo();
 
 protected:
     void childEvent(QChildEvent *event) override;
@@ -29,7 +28,7 @@ protected:
 private:
     Scene* m_host;
     QVector<OpenGLMesh*> m_axisMeshes, m_gridlineMeshes, m_lightMeshes, m_normalMeshes;
-    static OpenGLUniformBufferObject *m_cameraInfo, *m_lightingInfo;
+    static OpenGLUniformBufferObject *m_cameraInfo, *m_lightInfo;
 
 private slots:
     void axisAdded(Axis* axis);

@@ -1,8 +1,7 @@
 #pragma once
 
-#include <Core/Mesh.h>
-#include <OpenGL/Common.h>
-#include <OpenGL/OpenGLMaterial.h>
+#include <Mesh.h>
+#include <OpenGLMaterial.h>
 
 class OpenGLMesh: public QObject {
     Q_OBJECT
@@ -29,7 +28,7 @@ private:
     Mesh* m_host;
     bool m_sizeFixed;
     uint m_pickingID;
-    
+
     QOpenGLVertexArrayObject * m_vao;
     QOpenGLBuffer * m_vbo, *m_ebo;
     QOpenGLFunctions_3_3_Core * glFuncs;

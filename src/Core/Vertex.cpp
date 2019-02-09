@@ -1,4 +1,4 @@
-#include <Core/Vertex.h>
+#include <Vertex.h>
 
 Vertex::Vertex(QVector3D _position, QVector3D _normal, QVector3D _tangent, QVector3D _bitangent, QVector2D _texCoords) {
     position = _position;

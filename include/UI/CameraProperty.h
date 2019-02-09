@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Core/Camera.h>
-#include <UI/Vector3DEdit.h>
-#include <UI/FloatSlider.h>
+#include <Camera.h>
+#include <Vector3DEdit.h>
+#include <FloatSlider.h>
 
 class CameraProperty: public QWidget {
     Q_OBJECT

@@ -1,4 +1,4 @@
-#include <UI/CameraProperty.h>
+#include <CameraProperty.h>
 
 CameraProperty::CameraProperty(Camera * camera, QWidget * parent): QWidget(parent) {
     m_host = camera;

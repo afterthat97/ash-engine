@@ -1,6 +1,6 @@
 #pragma once
 
-#include <UI/FloatEdit.h>
+#include <FloatEdit.h>
 
 class Vector3DEdit: public QGroupBox {
     Q_OBJECT

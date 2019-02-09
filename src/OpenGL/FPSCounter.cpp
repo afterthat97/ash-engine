@@ -1,4 +1,4 @@
-#include <OpenGL/FPSCounter.h>
+#include <FPSCounter.h>
 
 FPSCounter::FPSCounter(QObject* parent): QObject(parent) {
     timer = new QTimer(this);

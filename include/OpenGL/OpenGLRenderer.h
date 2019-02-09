@@ -1,7 +1,6 @@
 #pragma once
 
-#include <OpenGL/Common.h>
-#include <OpenGL/OpenGLScene.h>
+#include <OpenGLScene.h>
 
 class OpenGLRenderer: public QObject {
     Q_OBJECT

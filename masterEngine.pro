@@ -9,10 +9,13 @@ PREVIEW = -rc3
 
 DEFINES += \
     QT_DEPRECATED_WARNINGS \
+    _DEBUG \
     APP_VERSION=\\\"v$${VERSION}$${PREVIEW}\\\"
 
 INCLUDEPATH += \
-    include \
+    include/Core \
+    include/OpenGL \
+    include/UI \
     3rdparty
 
 RESOURCES += \
@@ -31,43 +34,38 @@ win32 {
 }
 
 HEADERS += \
-    include/Core/Light/AbstractLight.h \
-    include/Core/Light/AmbientLight.h \
-    include/Core/Light/DirectionalLight.h \
-    include/Core/Light/PointLight.h \
-    include/Core/Light/SpotLight.h \
+    include/Core/AbstractEntity.h \
+    include/Core/AbstractLight.h \
+    include/Core/AmbientLight.h \
+    include/Core/Axis.h \
     include/Core/Camera.h \
     include/Core/Common.h \
     include/Core/Core.h \
+    include/Core/DirectionalLight.h \
     include/Core/Gridline.h \
     include/Core/Material.h \
     include/Core/Mesh.h \
     include/Core/Model.h \
+    include/Core/ModelExporter.h \
+    include/Core/ModelLoader.h \
+    include/Core/PointLight.h \
     include/Core/Scene.h \
+    include/Core/SceneLoader.h \
+    include/Core/SceneSaver.h \
+    include/Core/SpotLight.h \
     include/Core/Texture.h \
+    include/Core/TextureLoader.h \
     include/Core/Vertex.h \
-    include/IO/IO.h \
-    include/IO/ModelLoader.h \
-    include/IO/SceneLoader.h \
-    include/IO/SceneSaver.h \
-    include/IO/TextureLoader.h \
     include/OpenGL/Common.h \
     include/OpenGL/FPSCounter.h \
     include/OpenGL/OpenGL.h \
-    include/OpenGL/OpenGLAmbientLight.h \
     include/OpenGL/OpenGLConfig.h \
-    include/OpenGL/OpenGLDirectionalLight.h \
-    include/OpenGL/OpenGLGridline.h \
-    include/OpenGL/OpenGLManager.h \
     include/OpenGL/OpenGLMaterial.h \
     include/OpenGL/OpenGLMesh.h \
-    include/OpenGL/OpenGLModel.h \
-    include/OpenGL/OpenGLPointLight.h \
     include/OpenGL/OpenGLRenderer.h \
     include/OpenGL/OpenGLScene.h \
-    include/OpenGL/OpenGLSpotLight.h \
     include/OpenGL/OpenGLTexture.h \
-    include/OpenGL/OpenGLWidget.h \
+    include/OpenGL/OpenGLUniformBufferObject.h \
     include/OpenGL/OpenGLWindow.h \
     include/UI/AmbientLightProperty.h \
     include/UI/CameraProperty.h \
@@ -89,38 +87,34 @@ HEADERS += \
     include/UI/Vector3DEditSlider.h
 
 SOURCES += \
-    src/Core/Light/AbstractLight.cpp \
-    src/Core/Light/AmbientLight.cpp \
-    src/Core/Light/DirectionalLight.cpp \
-    src/Core/Light/PointLight.cpp \
-    src/Core/Light/SpotLight.cpp \
+    src/Core/AbstractEntity.cpp \
+    src/Core/AbstractLight.cpp \
+    src/Core/AmbientLight.cpp \
+    src/Core/Axis.cpp \
     src/Core/Camera.cpp \
+    src/Core/DirectionalLight.cpp \
     src/Core/Gridline.cpp \
     src/Core/Material.cpp \
     src/Core/Mesh.cpp \
     src/Core/Model.cpp \
+    src/Core/ModelExporter.cpp \
+    src/Core/ModelLoader.cpp \
+    src/Core/PointLight.cpp \
     src/Core/Scene.cpp \
+    src/Core/SceneLoader.cpp \
+    src/Core/SceneSaver.cpp \
+    src/Core/SpotLight.cpp \
     src/Core/Texture.cpp \
+    src/Core/TextureLoader.cpp \
     src/Core/Vertex.cpp \
-    src/IO/ModelLoader.cpp \
-    src/IO/SceneLoader.cpp \
-    src/IO/SceneSaver.cpp \
-    src/IO/TextureLoader.cpp \
     src/OpenGL/FPSCounter.cpp \
-    src/OpenGL/OpenGLAmbientLight.cpp \
     src/OpenGL/OpenGLConfig.cpp \
-    src/OpenGL/OpenGLDirectionalLight.cpp \
-    src/OpenGL/OpenGLGridline.cpp \
-    src/OpenGL/OpenGLManager.cpp \
     src/OpenGL/OpenGLMaterial.cpp \
     src/OpenGL/OpenGLMesh.cpp \
-    src/OpenGL/OpenGLModel.cpp \
-    src/OpenGL/OpenGLPointLight.cpp \
     src/OpenGL/OpenGLRenderer.cpp \
     src/OpenGL/OpenGLScene.cpp \
-    src/OpenGL/OpenGLSpotLight.cpp \
     src/OpenGL/OpenGLTexture.cpp \
-    src/OpenGL/OpenGLWidget.cpp \
+    src/OpenGL/OpenGLUniformBufferObject.cpp \
     src/OpenGL/OpenGLWindow.cpp \
     src/UI/AmbientLightProperty.cpp \
     src/UI/CameraProperty.cpp \
@@ -139,3 +133,4 @@ SOURCES += \
     src/UI/Vector3DEdit.cpp \
     src/UI/Vector3DEditSlider.cpp \
     src/masterEngine.cpp
+

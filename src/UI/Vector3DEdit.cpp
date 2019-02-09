@@ -1,4 +1,4 @@
-#include <UI/Vector3DEdit.h>
+#include <Vector3DEdit.h>
 
 Vector3DEdit::Vector3DEdit(QWidget * parent): QGroupBox(parent) {
     for (int i = 0; i < 3; i++) {

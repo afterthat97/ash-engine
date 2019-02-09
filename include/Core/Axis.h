@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Mesh.h>
+#include <Mesh.h>
 
 class Axis: public AbstractEntity {
     Q_OBJECT
@@ -36,7 +36,7 @@ public:
     QVector<Mesh*>& markers();
 
     void drag(QPoint from, QPoint to, int scnWidth, int scnHeight, QMatrix4x4 proj, QMatrix4x4 view);
-    
+
     void bindTo(AbstractEntity* host) override;
     void unbind() override;
 

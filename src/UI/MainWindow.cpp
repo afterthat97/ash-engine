@@ -1,14 +1,17 @@
-#include <UI/MainWindow.h>
-#include <UI/CameraProperty.h>
-#include <UI/GridlineProperty.h>
-#include <UI/AmbientLightProperty.h>
-#include <UI/DirectionalLightProperty.h>
-#include <UI/PointLightProperty.h>
-#include <UI/SpotLightProperty.h>
-#include <UI/ModelProperty.h>
-#include <UI/MeshProperty.h>
-#include <UI/MaterialProperty.h>
-#include <IO/IO.h>
+#include <MainWindow.h>
+#include <CameraProperty.h>
+#include <GridlineProperty.h>
+#include <AmbientLightProperty.h>
+#include <DirectionalLightProperty.h>
+#include <PointLightProperty.h>
+#include <SpotLightProperty.h>
+#include <ModelProperty.h>
+#include <MeshProperty.h>
+#include <MaterialProperty.h>
+#include <ModelLoader.h>
+#include <ModelExporter.h>
+#include <SceneLoader.h>
+#include <SceneSaver.h>
 
 MainWindow::MainWindow(Scene * scene, QWidget * parent): QMainWindow(parent) {
     m_host = scene;
@@ -17,7 +20,7 @@ MainWindow::MainWindow(Scene * scene, QWidget * parent): QMainWindow(parent) {
     m_sceneTreeWidget = new SceneTreeWidget(m_host, this);
     m_openGLWindow = new OpenGLWindow(new OpenGLScene(m_host), new OpenGLRenderer);
     m_propertyWidget = new QWidget(this);
-    
+
     statusBar()->addPermanentWidget(m_fpsLabel);
 
     setAcceptDrops(true);
@@ -86,8 +89,11 @@ void MainWindow::configMenu() {
     actionAxisTypeTranslate->setChecked(true);
 
     QMenu *menuHelp = menuBar()->addMenu("Help");
-    menuHelp->addAction("Source Code (GitHub)", this, SLOT(helpSourceCode()));
     menuHelp->addAction("Check for Update", this, SLOT(helpCheckForUpdates()));
+    menuHelp->addAction("View Source Code", this, SLOT(helpSourceCode()));
+    menuHelp->addSeparator();
+    menuHelp->addAction("Bug Report", this, SLOT(helpBugReport()));
+    menuHelp->addAction("Feature Request", this, SLOT(helpFeatureRequest()));
     menuHelp->addSeparator();
     menuHelp->addAction("About", this, SLOT(helpAbout()));
 }
@@ -181,7 +187,7 @@ void MainWindow::fileImportModel() {
         qWarning() << "Failed to load" << filePath;
         qWarning() << log;
         QMessageBox::critical(0, "Failed to load file", log);
-    } else 
+    } else
         m_host->addModel(model);
 }
 
@@ -200,11 +206,11 @@ void MainWindow::fileExportModel() {
     filter += "Extensible 3D (*.x3d);;";
     filter += "3MF File Format (*.3mf);;";
     QString filePath = QFileDialog::getSaveFileName(this, "Export Model", "", filter);
-    
+
     ModelExporter exporter;
     if (Model* model = qobject_cast<Model*>(AbstractEntity::getSelected()))
         exporter.saveToFile(model, filePath);
-    else if (Mesh* mesh = qobject_cast<Mesh*>(AbstractEntity::getSelected())) 
+    else if (Mesh* mesh = qobject_cast<Mesh*>(AbstractEntity::getSelected()))
         exporter.saveToFile(mesh, filePath);
 
     if (exporter.hasLog()) {
@@ -317,6 +323,14 @@ void MainWindow::helpAbout() {
 
 void MainWindow::helpSourceCode() {
     QDesktopServices::openUrl(QUrl("https://github.com/afterthat97/masterEngine"));
+}
+
+void MainWindow::helpBugReport() {
+    QDesktopServices::openUrl(QUrl("https://github.com/afterthat97/masterEngine/issues/new?template=bug_report.md"));
+}
+
+void MainWindow::helpFeatureRequest() {
+    QDesktopServices::openUrl(QUrl("https://github.com/afterthat97/masterEngine/issues/new?template=feature_request.md"));
 }
 
 void MainWindow::helpCheckForUpdates() {

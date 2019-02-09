@@ -1,5 +1,4 @@
-#include <Core/Texture.h>
-#include <qimagereader.h>
+#include <Texture.h>
 
 Texture::Texture(TextureType textureType) : QObject(0) {
     m_enabled = true;

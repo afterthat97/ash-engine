@@ -1,6 +1,5 @@
-#include <OpenGL/OpenGL.h>
-#include <IO/IO.h>
-#include <UI/UI.h>
+#include <MainWindow.h>
+#include <ModelLoader.h>
 
 void initApplication() {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -11,7 +10,7 @@ void initApplication() {
 #endif
 
     QSurfaceFormat openGLFormat;
-    openGLFormat.setVersion(4, 2);
+    openGLFormat.setVersion(3, 3);
     openGLFormat.setProfile(QSurfaceFormat::CoreProfile);
     openGLFormat.setDepthBufferSize(24);
     openGLFormat.setStencilBufferSize(8);
@@ -27,6 +26,10 @@ int main(int argc, char *argv[]) {
     scene->addGridline(new Gridline);
     scene->addDirectionalLight(new DirectionalLight);
     scene->addModel(ModelLoader::loadCubeModel());
+
+    // TODO: Test single OpenGL Window
+    //OpenGLWindow * w = new OpenGLWindow(new OpenGLScene(scene), new OpenGLRenderer);
+    //w->show();
 
     MainWindow *window = new MainWindow(scene);
     window->show();

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Core/Model.h>
-#include <UI/Vector3DEditSlider.h>
+#include <Model.h>
+#include <Vector3DEditSlider.h>
 
 class ModelProperty: public QWidget {
     Q_OBJECT

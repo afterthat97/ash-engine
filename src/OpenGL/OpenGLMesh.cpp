@@ -1,6 +1,5 @@
-#include <OpenGL/OpenGLMesh.h>
-#include <OpenGL/OpenGLMaterial.h>
-#include <OpenGL/OpenGLConfig.h>
+#include <OpenGLMesh.h>
+#include <OpenGLMaterial.h>
 
 struct ShaderModelInfo {
     float modelMat[16];   // 64          // 0
@@ -65,13 +64,13 @@ void OpenGLMesh::create() {
     glFuncs->glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, tangent));
     glFuncs->glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, bitangent));
     glFuncs->glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, texCoords));
-    
+
     m_vao->release();
 }
 
 void OpenGLMesh::commitInfo() {
     QMatrix4x4 modelMat = m_host->globalModelMatrix();
-    
+
     memcpy(shaderModelInfo.modelMat, modelMat.constData(), 64);
     memcpy(shaderModelInfo.normalMat, QMatrix4x4(modelMat.normalMatrix()).constData(), 64);
     shaderModelInfo.sizeFixed = this->m_sizeFixed;
@@ -83,7 +82,7 @@ void OpenGLMesh::commitInfo() {
         m_modelInfo = new OpenGLUniformBufferObject;
         m_modelInfo->create();
         m_modelInfo->bind();
-        m_modelInfo->allocate(1, NULL, sizeof(ShaderModelInfo));
+        m_modelInfo->allocate(MODEL_INFO_BINDING_POINT, NULL, sizeof(ShaderModelInfo));
         m_modelInfo->release();
     }
     m_modelInfo->bind();

@@ -1,4 +1,4 @@
-#include <UI/SpotLightProperty.h>
+#include <SpotLightProperty.h>
 
 SpotLightProperty::SpotLightProperty(SpotLight * light, QWidget * parent): QWidget(parent) {
     m_host = light;

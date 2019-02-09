@@ -1,4 +1,4 @@
-#include <IO/SceneSaver.h>
+#include <SceneSaver.h>
 
 SceneSaver::SceneSaver(Scene* scene) {
     m_scene = scene;

@@ -1,4 +1,4 @@
-#include <UI/MaterialProperty.h>
+#include <MaterialProperty.h>
 
 MaterialProperty::MaterialProperty(Material * material, QWidget * parent): QWidget(parent) {
     m_host = material;

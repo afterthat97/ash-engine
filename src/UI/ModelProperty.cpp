@@ -1,4 +1,4 @@
-#include <UI/ModelProperty.h>
+#include <ModelProperty.h>
 
 ModelProperty::ModelProperty(Model * model, QWidget * parent): QWidget(parent) {
     m_host = model;

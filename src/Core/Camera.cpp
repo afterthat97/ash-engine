@@ -1,4 +1,4 @@
-#include <Core/Camera.h>
+#include <Camera.h>
 
 Camera::Camera(QObject* parent): QObject(0) {
     reset();

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <UI/FloatSlider.h>
-#include <UI/Vector3DEdit.h>
+#include <FloatSlider.h>
+#include <Vector3DEdit.h>
 
 class Vector3DEditSlider: public Vector3DEdit {
     Q_OBJECT

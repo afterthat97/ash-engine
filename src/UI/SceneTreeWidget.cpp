@@ -1,4 +1,4 @@
-#include <UI/SceneTreeWidget.h>
+#include <SceneTreeWidget.h>
 
 SceneTreeWidget::SceneTreeWidget(Scene* scene, QWidget* parent): QTreeWidget(parent) {
     setScene(scene);

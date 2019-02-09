@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Core/Axis.h>
-#include <Core/Camera.h>
-#include <Core/Gridline.h>
-#include <Core/Light/AmbientLight.h>
-#include <Core/Light/DirectionalLight.h>
-#include <Core/Light/PointLight.h>
-#include <Core/Light/SpotLight.h>
-#include <Core/Model.h>
+#include <Axis.h>
+#include <Camera.h>
+#include <Gridline.h>
+#include <AmbientLight.h>
+#include <DirectionalLight.h>
+#include <PointLight.h>
+#include <SpotLight.h>
+#include <Model.h>
 
 class SceneLoader;
 class SceneSaver;

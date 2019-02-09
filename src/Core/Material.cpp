@@ -1,4 +1,4 @@
-#include <Core/Material.h>
+#include <Material.h>
 
 Material::Material(QObject* parent): QObject(0) {
     m_color = QVector3D(1.0f, 1.0f, 1.0f);

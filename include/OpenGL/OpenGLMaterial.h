@@ -1,16 +1,15 @@
 #pragma once
 
-#include <Core/Material.h>
-#include <OpenGL/Common.h>
-#include <OpenGL/OpenGLUniformBufferObject.h>
-#include <OpenGL/OpenGLTexture.h>
+#include <Material.h>
+#include <OpenGLUniformBufferObject.h>
+#include <OpenGLTexture.h>
 
 class OpenGLMaterial: public QObject {
     Q_OBJECT
 
 public:
     OpenGLMaterial(Material* material, QObject* parent = 0);
-    
+
     Material* host() const;
 
     void bind();

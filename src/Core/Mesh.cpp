@@ -1,6 +1,4 @@
-#include <Core/Mesh.h>
-#include <Core/Model.h>
-#include <Core/Material.h>
+#include <Mesh.h>
 
 Mesh::Mesh(QObject * parent): AbstractEntity(0) {
     m_meshType = Triangle;
@@ -54,6 +52,10 @@ void Mesh::dumpObjectTree(int l) {
     if (m_material)
         m_material->dumpObjectTree(l + 1);
 }
+
+// TODO
+
+#include <Model.h>
 
 bool Mesh::isOnlyChild() const {
     if (Model* par = qobject_cast<Model*>(parent()))
@@ -212,7 +214,7 @@ void Mesh::childEvent(QChildEvent * e) {
     } else if (e->removed()) {
 #ifdef _DEBUG
         qDebug() << "Mesh" << this->objectName() << "received child event (Type: Removed)";
-#endif   
+#endif
         if (e->child() == m_material)
             m_material = 0;
         materialChanged(m_material);

@@ -1,5 +1,4 @@
-#include <IO/ModelLoader.h>
-#include <IO/TextureLoader.h>
+#include <ModelLoader.h>
 
 // Assimp: 3D model loader
 #include <assimp/Importer.hpp>
@@ -118,7 +117,7 @@ Model * ModelLoader::loadModel(const aiNode * aiNodePtr) {
         model->addChildModel(loadModel(aiNodePtr->mChildren[i]));
 
     QVector3D center = model->centerOfMass();
-    
+
     for (int i = 0; i < model->childMeshes().size(); i++)
         model->childMeshes()[i]->translate(-center);
     for (int i = 0; i < model->childModels().size(); i++)

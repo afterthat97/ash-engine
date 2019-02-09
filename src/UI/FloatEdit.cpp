@@ -1,4 +1,4 @@
-#include <UI/FloatEdit.h>
+#include <FloatEdit.h>
 
 FloatEdit::FloatEdit(QWidget * parent): QWidget(parent) {
     m_lineEdit = new QLineEdit(this);

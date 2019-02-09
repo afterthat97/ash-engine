@@ -1,5 +1,5 @@
-#include <Core/Light/SpotLight.h>
-#include <IO/ModelLoader.h>
+#include <SpotLight.h>
+#include <ModelLoader.h>
 
 SpotLight::SpotLight(QObject * parent): AbstractLight() {
     m_color = QVector3D(1.0f, 1.0f, 1.0f);

@@ -1,6 +1,4 @@
-#include <Core/Gridline.h>
-#include <Core/Model.h>
-#include <Core/Material.h>
+#include <Gridline.h>
 
 Gridline::Gridline(QObject* parent): QObject(0) {
     m_gridlineMesh = new Mesh(Mesh::Line, this);

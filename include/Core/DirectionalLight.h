@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Light/AbstractLight.h>
+#include <AbstractLight.h>
 
 class DirectionalLight: public AbstractLight {
     Q_OBJECT

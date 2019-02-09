@@ -1,4 +1,4 @@
-#include <UI/MeshProperty.h>
+#include <MeshProperty.h>
 
 MeshProperty::MeshProperty(Mesh * mesh, QWidget * parent): QWidget(parent) {
     m_host = mesh;

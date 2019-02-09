@@ -1,7 +1,6 @@
 #pragma once
 
-#include <Core/Texture.h>
-#include <OpenGL/Common.h>
+#include <Texture.h>
 
 class OpenGLTexture: public QObject {
     Q_OBJECT

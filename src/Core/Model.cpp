@@ -1,5 +1,4 @@
-#include <Core/Model.h>
-#include <Core/Mesh.h>
+#include <Model.h>
 
 Model::Model(QObject * parent): AbstractEntity(0) {
     m_visible = true;
@@ -169,7 +168,7 @@ void Model::childEvent(QChildEvent * e) {
     } else if (e->removed()) {
 #ifdef _DEBUG
         qDebug() << "Model" << this->objectName() << "received child event (Type: Removed)";
-#endif     
+#endif
         if (removeChildModel(e->child(), false)) return;
         if (removeChildMesh(e->child(), false)) return;
     }

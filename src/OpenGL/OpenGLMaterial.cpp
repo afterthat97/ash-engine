@@ -1,5 +1,5 @@
-#include <OpenGL/OpenGLMaterial.h>
-#include <OpenGL/OpenGLTexture.h>
+#include <OpenGLMaterial.h>
+#include <OpenGLTexture.h>
 
 struct ShaderMaterialInfo {
     QVector4D color;      // 16          // 0
@@ -17,7 +17,7 @@ OpenGLUniformBufferObject *OpenGLMaterial::m_materialInfo = 0;
 
 OpenGLMaterial::OpenGLMaterial(Material * material, QObject* parent): QObject(0) {
     m_host = material;
-    
+
     this->diffuseTextureChanged(m_host->diffuseTexture());
     this->specularTextureChanged(m_host->specularTexture());
     this->bumpTextureChanged(m_host->bumpTexture());
@@ -52,7 +52,7 @@ void OpenGLMaterial::bind() {
         m_materialInfo = new OpenGLUniformBufferObject;
         m_materialInfo->create();
         m_materialInfo->bind();
-        m_materialInfo->allocate(2, NULL, sizeof(ShaderMaterialInfo));
+        m_materialInfo->allocate(MATERIAL_INFO_BINDING_POINT, NULL, sizeof(ShaderMaterialInfo));
         m_materialInfo->release();
     }
     m_materialInfo->bind();

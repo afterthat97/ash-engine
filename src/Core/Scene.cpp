@@ -1,8 +1,4 @@
-#include <Core/Scene.h>
-#include <Core/Light/AmbientLight.h>
-#include <Core/Light/DirectionalLight.h>
-#include <Core/Light/PointLight.h>
-#include <Core/Light/SpotLight.h>
+#include <Scene.h>
 
 Scene::Scene(): QObject(0) {
     setObjectName("Untitled Scene");
@@ -297,7 +293,7 @@ void Scene::childEvent(QChildEvent * e) {
     } else if (e->removed()) {
 #ifdef _DEBUG
         qDebug() << "Scene" << this->objectName() << "received child event (Type: Removed)";
-#endif        
+#endif
         if (m_camera == e->child()) {
 #ifdef _DEBUG
             qDebug() << "Don't delete the camera returned by scene!";

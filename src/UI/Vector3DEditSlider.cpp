@@ -1,4 +1,4 @@
-#include <UI/Vector3DEditSlider.h>
+#include <Vector3DEditSlider.h>
 
 Vector3DEditSlider::Vector3DEditSlider(QWidget * parent): Vector3DEdit(parent) {
     for (int i = 0; i < 3; i++)

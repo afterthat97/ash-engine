@@ -1,4 +1,4 @@
-#include <Core/Light/AmbientLight.h>
+#include <AmbientLight.h>
 
 AmbientLight::AmbientLight(QObject * parent) : AbstractLight() {
     m_color = QVector3D(1.0f, 1.0f, 1.0f);

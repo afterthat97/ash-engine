@@ -1,4 +1,4 @@
-#include <OpenGL/OpenGLConfig.h>
+#include <OpenGLConfig.h>
 
 QVector3D OpenGLConfig::backgroundColor = QVector3D(0.7f, 0.7f, 0.7f);
 bool OpenGLConfig::enableWireFrame = false;

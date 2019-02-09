@@ -1,4 +1,4 @@
-#include <OpenGL/OpenGLTexture.h>
+#include <OpenGLTexture.h>
 
 OpenGLTexture::OpenGLTexture(Texture * texture) {
     m_host = texture;

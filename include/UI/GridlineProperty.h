@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Core/Gridline.h>
-#include <UI/Vector3DEditSlider.h>
+#include <Gridline.h>
+#include <Vector3DEditSlider.h>
 
 class GridlineProperty: public QWidget {
     Q_OBJECT

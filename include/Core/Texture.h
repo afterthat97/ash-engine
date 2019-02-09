@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Common.h>
+#include <Common.h>
 
 class Texture: public QObject {
     Q_OBJECT

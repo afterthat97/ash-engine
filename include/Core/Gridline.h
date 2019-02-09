@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Mesh.h>
+#include <Mesh.h>
 
 class Gridline: public QObject {
     Q_OBJECT

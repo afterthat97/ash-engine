@@ -1,4 +1,4 @@
-#include <Core/Light/AbstractLight.h>
+#include <AbstractLight.h>
 
 AbstractLight::AbstractLight(): QObject(0) {
     m_color = QVector3D(1.0f, 1.0f, 1.0f);

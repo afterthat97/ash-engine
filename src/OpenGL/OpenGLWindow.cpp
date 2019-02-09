@@ -1,6 +1,5 @@
-#include <OpenGL/OpenGLWindow.h>
-#include <OpenGL/OpenGLConfig.h>
-#include <IO/ModelLoader.h>
+#include <OpenGLWindow.h>
+#include <ModelLoader.h>
 
 OpenGLWindow::OpenGLWindow(OpenGLRenderer* renderer) {
     m_lastCursorPos = QCursor::pos();
@@ -52,7 +51,7 @@ void OpenGLWindow::paintGL() {
     if (m_openGLScene) {
         m_openGLScene->host()->camera()->setAspectRatio(float(width()) / height());
         m_openGLScene->commitCameraInfo();
-        m_openGLScene->commitLightingInfo();
+        m_openGLScene->commitLightInfo();
 
         if (!m_keyPressed[Qt::LeftButton]) {
             uint32_t pickingID = m_renderer->pickingPass(m_openGLScene, mapFromGlobal(QCursor::pos()) * devicePixelRatioF());

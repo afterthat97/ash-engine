@@ -1,5 +1,4 @@
-#include <OpenGL/OpenGLScene.h>
-#include <OpenGL/OpenGLConfig.h>
+#include <OpenGLScene.h>
 
 struct ShaderAxisInfo { // struct size: 64
     //                         // base align  // aligned offset
@@ -49,7 +48,7 @@ struct ShaderSpotLight { // struct size: 80
     float padding2;              // 4           // 76
 };
 
-struct ShaderLightingInfo { // struct size: 1424
+struct ShaderlightInfo { // struct size: 1424
     //                                          // base align  // aligned offset
     int ambientLightNum;                        // 4           // 0
     int directionalLightNum;                    // 4           // 4
@@ -59,14 +58,14 @@ struct ShaderLightingInfo { // struct size: 1424
     ShaderDirectionalLight directionalLight[8]; // 32          // 144
     ShaderPointLight pointLight[8];             // 48          // 400
     ShaderSpotLight spotLight[8];               // 80          // 784
-} shaderLightingInfo;
+} shaderlightInfo;
 
 OpenGLUniformBufferObject *OpenGLScene::m_cameraInfo = 0;
-OpenGLUniformBufferObject *OpenGLScene::m_lightingInfo = 0;
+OpenGLUniformBufferObject *OpenGLScene::m_lightInfo = 0;
 
 OpenGLScene::OpenGLScene(Scene * scene) {
     m_host = scene;
-    
+
     this->axisAdded(m_host->axis());
     for (int i = 0; i < m_host->gridlines().size(); i++)
         this->gridlineAdded(m_host->gridlines()[i]);
@@ -128,72 +127,72 @@ void OpenGLScene::commitCameraInfo() {
     memcpy(shaderCameraInfo.projMat, m_host->camera()->projectionMatrix().constData(), 64);
     memcpy(shaderCameraInfo.viewMat, m_host->camera()->viewMatrix().constData(), 64);
     shaderCameraInfo.cameraPos = m_host->camera()->position();
-    
+
     if (m_cameraInfo == 0) {
         m_cameraInfo = new OpenGLUniformBufferObject;
         m_cameraInfo->create();
         m_cameraInfo->bind();
-        m_cameraInfo->allocate(0, NULL, sizeof(ShaderCameraInfo));
+        m_cameraInfo->allocate(CAMERA_INFO_BINDING_POINT, NULL, sizeof(ShaderCameraInfo));
         m_cameraInfo->release();
     }
-    
+
     m_cameraInfo->bind();
     m_cameraInfo->write(0, &shaderCameraInfo, sizeof(ShaderCameraInfo));
     m_cameraInfo->release();
 }
 
-void OpenGLScene::commitLightingInfo() {
+void OpenGLScene::commitLightInfo() {
     int ambientLightNum = 0, directionalLightNum = 0, pointLightNum = 0, spotLightNum = 0;
     for (int i = 0; i < m_host->ambientLights().size(); i++)
         if (m_host->ambientLights()[i]->enabled()) {
-            shaderLightingInfo.ambientLight[ambientLightNum].color = m_host->ambientLights()[i]->color();
+            shaderlightInfo.ambientLight[ambientLightNum].color = m_host->ambientLights()[i]->color();
             ambientLightNum++;
         }
     for (int i = 0; i < m_host->directionalLights().size(); i++)
         if (m_host->directionalLights()[i]->enabled()) {
-            shaderLightingInfo.directionalLight[directionalLightNum].color = m_host->directionalLights()[i]->color();
-            shaderLightingInfo.directionalLight[directionalLightNum].direction = m_host->directionalLights()[i]->direction();
+            shaderlightInfo.directionalLight[directionalLightNum].color = m_host->directionalLights()[i]->color();
+            shaderlightInfo.directionalLight[directionalLightNum].direction = m_host->directionalLights()[i]->direction();
             directionalLightNum++;
         }
     for (int i = 0; i < m_host->pointLights().size(); i++)
         if (m_host->pointLights()[i]->enabled()) {
-            shaderLightingInfo.pointLight[pointLightNum].color = m_host->pointLights()[i]->color();
-            shaderLightingInfo.pointLight[pointLightNum].pos = m_host->pointLights()[i]->position();
-            shaderLightingInfo.pointLight[pointLightNum].enableAttenuation = m_host->pointLights()[i]->enableAttenuation();
-            shaderLightingInfo.pointLight[pointLightNum].attenuationQuadratic = m_host->pointLights()[i]->attenuationQuadratic();
-            shaderLightingInfo.pointLight[pointLightNum].attenuationLinear = m_host->pointLights()[i]->attenuationLinear();
-            shaderLightingInfo.pointLight[pointLightNum].attenuationConstant = m_host->pointLights()[i]->attenuationConstant();
+            shaderlightInfo.pointLight[pointLightNum].color = m_host->pointLights()[i]->color();
+            shaderlightInfo.pointLight[pointLightNum].pos = m_host->pointLights()[i]->position();
+            shaderlightInfo.pointLight[pointLightNum].enableAttenuation = m_host->pointLights()[i]->enableAttenuation();
+            shaderlightInfo.pointLight[pointLightNum].attenuationQuadratic = m_host->pointLights()[i]->attenuationQuadratic();
+            shaderlightInfo.pointLight[pointLightNum].attenuationLinear = m_host->pointLights()[i]->attenuationLinear();
+            shaderlightInfo.pointLight[pointLightNum].attenuationConstant = m_host->pointLights()[i]->attenuationConstant();
             pointLightNum++;
         }
     for (int i = 0; i < m_host->spotLights().size(); i++)
         if (m_host->spotLights()[i]->enabled()) {
-            shaderLightingInfo.spotLight[spotLightNum].color = m_host->spotLights()[i]->color();
-            shaderLightingInfo.spotLight[spotLightNum].pos = m_host->spotLights()[i]->position();
-            shaderLightingInfo.spotLight[spotLightNum].direction = m_host->spotLights()[i]->direction();
-            shaderLightingInfo.spotLight[spotLightNum].innerCutOff = m_host->spotLights()[i]->innerCutOff();
-            shaderLightingInfo.spotLight[spotLightNum].outerCutOff = m_host->spotLights()[i]->outerCutOff();
-            shaderLightingInfo.spotLight[spotLightNum].enableAttenuation = m_host->spotLights()[i]->enableAttenuation();
-            shaderLightingInfo.spotLight[spotLightNum].attenuationQuadratic = m_host->spotLights()[i]->attenuationQuadratic();
-            shaderLightingInfo.spotLight[spotLightNum].attenuationLinear = m_host->spotLights()[i]->attenuationLinear();
-            shaderLightingInfo.spotLight[spotLightNum].attenuationConstant = m_host->spotLights()[i]->attenuationConstant();
+            shaderlightInfo.spotLight[spotLightNum].color = m_host->spotLights()[i]->color();
+            shaderlightInfo.spotLight[spotLightNum].pos = m_host->spotLights()[i]->position();
+            shaderlightInfo.spotLight[spotLightNum].direction = m_host->spotLights()[i]->direction();
+            shaderlightInfo.spotLight[spotLightNum].innerCutOff = m_host->spotLights()[i]->innerCutOff();
+            shaderlightInfo.spotLight[spotLightNum].outerCutOff = m_host->spotLights()[i]->outerCutOff();
+            shaderlightInfo.spotLight[spotLightNum].enableAttenuation = m_host->spotLights()[i]->enableAttenuation();
+            shaderlightInfo.spotLight[spotLightNum].attenuationQuadratic = m_host->spotLights()[i]->attenuationQuadratic();
+            shaderlightInfo.spotLight[spotLightNum].attenuationLinear = m_host->spotLights()[i]->attenuationLinear();
+            shaderlightInfo.spotLight[spotLightNum].attenuationConstant = m_host->spotLights()[i]->attenuationConstant();
             spotLightNum++;
         }
 
-    shaderLightingInfo.ambientLightNum = ambientLightNum;
-    shaderLightingInfo.directionalLightNum = directionalLightNum;
-    shaderLightingInfo.pointLightNum = pointLightNum;
-    shaderLightingInfo.spotLightNum = spotLightNum;
+    shaderlightInfo.ambientLightNum = ambientLightNum;
+    shaderlightInfo.directionalLightNum = directionalLightNum;
+    shaderlightInfo.pointLightNum = pointLightNum;
+    shaderlightInfo.spotLightNum = spotLightNum;
 
-    if (m_lightingInfo == 0) {
-        m_lightingInfo = new OpenGLUniformBufferObject;
-        m_lightingInfo->create();
-        m_lightingInfo->bind();
-        m_lightingInfo->allocate(3, NULL, sizeof(ShaderLightingInfo));
-        m_lightingInfo->release();
+    if (m_lightInfo == 0) {
+        m_lightInfo = new OpenGLUniformBufferObject;
+        m_lightInfo->create();
+        m_lightInfo->bind();
+        m_lightInfo->allocate(LIGHT_INFO_BINDING_POINT, NULL, sizeof(ShaderlightInfo));
+        m_lightInfo->release();
     }
-    m_lightingInfo->bind();
-    m_lightingInfo->write(0, &shaderLightingInfo, sizeof(ShaderLightingInfo));
-    m_lightingInfo->release();
+    m_lightInfo->bind();
+    m_lightInfo->write(0, &shaderlightInfo, sizeof(ShaderlightInfo));
+    m_lightInfo->release();
 }
 
 void OpenGLScene::childEvent(QChildEvent * e) {

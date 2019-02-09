@@ -1,7 +1,7 @@
 #pragma once
 
-#include <OpenGL/OpenGLWindow.h>
-#include <UI/SceneTreeWidget.h>
+#include <OpenGLWindow.h>
+#include <SceneTreeWidget.h>
 
 class MainWindow: public QMainWindow {
     Q_OBJECT
@@ -58,9 +58,11 @@ private slots:
     void setAxisTypeTranslate();
     void setAxisTypeRotate();
     void setAxisTypeScale();
-    
+
     void helpAbout();
     void helpSourceCode();
+    void helpBugReport();
+    void helpFeatureRequest();
     void helpCheckForUpdates();
     void replyOfUpdates(QNetworkReply* reply);
 };

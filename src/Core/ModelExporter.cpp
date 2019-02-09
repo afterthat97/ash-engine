@@ -1,4 +1,4 @@
-#include <IO/ModelExporter.h>
+#include <ModelExporter.h>
 
 // Assimp: 3D model loader
 #include <assimp/Exporter.hpp>
@@ -134,7 +134,7 @@ void ModelExporter::getAllTextures(Model * model) {
 aiNode * ModelExporter::exportModel(Model * model) {
     aiNode* aiNodePtr = new aiNode;
     aiNodePtr->mName = toAiString(model->objectName());
-    
+
     aiNodePtr->mNumMeshes = (uint32_t) model->childMeshes().size();
     aiNodePtr->mMeshes = new uint32_t[aiNodePtr->mNumMeshes];
 
@@ -142,7 +142,7 @@ aiNode * ModelExporter::exportModel(Model * model) {
         aiNodePtr->mMeshes[i] = m_tmp_aiMeshes.size();
         m_tmp_aiMeshes.push_back(exportMesh(model->childMeshes()[i]));
     }
-    
+
     aiNodePtr->mNumChildren = (uint32_t) model->childModels().size();
     aiNodePtr->mChildren = new aiNode*[aiNodePtr->mNumChildren];
 
@@ -187,28 +187,35 @@ aiMaterial * ModelExporter::exportMaterial(Material * material) {
     aiMaterial* aiMaterialPtr = new aiMaterial;
     if (material == 0) return aiMaterialPtr;
 
-    aiMaterialPtr->AddProperty(&toAiString(material->objectName()), AI_MATKEY_NAME);
-    aiMaterialPtr->AddProperty(&toAiColor(material->ambient() * material->color()), 1, AI_MATKEY_COLOR_AMBIENT);
-    aiMaterialPtr->AddProperty(&toAiColor(material->diffuse() * material->color()), 1, AI_MATKEY_COLOR_DIFFUSE);
-    aiMaterialPtr->AddProperty(&toAiColor(material->specular() * material->color()), 1, AI_MATKEY_COLOR_SPECULAR);
-    
+    aiString aiName = toAiString(material->objectName());
+    aiColor3D ambientColor = toAiColor(material->ambient() * material->color());
+    aiColor3D diffuseColor = toAiColor(material->diffuse() * material->color());
+    aiColor3D specularColor = toAiColor(material->specular() * material->color());
     float shininess = material->shininess();
+
+    aiMaterialPtr->AddProperty(&aiName, AI_MATKEY_NAME);
+    aiMaterialPtr->AddProperty(&ambientColor, 1, AI_MATKEY_COLOR_AMBIENT);
+    aiMaterialPtr->AddProperty(&diffuseColor, 1, AI_MATKEY_COLOR_DIFFUSE);
+    aiMaterialPtr->AddProperty(&specularColor, 1, AI_MATKEY_COLOR_SPECULAR);
     aiMaterialPtr->AddProperty(&shininess, 1, AI_MATKEY_SHININESS);
 
     const int uvwIndex = 0;
     if (material->diffuseTexture()) {
         QString filePath = "D_" + QString::number((intptr_t) material->diffuseTexture().data()) + ".png";
-        aiMaterialPtr->AddProperty(&toAiString(filePath), AI_MATKEY_TEXTURE_DIFFUSE(0));
+        aiString aiFilePath = toAiString(filePath);
+        aiMaterialPtr->AddProperty(&aiFilePath, AI_MATKEY_TEXTURE_DIFFUSE(0));
         aiMaterialPtr->AddProperty(&uvwIndex, 1, AI_MATKEY_UVWSRC_DIFFUSE(0));
     }
     if (material->specularTexture()) {
         QString filePath = "S_" + QString::number((intptr_t) material->specularTexture().data()) + ".png";
-        aiMaterialPtr->AddProperty(&toAiString(filePath), AI_MATKEY_TEXTURE_SPECULAR(0));
+        aiString aiFilePath = toAiString(filePath);
+        aiMaterialPtr->AddProperty(&aiFilePath, AI_MATKEY_TEXTURE_SPECULAR(0));
         aiMaterialPtr->AddProperty(&uvwIndex, 1, AI_MATKEY_UVWSRC_SPECULAR(0));
     }
     if (material->bumpTexture()) {
         QString filePath = "N_" + QString::number((intptr_t) material->bumpTexture().data()) + ".png";
-        aiMaterialPtr->AddProperty(&toAiString(filePath), AI_MATKEY_TEXTURE_HEIGHT(0));
+        aiString aiFilePath = toAiString(filePath);
+        aiMaterialPtr->AddProperty(&aiFilePath, AI_MATKEY_TEXTURE_HEIGHT(0));
         aiMaterialPtr->AddProperty(&uvwIndex, 1, AI_MATKEY_UVWSRC_HEIGHT(0));
     }
 

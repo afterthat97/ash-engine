@@ -1,5 +1,5 @@
-#include <Core/Light/PointLight.h>
-#include <IO/ModelLoader.h>
+#include <PointLight.h>
+#include <ModelLoader.h>
 
 PointLight::PointLight(QObject * parent): AbstractLight() {
     m_enableAttenuation = false;

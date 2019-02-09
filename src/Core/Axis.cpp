@@ -1,5 +1,5 @@
-#include <Core/Axis.h>
-#include <IO/ModelLoader.h>
+#include <Axis.h>
+#include <ModelLoader.h>
 
 struct Line {
     QVector3D st, dir;

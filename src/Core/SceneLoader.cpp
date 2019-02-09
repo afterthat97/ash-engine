@@ -1,10 +1,10 @@
-#include <IO/SceneLoader.h>
+#include <SceneLoader.h>
 
 SceneLoader::SceneLoader() {}
 
 Scene * SceneLoader::loadFromFile(QString filePath) {
     m_textures.clear();
-    
+
     QFile file(filePath);
     file.open(QIODevice::ReadOnly);
 
@@ -54,7 +54,7 @@ Scene * SceneLoader::loadFromFile(QString filePath) {
         m_log += "Unknown error";
         return 0;
     }
-    
+
     Scene* scene = new Scene;
     scene->setCamera(loadCamera(in));
 
@@ -127,10 +127,10 @@ QString SceneLoader::log() {
 
 Camera * SceneLoader::loadCamera(QDataStream & in) {
     Camera* camera = new Camera;
-    
+
     float movingSpeed, fieldOfView, aspectRatio, nearPlane, farPlane;
     QVector3D position, direction;
-    
+
     in >> movingSpeed >> fieldOfView >> aspectRatio >> nearPlane >> farPlane;
     in >> position >> direction;
 
@@ -224,7 +224,7 @@ SpotLight * SceneLoader::loadSpotLight(QDataStream & in) {
     QVector3D color, position, direction, attenuationArgs;
     bool enabled, enableAttenuation;
     float intensity, innerCutOff, outerCutOff;
-    
+
     in >> name >> color >> enabled >> intensity;
     in >> position >> direction >> innerCutOff >> outerCutOff;
     in >> enableAttenuation >> attenuationArgs;
@@ -347,9 +347,9 @@ QSharedPointer<Texture> SceneLoader::loadTexture(QDataStream & in) {
     bool enabled;
     Texture::TextureType textureType;
     QImage image;
-    
+
     in >> name >> enabled >> textureType >> image;
-    
+
     texture->setObjectName(name);
     texture->setEnabled(enabled);
     texture->setTextureType(textureType);

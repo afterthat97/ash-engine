@@ -1,7 +1,6 @@
 #pragma once
 
-#include <Core/Model.h>
-#include <QDir>
+#include <Model.h>
 
 struct aiScene;
 struct aiNode;

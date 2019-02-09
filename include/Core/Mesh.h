@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Core/AbstractEntity.h>
-#include <Core/Vertex.h>
-#include <Core/Material.h>
+#include <AbstractEntity.h>
+#include <Vertex.h>
+#include <Material.h>
 
 class ModelLoader;
 
@@ -23,7 +23,7 @@ public:
 
     void dumpObjectInfo(int level = 0) override;
     void dumpObjectTree(int level = 0) override;
-    
+
     bool isOnlyChild() const;
     QVector3D centerOfMass() const;
     float mass() const;

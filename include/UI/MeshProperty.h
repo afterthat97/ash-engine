@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Core/Mesh.h>
-#include <UI/Vector3DEditSlider.h>
+#include <Mesh.h>
+#include <Vector3DEditSlider.h>
 
 class MeshProperty: public QWidget {
     Q_OBJECT

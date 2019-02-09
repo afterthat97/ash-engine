@@ -1,4 +1,4 @@
-#include <Core/Light/DirectionalLight.h>
+#include <DirectionalLight.h>
 
 DirectionalLight::DirectionalLight(QObject * parent) : AbstractLight() {
     m_color = QVector3D(1.0f, 1.0f, 1.0f);
@@ -24,13 +24,13 @@ DirectionalLight::~DirectionalLight() {
 void DirectionalLight::dumpObjectInfo(int l) {
     qDebug().nospace() << tab(l) << "Directional Light: " << objectName();
     qDebug().nospace() << tab(l + 1) << "Enabled: " << m_enabled;
-    qDebug().nospace() << tab(l + 1) << "Color: " << m_color;    
+    qDebug().nospace() << tab(l + 1) << "Color: " << m_color;
     qDebug().nospace() << tab(l + 1) << "Direction: " << m_direction;
     qDebug().nospace() << tab(l + 1) << "Intensity: " << m_intensity;
 }
 
 void DirectionalLight::dumpObjectTree(int l) {
-    dumpObjectInfo(l); 
+    dumpObjectInfo(l);
 }
 
 QVector3D DirectionalLight::direction() {

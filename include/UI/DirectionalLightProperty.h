@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Core/Light/DirectionalLight.h>
-#include <UI/Vector3DEditSlider.h>
+#include <DirectionalLight.h>
+#include <Vector3DEditSlider.h>
 
 class DirectionalLightProperty: public QWidget {
     Q_OBJECT

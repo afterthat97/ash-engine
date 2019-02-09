@@ -1,7 +1,6 @@
 #pragma once
 
-#include <Core/Scene.h>
-#include <UI/Common.h>
+#include <Scene.h>
 
 class SceneTreeWidget: public QTreeWidget {
     Q_OBJECT

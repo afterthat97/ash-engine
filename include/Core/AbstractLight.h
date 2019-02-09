@@ -1,7 +1,6 @@
 #pragma once
 
-#include <Core/Common.h>
-#include <Core/Mesh.h>
+#include <Mesh.h>
 
 class AbstractLight: public QObject {
     Q_OBJECT

@@ -1,4 +1,4 @@
-#include <UI/DirectionalLightProperty.h>
+#include <DirectionalLightProperty.h>
 
 DirectionalLightProperty::DirectionalLightProperty(DirectionalLight * light, QWidget * parent): QWidget(parent) {
     m_host = light;

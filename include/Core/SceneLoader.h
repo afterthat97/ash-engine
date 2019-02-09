@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Scene.h>
+#include <Scene.h>
 
 class SceneLoader {
 public:

@@ -1,5 +1,4 @@
-#include <IO/TextureLoader.h>
-#include <QImageReader>
+#include <TextureLoader.h>
 
 QHash<QString, QWeakPointer<Texture>> TextureLoader::cache;
 
@@ -30,7 +29,7 @@ QSharedPointer<Texture> TextureLoader::loadFromFile(Texture::TextureType texture
     return cache[filePath];
 }
 
-bool TextureLoader::hasLog() { 
+bool TextureLoader::hasLog() {
     return m_log != "";
 }
 

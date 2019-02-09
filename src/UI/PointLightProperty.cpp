@@ -1,4 +1,4 @@
-#include <UI/PointLightProperty.h>
+#include <PointLightProperty.h>
 
 PointLightProperty::PointLightProperty(PointLight * light, QWidget * parent): QWidget(parent) {
     m_host = light;

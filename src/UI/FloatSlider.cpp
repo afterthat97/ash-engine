@@ -1,4 +1,4 @@
-#include <UI/FloatSlider.h>
+#include <FloatSlider.h>
 
 FloatSlider::FloatSlider(QWidget *parent): QWidget(parent) {
     m_intSlider = new QSlider(Qt::Horizontal, this);

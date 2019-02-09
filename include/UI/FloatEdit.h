@@ -1,6 +1,6 @@
 #pragma once
 
-#include <UI/Common.h>
+#include <Common.h>
 
 class FloatEdit: public QWidget {
     Q_OBJECT

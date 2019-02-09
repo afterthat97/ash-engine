@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Common.h>
+#include <Common.h>
 
 class AbstractEntity: public QObject {
     Q_OBJECT
@@ -21,7 +21,7 @@ public:
     bool visible() const;
     bool highlighted() const;
     bool selected() const;
-    
+
     bool canTranslate() const;
     bool canRotate() const;
     bool canScale() const;
@@ -48,7 +48,7 @@ public slots:
     void setVisible(bool visible);
     void setHighlighted(bool highlighted);
     void setSelected(bool selected);
-    
+
     virtual void setPosition(QVector3D position);
     virtual void setRotation(QQuaternion rotation);
     virtual void setRotation(QVector3D rotation);
@@ -61,7 +61,7 @@ signals:
     void visibleChanged(bool visible);
     void highlightedChanged(bool highlighted);
     void selectedChanged(bool selected);
-    
+
     void positionChanged(QVector3D position);
     void rotationChanged(QVector3D rotation);
     void scalingChanged(QVector3D scaling);

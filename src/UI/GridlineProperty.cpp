@@ -1,4 +1,4 @@
-#include <UI/GridlineProperty.h>
+#include <GridlineProperty.h>
 
 GridlineProperty::GridlineProperty(Gridline * gridline, QWidget * parent): QWidget(parent) {
     m_host = gridline;

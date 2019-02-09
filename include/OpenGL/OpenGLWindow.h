@@ -1,11 +1,10 @@
 #pragma once
 
-#include <OpenGL/Common.h>
-#include <OpenGL/OpenGLScene.h>
-#include <OpenGL/OpenGLRenderer.h>
-#include <OpenGL/FPSCounter.h>
+#include <OpenGLScene.h>
+#include <OpenGLRenderer.h>
+#include <FPSCounter.h>
 
-class OpenGLWindow: public QOpenGLWindow, protected QOpenGLFunctions_4_2_Core {
+class OpenGLWindow: public QOpenGLWindow, protected QOpenGLFunctions_3_3_Core {
     Q_OBJECT
 
 public:
@@ -23,7 +22,7 @@ protected:
     void keyReleaseEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
-    void wheelEvent(QWheelEvent *event);
+    void wheelEvent(QWheelEvent *event) override;
     void focusOutEvent(QFocusEvent *event) override;
 
 signals:

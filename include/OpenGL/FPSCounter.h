@@ -1,6 +1,6 @@
 #pragma once
 
-#include <OpenGL/Common.h>
+#include <Common.h>
 
 class FPSCounter: public QObject {
     Q_OBJECT
