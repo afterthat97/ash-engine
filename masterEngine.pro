@@ -6,10 +6,16 @@ TARGET = masterEngine
 TEMPLATE = app
 VERSION = 1.0.0
 PREVIEW = -rc3
+DESTDIR = build/bin
+MOC_DIR = build/tmp
+OBJECTS_DIR = build/tmp
+RCC_DIR = build/tmp
+UI_DIR = build/tmp
+
+CONFIG += warn_on
 
 DEFINES += \
     QT_DEPRECATED_WARNINGS \
-    _DEBUG \
     APP_VERSION=\\\"v$${VERSION}$${PREVIEW}\\\"
 
 INCLUDEPATH += \
@@ -18,19 +24,22 @@ INCLUDEPATH += \
     include/UI \
     3rdparty
 
-RESOURCES += \
-    resources.qrc
+RESOURCES += resources.qrc
 
 macx {
     LIBS += -L$$PWD/lib/mac/ -lassimp
     ICON = resources/mac/AppIcon.icns
-    QMAKE_INFO_PLIST = resources/mac/Info.plist
 }
 
 win32 {
     LIBS += -lopengl32
     LIBS += -L$$PWD/lib/win/ -lassimp-vc140-mt
+    DLLDESTDIR = $$DESTDIR
     RC_ICONS = resources/win/AppIcon.ico
+}
+
+CONFIG(debug) {
+    DEFINES += _DEBUG
 }
 
 HEADERS += \

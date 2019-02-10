@@ -38,7 +38,7 @@
 
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
-#include <QOpenGLFrameBufferObject>
+#include <QOpenGLFramebufferObject>
 #include <QOpenGLBuffer>
 #include <QOpenGLTexture>
 #include <QOpenGLWidget>

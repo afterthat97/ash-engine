@@ -10,8 +10,11 @@ Thumbs.db
 
 # Compiled source #
 ###################
+build
 debug
+Debug
 release
+Release
 x64
 
 # Qt generated files #
@@ -28,3 +31,12 @@ masterEngine.vcxproj.filters
 masterEngine.vcxproj.user
 masterEngine_resource.rc
 .vs
+
+# Xcode project files #
+#######################
+masterEngine.xcodeproj
+
+# Makefile #
+############
+Makefile
+makefile

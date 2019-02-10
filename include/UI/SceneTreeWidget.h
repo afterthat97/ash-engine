@@ -36,7 +36,7 @@ class BaseItem: public QObject, public QTreeWidgetItem {
     Q_OBJECT
 
 public:
-    BaseItem(QObject* host, QTreeWidgetItem* parent): QTreeWidgetItem(parent), QObject(0) {
+    BaseItem(QObject* host, QTreeWidgetItem* parent): QObject(0), QTreeWidgetItem(parent) {
         m_priority = 0;
         setData(0, Qt::UserRole, QVariant::fromValue(host));
         setText(0, host->objectName());
