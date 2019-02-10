@@ -28,14 +28,14 @@ RESOURCES += resources.qrc
 
 macx {
     LIBS += -L$$PWD/lib/mac/ -lassimp
-    ICON = resources/mac/AppIcon.icns
+    ICON = resources/icons/AppIcon.icns
 }
 
 win32 {
     LIBS += -lopengl32
     LIBS += -L$$PWD/lib/win/ -lassimp-vc140-mt
     DLLDESTDIR = $$DESTDIR
-    RC_ICONS = resources/win/AppIcon.ico
+    RC_ICONS = resources/icons/AppIcon.ico
 }
 
 CONFIG(debug) {

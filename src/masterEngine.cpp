@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     // TODO: Test single OpenGL Window
     //OpenGLWindow * w = new OpenGLWindow(new OpenGLScene(scene), new OpenGLRenderer);
     //w->show();
-
+    
     MainWindow *window = new MainWindow(scene);
     window->show();
 

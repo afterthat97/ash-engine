@@ -35,6 +35,7 @@ masterEngine_resource.rc
 # Xcode project files #
 #######################
 masterEngine.xcodeproj
+Info.plist
 
 # Makefile #
 ############

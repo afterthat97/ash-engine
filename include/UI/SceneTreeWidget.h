@@ -195,8 +195,14 @@ public:
             new MeshItem(m_host->childMeshes()[i], this);
         for (int i = 0; i < m_host->childModels().size(); i++)
             new ModelItem(m_host->childModels()[i], this);
+        connect(m_host, SIGNAL(selected()), this, SLOT(selected()));
     }
 
 private:
     Model* m_host;
+    
+private slots:
+    void selected() {
+        // TODO
+    }
 };
