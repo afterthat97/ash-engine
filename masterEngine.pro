@@ -34,7 +34,6 @@ macx {
 win32 {
     LIBS += -lopengl32
     LIBS += -L$$PWD/lib/win/ -lassimp-vc140-mt
-    DLLDESTDIR = $$DESTDIR
     RC_ICONS = resources/icons/AppIcon.ico
 }
 

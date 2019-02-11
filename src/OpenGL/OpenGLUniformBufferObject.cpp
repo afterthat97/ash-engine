@@ -53,12 +53,14 @@ void OpenGLUniformBufferObject::release() {
 }
 
 void OpenGLUniformBufferObject::bindUniformBlock(QOpenGLShaderProgram* shader) {
-    GLuint indx = glGetUniformBlockIndex(shader->programId(), "CameraInfo");
-    glUniformBlockBinding(shader->programId(), indx, CAMERA_INFO_BINDING_POINT);
-    indx = glGetUniformBlockIndex(shader->programId(), "ModelInfo");
-    glUniformBlockBinding(shader->programId(), indx, MODEL_INFO_BINDING_POINT);
-    indx = glGetUniformBlockIndex(shader->programId(), "MaterialInfo");
-    glUniformBlockBinding(shader->programId(), indx, MATERIAL_INFO_BINDING_POINT);
-    indx = glGetUniformBlockIndex(shader->programId(), "LightInfo");
-    glUniformBlockBinding(shader->programId(), indx, LIGHT_INFO_BINDING_POINT);
+	if (!glFuncs)
+		glFuncs = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_3_Core>();
+    GLuint indx = glFuncs->glGetUniformBlockIndex(shader->programId(), "CameraInfo");
+	glFuncs->glUniformBlockBinding(shader->programId(), indx, CAMERA_INFO_BINDING_POINT);
+    indx = glFuncs->glGetUniformBlockIndex(shader->programId(), "ModelInfo");
+	glFuncs->glUniformBlockBinding(shader->programId(), indx, MODEL_INFO_BINDING_POINT);
+    indx = glFuncs->glGetUniformBlockIndex(shader->programId(), "MaterialInfo");
+	glFuncs->glUniformBlockBinding(shader->programId(), indx, MATERIAL_INFO_BINDING_POINT);
+    indx = glFuncs->glGetUniformBlockIndex(shader->programId(), "LightInfo");
+	glFuncs->glUniformBlockBinding(shader->programId(), indx, LIGHT_INFO_BINDING_POINT);
 }
