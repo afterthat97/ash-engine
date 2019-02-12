@@ -126,14 +126,14 @@ void OpenGLWindow::mousePressEvent(QMouseEvent * event) {
 }
 
 void OpenGLWindow::mouseReleaseEvent(QMouseEvent * event) {
-        m_openGLScene->host()->axis()->setTransformMode(Axis::None);
+    m_openGLScene->host()->axis()->setTransformMode(Axis::None);
     if (m_lastMousePressTime.msecsTo(QTime::currentTime()) < 200) { // click
         if (AbstractEntity::getHighlighted()) {
             if (Axis* axis = qobject_cast<Axis*>(AbstractEntity::getHighlighted()->parent())) {
                 axis->setTransformMode(Axis::None);
             } else {
                 AbstractEntity::getHighlighted()->setSelected(true);
-                m_openGLScene->host()->axis()->bindTo(Mesh::getSelected());
+                m_openGLScene->host()->axis()->bindTo(AbstractEntity::getSelected());
             }
         } else if (AbstractEntity::getSelected()) {
             AbstractEntity::getSelected()->setSelected(false);

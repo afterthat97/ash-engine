@@ -13,8 +13,8 @@ void SceneTreeWidget::setScene(Scene * scene) {
         connect(m_host, SIGNAL(lightAdded(AbstractLight*)), this, SLOT(lightAdded(AbstractLight*)));
         connect(m_host, SIGNAL(modelAdded(Model*)), this, SLOT(modelAdded(Model*)));
         connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
-        reload();
     }
+    reload();
 }
 
 void SceneTreeWidget::reload() {
@@ -41,7 +41,7 @@ void SceneTreeWidget::reload() {
 
 void SceneTreeWidget::keyPressEvent(QKeyEvent * e) {
     if (!currentItem()) return;
-    if (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace) {
+    if (e->key() == Qt::Key_Backspace) {
         QVariant item = currentItem()->data(0, Qt::UserRole);
         itemDeselected(item);
         if (item.canConvert<Camera*>()) {
@@ -65,6 +65,8 @@ void SceneTreeWidget::currentItemChanged(QTreeWidgetItem * current, QTreeWidgetI
         itemDeselected(previous->data(0, Qt::UserRole));
     if (current)
         itemSelected(current->data(0, Qt::UserRole));
+    static_cast<BaseItem*>(currentItem())->selectHost();
+    m_host->axis()->bindTo(AbstractEntity::getSelected());
 }
 
 void SceneTreeWidget::gridlineAdded(Gridline * gridline) {

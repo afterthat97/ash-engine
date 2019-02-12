@@ -22,10 +22,6 @@ public:
     bool highlighted() const;
     bool selected() const;
 
-    bool canTranslate() const;
-    bool canRotate() const;
-    bool canScale() const;
-
     virtual QVector3D position() const;
     virtual QVector3D rotation() const;
     virtual QVector3D scaling() const;
@@ -36,14 +32,11 @@ public:
     virtual QMatrix4x4 globalModelMatrix() const;
     virtual QMatrix4x4 globalModelMatrix(bool includeTranslation, bool includeRotation, bool includeScaling) const;
 
-    AbstractEntity* host() const;
-
     static AbstractEntity* getHighlighted();
     static AbstractEntity* getSelected();
 
 public slots:
     void resetTransformation();
-    void setTransformOptions(bool canTranslate, bool canRotate, bool canScale);
 
     void setVisible(bool visible);
     void setHighlighted(bool highlighted);
@@ -53,9 +46,6 @@ public slots:
     virtual void setRotation(QQuaternion rotation);
     virtual void setRotation(QVector3D rotation);
     virtual void setScaling(QVector3D scaling);
-
-    virtual void bindTo(AbstractEntity* host);
-    virtual void unbind();
 
 signals:
     void visibleChanged(bool visible);
@@ -68,9 +58,7 @@ signals:
 
 protected:
     bool m_visible, m_highlighted, m_selected;
-    bool m_canTranslate, m_canRotate, m_canScale;
     QVector3D m_position, m_rotation, m_scaling;
-    AbstractEntity* m_host;
 
     static AbstractEntity *m_highlightedObject, *m_selectedObject;
 

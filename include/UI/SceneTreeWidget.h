@@ -51,6 +51,8 @@ public:
         m_priority = priority;
     }
 
+    virtual void selectHost() {}
+
 private:
     int m_priority;
 
@@ -136,6 +138,10 @@ public:
         setIcon(0, QIcon(":/resources/icons/PointLightIcon.png"));
     }
 
+    void selectHost() override {
+        m_host->marker()->setSelected(true);
+    }
+
 private:
     PointLight* m_host;
 };
@@ -148,6 +154,10 @@ public:
         m_host = host;
         setPriority(SPOTLIGHT_PRIORITY);
         setIcon(0, QIcon(":/resources/icons/SpotLightIcon.png"));
+    }
+
+    void selectHost() override {
+        m_host->marker()->setSelected(true);
     }
 
 private:
@@ -177,10 +187,22 @@ public:
         setIcon(0, QIcon(":/resources/icons/MeshIcon.png"));
         if (m_host->material())
             new MaterialItem(m_host->material(), this);
+        connect(m_host, SIGNAL(selectedChanged(bool)), this, SLOT(selectedChanged(bool)));
+    }
+
+    void selectHost() override {
+        m_host->setSelected(true);
     }
 
 private:
     Mesh* m_host;
+
+private slots:
+    void selectedChanged(bool selected) {
+        if (!selected) return;
+        if (!isExpanded()) setExpanded(true);
+        treeWidget()->setCurrentItem(this);
+    }
 };
 
 class ModelItem: public BaseItem {
@@ -195,14 +217,20 @@ public:
             new MeshItem(m_host->childMeshes()[i], this);
         for (int i = 0; i < m_host->childModels().size(); i++)
             new ModelItem(m_host->childModels()[i], this);
-        connect(m_host, SIGNAL(selected()), this, SLOT(selected()));
+        connect(m_host, SIGNAL(selectedChanged(bool)), this, SLOT(selectedChanged(bool)));
+    }
+
+    void selectHost() override {
+        m_host->setSelected(true);
     }
 
 private:
     Model* m_host;
-    
+
 private slots:
-    void selected() {
-        // TODO
+    void selectedChanged(bool selected) {
+        if (!selected) return;
+        if (!isExpanded()) setExpanded(true);
+        treeWidget()->setCurrentItem(this);
     }
 };

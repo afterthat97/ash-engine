@@ -80,8 +80,10 @@ Axis::Axis(QObject * parent): AbstractEntity(parent) {
     m_markers[7]->setTransformOptions(true, true, true);
     m_markers[8]->setTransformOptions(true, true, true);
 
-    for (int i = 0; i < m_markers.size(); i++)
+    for (int i = 0; i < m_markers.size(); i++) {
+        m_markers[i]->bindTo(this);
         m_markers[i]->setParent(this);
+    }
 
     setAxisType(Translate);
     setTransformMode(None);
