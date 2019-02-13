@@ -10,7 +10,9 @@ PointLight::PointLight(QObject * parent): AbstractLight() {
     ModelLoader loader;
     m_marker = loader.loadMeshFromFile(":/resources/shapes/PointLight.obj");
     m_marker->setPosition(this->position());
-    m_marker->setParent(this);
+    m_marker->setParent(this); 
+    
+    connect(m_marker, SIGNAL(positionChanged(QVector3D)), this, SLOT(setPosition(QVector3D)));
 
     setParent(parent);
 }
@@ -90,8 +92,9 @@ void PointLight::setColor(QVector3D color) {
 }
 
 void PointLight::setPosition(QVector3D position) {
-    if (!qFuzzyCompare(m_position, position)) {
+    if (!isEqual(m_position, position)) {
         m_position = position;
+        m_marker->setPosition(position);
         positionChanged(m_position);
     }
 }
@@ -115,7 +118,7 @@ void PointLight::setAttenuationArguments(QVector3D value) {
 }
 
 void PointLight::setAttenuationQuadratic(float value) {
-    if (!qFuzzyCompare(m_attenuationQuadratic, value)) {
+    if (!isEqual(m_attenuationQuadratic, value)) {
         m_attenuationQuadratic = value;
         attenuationQuadraticChanged(m_attenuationQuadratic);
         attenuationArgumentsChanged(this->attenuationArguments());
@@ -123,7 +126,7 @@ void PointLight::setAttenuationQuadratic(float value) {
 }
 
 void PointLight::setAttenuationLinear(float value) {
-    if (!qFuzzyCompare(m_attenuationLinear, value)) {
+    if (!isEqual(m_attenuationLinear, value)) {
         m_attenuationLinear = value;
         attenuationLinearChanged(m_attenuationLinear);
         attenuationArgumentsChanged(this->attenuationArguments());
@@ -131,7 +134,7 @@ void PointLight::setAttenuationLinear(float value) {
 }
 
 void PointLight::setAttenuationConstant(float value) {
-    if (!qFuzzyCompare(m_attenuationConstant, value)) {
+    if (!isEqual(m_attenuationConstant, value)) {
         m_attenuationConstant = value;
         attenuationConstantChanged(m_attenuationConstant);
         attenuationArgumentsChanged(this->attenuationArguments());

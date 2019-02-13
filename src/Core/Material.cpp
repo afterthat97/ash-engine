@@ -90,35 +90,35 @@ QSharedPointer<Texture> Material::bumpTexture() {
 }
 
 void Material::setColor(QVector3D color) {
-    if (!qFuzzyCompare(m_color, color)) {
+    if (!isEqual(m_color, color)) {
         m_color = color;
         colorChanged(m_color);
     }
 }
 
 void Material::setAmbient(float ambient) {
-    if (!qFuzzyCompare(m_ambient, ambient)) {
+    if (!isEqual(m_ambient, ambient)) {
         m_ambient = ambient;
         ambientChanged(m_ambient);
     }
 }
 
 void Material::setDiffuse(float diffuse) {
-    if (!qFuzzyCompare(m_diffuse, diffuse)) {
+    if (!isEqual(m_diffuse, diffuse)) {
         m_diffuse = diffuse;
         diffuseChanged(m_diffuse);
     }
 }
 
 void Material::setSpecular(float specular) {
-    if (!qFuzzyCompare(m_specular, specular)) {
+    if (!isEqual(m_specular, specular)) {
         m_specular = specular;
         specularChanged(m_specular);
     }
 }
 
 void Material::setShininess(float shininess) {
-    if (!qFuzzyCompare(m_shininess, shininess)) {
+    if (!isEqual(m_shininess, shininess)) {
         m_shininess = shininess;
         shininessChanged(m_shininess);
     }

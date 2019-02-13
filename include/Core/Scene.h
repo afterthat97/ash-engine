@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Axis.h>
+#include <TransformGizmo.h>
 #include <Camera.h>
 #include <Gridline.h>
 #include <AmbientLight.h>
@@ -36,7 +36,7 @@ public:
     void dumpObjectInfo(int level = 0);
     void dumpObjectTree(int level = 0);
 
-    Axis* axis() const;
+    TransformGizmo* transformGizmo() const;
     Camera* camera() const;
     const QVector<Gridline*>& gridlines() const;
     QVector<AbstractLight*> lights() const;
@@ -58,7 +58,7 @@ protected:
     void childEvent(QChildEvent *event) override;
 
 private:
-    Axis * m_axis;
+    TransformGizmo * m_gizmo;
     Camera * m_camera;
     QVector<Gridline*> m_gridlines;
     QVector<AmbientLight*> m_ambientLights;

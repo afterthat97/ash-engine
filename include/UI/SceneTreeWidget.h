@@ -136,6 +136,7 @@ public:
         m_host = host;
         setPriority(POINTLIGHT_PRIORITY);
         setIcon(0, QIcon(":/resources/icons/PointLightIcon.png"));
+        connect(m_host->marker(), SIGNAL(selectedChanged(bool)), this, SLOT(selectedChanged(bool)));
     }
 
     void selectHost() override {
@@ -144,6 +145,12 @@ public:
 
 private:
     PointLight* m_host;
+
+private slots:
+    void selectedChanged(bool selected) {
+        if (!selected) return;
+        treeWidget()->setCurrentItem(this);
+    }
 };
 
 class SpotLightItem: public BaseItem {
@@ -154,6 +161,7 @@ public:
         m_host = host;
         setPriority(SPOTLIGHT_PRIORITY);
         setIcon(0, QIcon(":/resources/icons/SpotLightIcon.png"));
+        connect(m_host->marker(), SIGNAL(selectedChanged(bool)), this, SLOT(selectedChanged(bool)));
     }
 
     void selectHost() override {
@@ -162,6 +170,12 @@ public:
 
 private:
     SpotLight* m_host;
+
+private slots:
+    void selectedChanged(bool selected) {
+        if (!selected) return;
+        treeWidget()->setCurrentItem(this);
+    }
 };
 
 class MaterialItem: public BaseItem {

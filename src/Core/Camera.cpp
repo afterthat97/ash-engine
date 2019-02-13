@@ -130,42 +130,42 @@ void Camera::reset() {
 }
 
 void Camera::setMovingSpeed(float movingSpeed) {
-    if (!qFuzzyCompare(m_movingSpeed, movingSpeed)) {
+    if (!isEqual(m_movingSpeed, movingSpeed)) {
         m_movingSpeed = movingSpeed;
         movingSpeedChanged(m_movingSpeed);
     }
 }
 
 void Camera::setFieldOfView(float fieldOfView) {
-    if (!qFuzzyCompare(m_fieldOfView, fieldOfView)) {
+    if (!isEqual(m_fieldOfView, fieldOfView)) {
         m_fieldOfView = fieldOfView;
         fieldOfViewChanged(m_fieldOfView);
     }
 }
 
 void Camera::setAspectRatio(float aspectRatio) {
-    if (!qFuzzyCompare(m_aspectRatio, aspectRatio)) {
+    if (!isEqual(m_aspectRatio, aspectRatio)) {
         m_aspectRatio = aspectRatio;
         aspectRatioChanged(m_aspectRatio);
     }
 }
 
 void Camera::setNearPlane(float nearPlane) {
-    if (!qFuzzyCompare(m_nearPlane, nearPlane)) {
+    if (!isEqual(m_nearPlane, nearPlane)) {
         m_nearPlane = nearPlane;
         nearPlaneChanged(m_nearPlane);
     }
 }
 
 void Camera::setFarPlane(float farPlane) {
-    if (!qFuzzyCompare(m_farPlane, farPlane)) {
+    if (!isEqual(m_farPlane, farPlane)) {
         m_farPlane = farPlane;
         farPlaneChanged(m_farPlane);
     }
 }
 
 void Camera::setPosition(QVector3D position) {
-    if (!qFuzzyCompare(m_position, position)) {
+    if (!isEqual(m_position, position)) {
         m_position = position;
         positionChanged(m_position);
     }
@@ -173,7 +173,7 @@ void Camera::setPosition(QVector3D position) {
 
 void Camera::setDirection(QVector3D direction) {
     direction.normalize();
-    if (!qFuzzyCompare(m_direction, direction)) {
+    if (!isEqual(m_direction, direction)) {
         m_direction = direction;
         setUpVector();
         directionChanged(m_direction);

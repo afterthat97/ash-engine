@@ -47,7 +47,7 @@ void FloatEdit::setDecimals(int num) {
 }
 
 void FloatEdit::setValue(float value) {
-    if (!qFuzzyCompare(this->value(), value)) {
+    if (!isEqual(this->value(), value)) {
         m_lineEdit->setText(QString::number((double) value, 'f', m_decimals));
         valueChanged(value);
     }

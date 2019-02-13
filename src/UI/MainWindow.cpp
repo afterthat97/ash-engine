@@ -255,10 +255,12 @@ void MainWindow::editPaste() {
 }
 
 void MainWindow::editRemove() {
-    if (m_copyedObject == AbstractEntity::getSelected())
+    if (!m_sceneTreeWidget->currentItem()) return;
+    QVariant item = m_sceneTreeWidget->currentItem()->data(0, Qt::UserRole);
+    itemDeselected(item);
+    if (m_copyedObject == item.value<QObject*>())
         m_copyedObject = 0;
-    if (AbstractEntity::getSelected())
-        delete AbstractEntity::getSelected();
+    delete item.value<QObject*>();
 }
 
 void MainWindow::createGridline() {
@@ -302,15 +304,15 @@ void MainWindow::createBasicSphere() {
 }
 
 void MainWindow::setAxisTypeTranslate() {
-    m_host->axis()->setAxisType(Axis::Translate);
+    m_host->transformGizmo()->setTransformMode(TransformGizmo::Translate);
 }
 
 void MainWindow::setAxisTypeRotate() {
-    m_host->axis()->setAxisType(Axis::Rotate);
+    m_host->transformGizmo()->setTransformMode(TransformGizmo::Rotate);
 }
 
 void MainWindow::setAxisTypeScale() {
-    m_host->axis()->setAxisType(Axis::Scale);
+    m_host->transformGizmo()->setTransformMode(TransformGizmo::Scale);
 }
 
 void MainWindow::helpAbout() {

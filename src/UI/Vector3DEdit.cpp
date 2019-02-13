@@ -49,7 +49,7 @@ void Vector3DEdit::setDecimals(int num) {
 }
 
 void Vector3DEdit::setValue(QVector3D value) {
-    if (!qFuzzyCompare(this->value(), value)) {
+    if (!isEqual(this->value(), value)) {
         for (int i = 0; i < 3; i++)
             m_floatEdits[i]->setValue(value[i]);
         valueChanged(this->value());

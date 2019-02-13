@@ -27,10 +27,8 @@ public:
     virtual QVector3D scaling() const;
 
     virtual QMatrix4x4 localModelMatrix() const;
-    virtual QMatrix4x4 localModelMatrix(bool includeTranslation, bool includeRotation, bool includeScaling) const;
 
     virtual QMatrix4x4 globalModelMatrix() const;
-    virtual QMatrix4x4 globalModelMatrix(bool includeTranslation, bool includeRotation, bool includeScaling) const;
 
     static AbstractEntity* getHighlighted();
     static AbstractEntity* getSelected();
@@ -61,7 +59,4 @@ protected:
     QVector3D m_position, m_rotation, m_scaling;
 
     static AbstractEntity *m_highlightedObject, *m_selectedObject;
-
-private slots:
-    void hostDestroyed(QObject* host);
 };

@@ -91,7 +91,7 @@ void Gridline::reset() {
 }
 
 void Gridline::setXArguments(QVector3D xargs) {
-    if (!qFuzzyCompare(m_xRange.first, xargs[0]) || !qFuzzyCompare(m_xRange.second, xargs[1]) || !qFuzzyCompare(m_xStride, xargs[2])) {
+    if (!isEqual(m_xRange.first, xargs[0]) || !isEqual(m_xRange.second, xargs[1]) || !isEqual(m_xStride, xargs[2])) {
         m_xRange = { xargs[0], xargs[1] };
         m_xStride = xargs[2];
         update();
@@ -100,7 +100,7 @@ void Gridline::setXArguments(QVector3D xargs) {
 }
 
 void Gridline::setYArguments(QVector3D yargs) {
-    if (!qFuzzyCompare(m_yRange.first, yargs[0]) || !qFuzzyCompare(m_yRange.second, yargs[1]) || !qFuzzyCompare(m_yStride, yargs[2])) {
+    if (!isEqual(m_yRange.first, yargs[0]) || !isEqual(m_yRange.second, yargs[1]) || !isEqual(m_yStride, yargs[2])) {
         m_yRange = { yargs[0], yargs[1] };
         m_yStride = yargs[2];
         update();
@@ -109,7 +109,7 @@ void Gridline::setYArguments(QVector3D yargs) {
 }
 
 void Gridline::setZArguments(QVector3D zargs) {
-    if (!qFuzzyCompare(m_zRange.first, zargs[0]) || !qFuzzyCompare(m_zRange.second, zargs[1]) || !qFuzzyCompare(m_zStride, zargs[2])) {
+    if (!isEqual(m_zRange.first, zargs[0]) || !isEqual(m_zRange.second, zargs[1]) || !isEqual(m_zStride, zargs[2])) {
         m_zRange = { zargs[0], zargs[1] };
         m_zStride = zargs[2];
         update();
@@ -118,7 +118,7 @@ void Gridline::setZArguments(QVector3D zargs) {
 }
 
 void Gridline::setColor(QVector3D color) {
-    if (!qFuzzyCompare(m_color, color)) {
+    if (!isEqual(m_color, color)) {
         m_color = color;
         m_gridlineMesh->material()->setColor(m_color);
         colorChanged(m_color);

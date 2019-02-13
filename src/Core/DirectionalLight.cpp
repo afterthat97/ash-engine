@@ -38,7 +38,7 @@ QVector3D DirectionalLight::direction() {
 }
 
 void DirectionalLight::setDirection(QVector3D direction) {
-    if (!qFuzzyCompare(m_direction, direction)) {
+    if (!isEqual(m_direction, direction)) {
         m_direction = direction;
         directionChanged(m_direction);
     }

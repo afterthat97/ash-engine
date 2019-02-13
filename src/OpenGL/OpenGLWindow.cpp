@@ -21,8 +21,10 @@ OpenGLWindow::OpenGLWindow(OpenGLScene * openGLScene, OpenGLRenderer * renderer)
 
 void OpenGLWindow::setScene(OpenGLScene* openGLScene) {
     m_openGLScene = openGLScene;
-    if (m_openGLScene)
+    if (m_openGLScene) {
         connect(m_openGLScene, SIGNAL(destroyed(QObject*)), this, SLOT(sceneDestroyed(QObject*)));
+        m_openGLScene->host()->camera()->setAspectRatio(float(width()) / height());
+    }
 }
 
 void OpenGLWindow::setCaptureUserInput(bool captureUserInput) {
@@ -33,7 +35,7 @@ void OpenGLWindow::initializeGL() {
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
     if (m_renderer) {
-        if (!m_renderer->loadShaders()) {
+        if (!m_renderer->reloadShaders()) {
             QString log = m_renderer->log();
             qWarning() << "OpenGLWindow::initializeGL(): Failed to initialize OpenGL: Error when loading shaders.";
             qWarning() << log;
@@ -49,7 +51,6 @@ void OpenGLWindow::paintGL() {
         processUserInput();
 
     if (m_openGLScene) {
-        m_openGLScene->host()->camera()->setAspectRatio(float(width()) / height());
         m_openGLScene->commitCameraInfo();
         m_openGLScene->commitLightInfo();
 
@@ -68,6 +69,10 @@ void OpenGLWindow::paintGL() {
 
         m_renderer->render(m_openGLScene);
     }
+}
+
+void OpenGLWindow::resizeGL(int w, int h) {
+    m_openGLScene->host()->camera()->setAspectRatio(float(w) / h);
 }
 
 bool OpenGLWindow::event(QEvent * event) {
@@ -116,28 +121,28 @@ void OpenGLWindow::mousePressEvent(QMouseEvent * event) {
     m_lastMousePressTime = QTime::currentTime();
     m_keyPressed[event->button()] = true;
     if (event->button() == Qt::LeftButton && Mesh::getHighlighted()) {
-        if (Axis* axis = qobject_cast<Axis*>(Mesh::getHighlighted()->parent())) {
-            for (int i = 0; i < 9; i++)
-                if (axis->markers()[i] == Mesh::getHighlighted())
-                    axis->setTransformMode(static_cast<Axis::TransformationMode>(Axis::None + i + 1));
+        if (AbstractGizmo* gizmo = qobject_cast<AbstractGizmo*>(Mesh::getHighlighted()->parent())) {
+            for (int i = 0; i < gizmo->markers().size(); i++)
+                if (gizmo->markers()[i] == Mesh::getHighlighted())
+                    gizmo->setTransformAxis(static_cast<AbstractGizmo::TransformAxis>(AbstractGizmo::X + i));
         }
     }
     event->accept();
 }
 
 void OpenGLWindow::mouseReleaseEvent(QMouseEvent * event) {
-    m_openGLScene->host()->axis()->setTransformMode(Axis::None);
+    m_openGLScene->host()->transformGizmo()->setTransformAxis(TransformGizmo::None);
     if (m_lastMousePressTime.msecsTo(QTime::currentTime()) < 200) { // click
         if (AbstractEntity::getHighlighted()) {
-            if (Axis* axis = qobject_cast<Axis*>(AbstractEntity::getHighlighted()->parent())) {
-                axis->setTransformMode(Axis::None);
+            if (AbstractGizmo* gizmo = qobject_cast<AbstractGizmo*>(Mesh::getHighlighted()->parent())) {
+                gizmo->setTransformAxis(AbstractGizmo::None);
             } else {
                 AbstractEntity::getHighlighted()->setSelected(true);
-                m_openGLScene->host()->axis()->bindTo(AbstractEntity::getSelected());
+                m_openGLScene->host()->transformGizmo()->bindTo(AbstractEntity::getSelected());
             }
         } else if (AbstractEntity::getSelected()) {
             AbstractEntity::getSelected()->setSelected(false);
-            m_openGLScene->host()->axis()->unbind();
+            m_openGLScene->host()->transformGizmo()->unbind();
         }
     }
     m_keyPressed[event->button()] = false;
@@ -173,9 +178,9 @@ void OpenGLWindow::processUserInput() {
 
     if (m_keyPressed[Qt::LeftButton]) {
         QPoint cntCursorPos = mapFromGlobal(QCursor::pos());
-        Axis* axis = m_openGLScene->host()->axis();
-        if (axis->host() && axis->transformMode() != Axis::None) {
-            axis->drag(m_lastCursorPos, cntCursorPos,
+        TransformGizmo* gizmo = m_openGLScene->host()->transformGizmo();
+        if (gizmo->visible() && gizmo->transformAxis() != TransformGizmo::None) {
+            gizmo->drag(m_lastCursorPos, cntCursorPos,
                        width(), height(),
                        m_openGLScene->host()->camera()->projectionMatrix(),
                        m_openGLScene->host()->camera()->viewMatrix());

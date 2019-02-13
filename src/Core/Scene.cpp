@@ -2,7 +2,7 @@
 
 Scene::Scene(): QObject(0) {
     setObjectName("Untitled Scene");
-    m_axis = new Axis(this);
+    m_gizmo = new TransformGizmo(this);
     m_camera = new Camera(this);
     m_gridlineNameCounter = 1;
     m_ambientLightNameCounter = 1;
@@ -215,7 +215,7 @@ void Scene::dumpObjectInfo(int l) {
 
 void Scene::dumpObjectTree(int l) {
     dumpObjectInfo(l);
-    m_axis->dumpObjectTree(l + 1);
+    m_gizmo->dumpObjectTree(l + 1);
     m_camera->dumpObjectTree(l + 1);
     for (int i = 0; i < m_gridlines.size(); i++)
         m_gridlines[i]->dumpObjectTree(l + 1);
@@ -227,8 +227,8 @@ void Scene::dumpObjectTree(int l) {
 
 // Get properties
 
-Axis * Scene::axis() const {
-    return m_axis;
+TransformGizmo * Scene::transformGizmo() const {
+    return m_gizmo;
 }
 
 Camera * Scene::camera() const {

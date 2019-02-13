@@ -56,5 +56,8 @@ protected:
     float m_innerCutOff, m_outerCutOff;
     bool m_enableAttenuation;
     float m_attenuationQuadratic, m_attenuationLinear, m_attenuationConstant;
-    Mesh* m_flashLightMesh;
+    Mesh* m_marker;
+
+private slots:
+    void setDirectionFromRotation(QVector3D rotation);
 };

@@ -47,7 +47,7 @@ void FloatSlider::setRange(float minimum, float maximum) {
 }
 
 void FloatSlider::setValue(float value) {
-    if (!qFuzzyCompare(this->value(), value)) {
+    if (!isEqual(this->value(), value)) {
         value = (value > m_maximum ? m_maximum : value);
         value = (value < m_minimum ? m_minimum : value);
         m_intSlider->setValue(int((value - m_minimum) / (m_maximum - m_minimum) * 10000.0f));

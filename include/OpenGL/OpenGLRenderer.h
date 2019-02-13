@@ -12,7 +12,9 @@ public:
     bool hasLog();
     QString log();
 
-    bool loadShaders();
+    bool reloadShaders();
+    void reloadFrameBuffers();
+
     uint32_t pickingPass(OpenGLScene* openGLScene, QPoint cursorPos);
     void render(OpenGLScene* openGLScene);
 

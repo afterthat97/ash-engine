@@ -66,7 +66,7 @@ OpenGLUniformBufferObject *OpenGLScene::m_lightInfo = 0;
 OpenGLScene::OpenGLScene(Scene * scene) {
     m_host = scene;
 
-    this->axisAdded(m_host->axis());
+    this->gizmoAdded(m_host->transformGizmo());
     for (int i = 0; i < m_host->gridlines().size(); i++)
         this->gridlineAdded(m_host->gridlines()[i]);
     for (int i = 0; i < m_host->pointLights().size(); i++)
@@ -169,8 +169,8 @@ void OpenGLScene::commitLightInfo() {
             shaderlightInfo.spotLight[spotLightNum].color = m_host->spotLights()[i]->color();
             shaderlightInfo.spotLight[spotLightNum].pos = m_host->spotLights()[i]->position();
             shaderlightInfo.spotLight[spotLightNum].direction = m_host->spotLights()[i]->direction();
-            shaderlightInfo.spotLight[spotLightNum].innerCutOff = m_host->spotLights()[i]->innerCutOff();
-            shaderlightInfo.spotLight[spotLightNum].outerCutOff = m_host->spotLights()[i]->outerCutOff();
+            shaderlightInfo.spotLight[spotLightNum].innerCutOff = rad(m_host->spotLights()[i]->innerCutOff());
+            shaderlightInfo.spotLight[spotLightNum].outerCutOff = rad(m_host->spotLights()[i]->outerCutOff());
             shaderlightInfo.spotLight[spotLightNum].enableAttenuation = m_host->spotLights()[i]->enableAttenuation();
             shaderlightInfo.spotLight[spotLightNum].attenuationQuadratic = m_host->spotLights()[i]->attenuationQuadratic();
             shaderlightInfo.spotLight[spotLightNum].attenuationLinear = m_host->spotLights()[i]->attenuationLinear();
@@ -212,11 +212,10 @@ void OpenGLScene::childEvent(QChildEvent * e) {
     }
 }
 
-void OpenGLScene::axisAdded(Axis * axis) {
-    m_axisMeshes.resize(9);
-    for (int i = 0; i < axis->markers().size(); i++) {
-        m_axisMeshes[i] = new OpenGLMesh(axis->markers()[i], this);
-        m_axisMeshes[i]->setSizeFixed(true);
+void OpenGLScene::gizmoAdded(AbstractGizmo* gizmo) {
+    for (int i = 0; i < gizmo->markers().size(); i++) {
+        m_axisMeshes.push_back(new OpenGLMesh(gizmo->markers()[i], this));
+        m_axisMeshes.back()->setSizeFixed(true);
     }
 }
 

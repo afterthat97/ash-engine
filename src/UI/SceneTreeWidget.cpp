@@ -63,10 +63,11 @@ void SceneTreeWidget::keyPressEvent(QKeyEvent * e) {
 void SceneTreeWidget::currentItemChanged(QTreeWidgetItem * current, QTreeWidgetItem * previous) {
     if (previous)
         itemDeselected(previous->data(0, Qt::UserRole));
-    if (current)
+    if (current) {
         itemSelected(current->data(0, Qt::UserRole));
-    static_cast<BaseItem*>(currentItem())->selectHost();
-    m_host->axis()->bindTo(AbstractEntity::getSelected());
+        static_cast<BaseItem*>(currentItem())->selectHost();
+        m_host->transformGizmo()->bindTo(AbstractEntity::getSelected());
+    }
 }
 
 void SceneTreeWidget::gridlineAdded(Gridline * gridline) {

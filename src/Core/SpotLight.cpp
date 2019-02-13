@@ -13,10 +13,13 @@ SpotLight::SpotLight(QObject * parent): AbstractLight() {
     m_attenuationConstant = 1.0f;
 
     ModelLoader loader;
-    m_flashLightMesh = loader.loadMeshFromFile(":/resources/shapes/SpotLight.obj");
-    m_flashLightMesh->setPosition(this->position());
-    m_flashLightMesh->setRotation(QQuaternion::rotationTo(QVector3D(0, -1, 0), this->direction()));
-    m_flashLightMesh->setParent(this);
+    m_marker = loader.loadMeshFromFile(":/resources/shapes/SpotLight.obj");
+    m_marker->setPosition(this->position());
+    m_marker->setRotation(QQuaternion::rotationTo(QVector3D(0, -1, 0), this->direction()));
+    m_marker->setParent(this); 
+    
+    connect(m_marker, SIGNAL(positionChanged(QVector3D)), this, SLOT(setPosition(QVector3D)));
+    connect(m_marker, SIGNAL(rotationChanged(QVector3D)), this, SLOT(setDirectionFromRotation(QVector3D)));
 
     setParent(parent);
 }
@@ -46,7 +49,7 @@ SpotLight::SpotLight(const SpotLight & light): AbstractLight(light) {
 }
 
 SpotLight::~SpotLight() {
-    delete m_flashLightMesh;
+    delete m_marker;
 #ifdef _DEBUG
     qDebug() << "Spot Light" << this->objectName() << "is destroyed";
 #endif
@@ -114,44 +117,44 @@ float SpotLight::attenuationConstant() const {
 }
 
 Mesh * SpotLight::marker() const {
-    return m_flashLightMesh;
+    return m_marker;
 }
 
 void SpotLight::setColor(QVector3D color) {
     AbstractLight::setColor(color);
-    m_flashLightMesh->material()->setColor(color);
+    m_marker->material()->setColor(color);
 }
 
 void SpotLight::setEnabled(bool enabled) {
     AbstractLight::setEnabled(enabled);
-    m_flashLightMesh->setVisible(enabled);
+    m_marker->setVisible(enabled);
 }
 
 void SpotLight::setPosition(QVector3D position) {
-    if (!qFuzzyCompare(m_position, position)) {
+    if (!isEqual(m_position, position)) {
         m_position = position;
-        m_flashLightMesh->setPosition(m_position);
+        m_marker->setPosition(m_position);
         positionChanged(m_position);
     }
 }
 
 void SpotLight::setDirection(QVector3D direction) {
-    if (!qFuzzyCompare(m_direction, direction)) {
+    if (!isEqual(m_direction, direction)) {
         m_direction = direction;
-        m_flashLightMesh->setRotation(QQuaternion::rotationTo(QVector3D(0, -1, 0), m_direction));
+        m_marker->setRotation(QQuaternion::rotationTo(QVector3D(0, -1, 0), m_direction));
         directionChanged(m_direction);
     }
 }
 
 void SpotLight::setInnerCutOff(float innerCutOff) {
-    if (!qFuzzyCompare(m_innerCutOff, innerCutOff)) {
+    if (!isEqual(m_innerCutOff, innerCutOff)) {
         m_innerCutOff = innerCutOff;
         innerCutOffChanged(m_innerCutOff);
     }
 }
 
 void SpotLight::setOuterCutOff(float outerCutOff) {
-    if (!qFuzzyCompare(m_outerCutOff, outerCutOff)) {
+    if (!isEqual(m_outerCutOff, outerCutOff)) {
         m_outerCutOff = outerCutOff;
         outerCutOffChanged(m_outerCutOff);
     }
@@ -171,7 +174,7 @@ void SpotLight::setAttenuationArguments(QVector3D value) {
 }
 
 void SpotLight::setAttenuationQuadratic(float value) {
-    if (!qFuzzyCompare(m_attenuationQuadratic, value)) {
+    if (!isEqual(m_attenuationQuadratic, value)) {
         m_attenuationQuadratic = value;
         attenuationQuadraticChanged(m_attenuationQuadratic);
         attenuationArgumentsChanged(this->attenuationArguments());
@@ -179,7 +182,7 @@ void SpotLight::setAttenuationQuadratic(float value) {
 }
 
 void SpotLight::setAttenuationLinear(float value) {
-    if (!qFuzzyCompare(m_attenuationLinear, value)) {
+    if (!isEqual(m_attenuationLinear, value)) {
         m_attenuationLinear = value;
         attenuationLinearChanged(m_attenuationLinear);
         attenuationArgumentsChanged(this->attenuationArguments());
@@ -187,9 +190,13 @@ void SpotLight::setAttenuationLinear(float value) {
 }
 
 void SpotLight::setAttenuationConstant(float value) {
-    if (!qFuzzyCompare(m_attenuationConstant, value)) {
+    if (!isEqual(m_attenuationConstant, value)) {
         m_attenuationConstant = value;
         attenuationConstantChanged(m_attenuationConstant);
         attenuationArgumentsChanged(this->attenuationArguments());
     }
+}
+
+void SpotLight::setDirectionFromRotation(QVector3D rotation) {
+    setDirection(QQuaternion::fromEulerAngles(rotation) * QVector3D(0, -1, 0));
 }

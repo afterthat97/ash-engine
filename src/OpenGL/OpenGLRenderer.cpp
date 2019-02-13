@@ -23,7 +23,20 @@ QString OpenGLRenderer::log() {
     return tmp;
 }
 
-bool OpenGLRenderer::loadShaders() {
+bool OpenGLRenderer::reloadShaders() {
+    if (m_pickingShader) {
+        delete m_pickingShader;
+        m_pickingShader = 0;
+    }
+    if (m_basicShader) {
+        delete m_basicShader;
+        m_basicShader = 0;
+    }
+    if (m_phongShader) {
+        delete m_phongShader;
+        m_phongShader = 0;
+    }
+
     m_pickingShader = loadShaderFromFile(":/resources/shaders/picking.vert", ":/resources/shaders/picking.frag");
     m_basicShader = loadShaderFromFile(":/resources/shaders/basic.vert", ":/resources/shaders/basic.frag");
     m_phongShader = loadShaderFromFile(":/resources/shaders/phong.vert", ":/resources/shaders/phong.frag");
@@ -35,15 +48,24 @@ bool OpenGLRenderer::loadShaders() {
         m_phongShader->setUniformValue("bumpMap", 2);
     }
 
-    return m_basicShader != 0 && m_phongShader != 0;
+    return m_pickingShader && m_basicShader && m_phongShader;
+}
+
+void OpenGLRenderer::reloadFrameBuffers() {
+    if (m_pickingPassFBO)
+        delete m_pickingPassFBO;
+    int data[4];
+    glGetIntegerv(GL_VIEWPORT, data);
+    m_pickingPassFBO = new QOpenGLFramebufferObject(data[2], data[3], QOpenGLFramebufferObject::CombinedDepthStencil);
 }
 
 uint32_t OpenGLRenderer::pickingPass(OpenGLScene * openGLScene, QPoint cursorPos) {
-    if (m_pickingPassFBO == 0) {
-        int data[4];
-        glGetIntegerv(GL_VIEWPORT, data);
-        m_pickingPassFBO = new QOpenGLFramebufferObject(data[2], data[3], QOpenGLFramebufferObject::CombinedDepthStencil);
-    }
+    if (m_pickingPassFBO == 0) reloadFrameBuffers();
+
+    int data[4];
+    glGetIntegerv(GL_VIEWPORT, data);
+    if (data[2] != m_pickingPassFBO->width() || data[3] != m_pickingPassFBO->height())
+        reloadFrameBuffers();
 
     if (cursorPos.x() < 0 || cursorPos.y() < 0 || cursorPos.x() >= m_pickingPassFBO->width() || cursorPos.y() >= m_pickingPassFBO->height())
         return 0;

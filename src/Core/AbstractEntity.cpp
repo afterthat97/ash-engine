@@ -78,40 +78,18 @@ QVector3D AbstractEntity::scaling() const {
 QMatrix4x4 AbstractEntity::localModelMatrix() const {
     QMatrix4x4 model;
 
-    model.translate(m_position);
-    model.rotate(QQuaternion::fromEulerAngles(m_rotation));
-    model.scale(m_scaling);
-
-    return model;
-}
-
-QMatrix4x4 AbstractEntity::localModelMatrix(bool includeTranslation, bool includeRotation, bool includeScaling) const {
-    QMatrix4x4 model;
-
-    if (includeTranslation)
-        model.translate(m_position);
-    if (includeRotation)
-        model.rotate(QQuaternion::fromEulerAngles(m_rotation));
-    if (includeScaling)
-        model.scale(m_scaling);
+    model.translate(position());
+    model.rotate(QQuaternion::fromEulerAngles(rotation()));
+    model.scale(scaling());
 
     return model;
 }
 
 QMatrix4x4 AbstractEntity::globalModelMatrix() const {
     if (AbstractEntity* par = qobject_cast<AbstractEntity*>(parent()))
-        return par->globalModelMatrix()
-        * localModelMatrix();
+        return par->globalModelMatrix() * localModelMatrix();
     else
         return localModelMatrix();
-}
-
-QMatrix4x4 AbstractEntity::globalModelMatrix(bool includeTranslation, bool includeRotation, bool includeScaling) const {
-    if (AbstractEntity* par = qobject_cast<AbstractEntity*>(parent()))
-        return par->globalModelMatrix()
-        * localModelMatrix(includeTranslation, includeRotation, includeScaling);
-    else
-        return localModelMatrix(includeTranslation, includeRotation, includeScaling);
 }
 
 AbstractEntity * AbstractEntity::getHighlighted() {
@@ -170,14 +148,14 @@ void AbstractEntity::setSelected(bool selected) {
 }
 
 void AbstractEntity::setPosition(QVector3D position) {
-    if (isnan(position.x()) || isnan(position.y()) || isnan(position.z())) {
+    if (isnan(position)) {
 #ifdef _DEBUG
         dout << "Failed to set position: NaN detected";
 #endif
         return;
     }
 
-    if (!qFuzzyCompare(m_position, position)) {
+    if (!isEqual(m_position, position)) {
         m_position = position;
         positionChanged(m_position);
     }
@@ -188,28 +166,28 @@ void AbstractEntity::setRotation(QQuaternion rotation) {
 }
 
 void AbstractEntity::setRotation(QVector3D rotation) {
-    if (isnan(rotation.x()) || isnan(rotation.y()) || isnan(rotation.z())) {
+    if (isnan(rotation)) {
 #ifdef _DEBUG
         dout << "Failed to set rotation: NaN detected";
 #endif
         return;
     }
 
-    if (!qFuzzyCompare(m_rotation, rotation)) {
+    if (!isEqual(m_rotation, rotation)) {
         m_rotation = rotation;
         rotationChanged(m_rotation);
     }
 }
 
 void AbstractEntity::setScaling(QVector3D scaling) {
-    if (isnan(scaling.x()) || isnan(scaling.y()) || isnan(scaling.z())) {
+    if (isnan(scaling)) {
 #ifdef _DEBUG
         dout << "Failed to set scaling: NaN detected";
 #endif
         return;
     }
 
-    if (!qFuzzyCompare(m_scaling, scaling)) {
+    if (!isEqual(m_scaling, scaling)) {
         m_scaling = scaling;
         scalingChanged(m_scaling);
     }

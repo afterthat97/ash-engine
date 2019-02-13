@@ -31,7 +31,7 @@ private:
     static OpenGLUniformBufferObject *m_cameraInfo, *m_lightInfo;
 
 private slots:
-    void axisAdded(Axis* axis);
+    void gizmoAdded(AbstractGizmo* gizmo);
     void gridlineAdded(Gridline* gridline);
     void lightAdded(AbstractLight* light);
     void modelAdded(Model* model);
