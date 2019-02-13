@@ -14,6 +14,7 @@ protected:
 
 private:
     Scene *m_host;
+    QString m_sceneFilePath;
     AbstractEntity* m_copyedObject;
 
     QSplitter * m_splitter;
@@ -21,7 +22,9 @@ private:
 
     SceneTreeWidget *m_sceneTreeWidget;
     OpenGLWindow *m_openGLWindow;
-    QWidget *m_propertyWidget;
+    QScrollArea *m_propertyWidget;
+
+    bool askToSaveScene();
 
     void configMenu();
     void configLayout();

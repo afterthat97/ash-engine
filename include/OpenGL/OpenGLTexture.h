@@ -9,7 +9,7 @@ public:
     OpenGLTexture(Texture* texture);
     ~OpenGLTexture();
 
-    void bind();
+    bool bind();
     void release();
 
 private:

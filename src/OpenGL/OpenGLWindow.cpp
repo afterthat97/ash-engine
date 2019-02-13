@@ -47,32 +47,28 @@ void OpenGLWindow::initializeGL() {
 }
 
 void OpenGLWindow::paintGL() {
+    glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     if (m_captureUserInput)
         processUserInput();
 
-    if (m_openGLScene) {
+    if (m_openGLScene && m_openGLScene->host()->camera()) {
+        m_openGLScene->host()->camera()->setAspectRatio(float(width()) / height());
         m_openGLScene->commitCameraInfo();
         m_openGLScene->commitLightInfo();
 
         if (!m_keyPressed[Qt::LeftButton]) {
             uint32_t pickingID = m_renderer->pickingPass(m_openGLScene, mapFromGlobal(QCursor::pos()) * devicePixelRatioF());
             OpenGLMesh* pickedOpenGLMesh = m_openGLScene->pick(pickingID);
-            if (pickedOpenGLMesh) {
-                Mesh* pickedMesh = pickedOpenGLMesh->host();
-                if (pickedMesh->isOnlyChild())
-                    qobject_cast<Model*>(pickedMesh->parent())->setHighlighted(true);
-                else
-                    pickedMesh->setHighlighted(true);
-            } else if (Mesh::getHighlighted())
+            if (pickedOpenGLMesh)
+                pickedOpenGLMesh->host()->setHighlighted(true);
+            else if (Mesh::getHighlighted())
                 Mesh::getHighlighted()->setHighlighted(false);
         }
 
         m_renderer->render(m_openGLScene);
     }
-}
-
-void OpenGLWindow::resizeGL(int w, int h) {
-    m_openGLScene->host()->camera()->setAspectRatio(float(w) / h);
 }
 
 bool OpenGLWindow::event(QEvent * event) {
@@ -166,7 +162,7 @@ void OpenGLWindow::focusOutEvent(QFocusEvent *) {
 }
 
 void OpenGLWindow::processUserInput() {
-    if (!m_openGLScene) return;
+    if (!m_openGLScene || !m_openGLScene->host()->camera()) return;
     float shift = 1.0f;
     if (m_keyPressed[Qt::Key_Shift]) shift *= 5.0f;
     if (m_keyPressed[Qt::Key_W]) m_openGLScene->host()->camera()->moveForward(shift);

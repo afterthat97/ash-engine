@@ -57,13 +57,6 @@ void Mesh::dumpObjectTree(int l) {
 
 #include <Model.h>
 
-bool Mesh::isOnlyChild() const {
-    if (Model* par = qobject_cast<Model*>(parent()))
-        if (par->childModels().size() == 0 && par->childMeshes().size() == 1)
-            return true;
-    return false;
-}
-
 QVector3D Mesh::centerOfMass() const {
     QVector3D centerOfMass;
     float totalMass = 0;

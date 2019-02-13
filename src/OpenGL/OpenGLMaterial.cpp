@@ -35,18 +35,22 @@ Material * OpenGLMaterial::host() const {
 }
 
 void OpenGLMaterial::bind() {
-    if (m_openGLDiffuseTexture) m_openGLDiffuseTexture->bind();
-    if (m_openGLSpecularTexture) m_openGLSpecularTexture->bind();
-    if (m_openGLBumpTexture) m_openGLBumpTexture->bind();
+    shaderMaterialInfo.useDiffuseMap = false;
+    shaderMaterialInfo.useSpecularMap = false;
+    shaderMaterialInfo.useBumpMap = false;
+
+    if (m_openGLDiffuseTexture)
+        shaderMaterialInfo.useDiffuseMap = m_openGLDiffuseTexture->bind();
+    if (m_openGLSpecularTexture)
+        shaderMaterialInfo.useSpecularMap = m_openGLSpecularTexture->bind();
+    if (m_openGLBumpTexture)
+        shaderMaterialInfo.useBumpMap = m_openGLBumpTexture->bind();
 
     shaderMaterialInfo.color = m_host->color();
     shaderMaterialInfo.ambient = m_host->ambient();
     shaderMaterialInfo.diffuse = m_host->diffuse();
     shaderMaterialInfo.specular = m_host->specular();
     shaderMaterialInfo.shininess = m_host->shininess();
-    shaderMaterialInfo.useDiffuseMap = !m_host->diffuseTexture().isNull();
-    shaderMaterialInfo.useSpecularMap = !m_host->specularTexture().isNull();
-    shaderMaterialInfo.useBumpMap = !m_host->bumpTexture().isNull();
 
     if (m_materialInfo == 0) {
         m_materialInfo = new OpenGLUniformBufferObject;

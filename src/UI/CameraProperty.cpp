@@ -20,6 +20,7 @@ CameraProperty::CameraProperty(Camera * camera, QWidget * parent): QWidget(paren
     m_directionEdit = new Vector3DEdit("Direction", Qt::Horizontal, "X", "Y", "Z", -inf, inf, 2, this);
 
     m_resetButton = new QPushButton("Reset Camera", this);
+    m_resetButton->setFixedWidth(120);
 
     m_movingSpeedEdit->setValue(m_host->movingSpeed());
     m_fieldOfViewEdit->setValue(m_host->fieldOfView());
@@ -37,21 +38,26 @@ CameraProperty::CameraProperty(Camera * camera, QWidget * parent): QWidget(paren
 // Private functions
 
 void CameraProperty::configLayout() {
-    QGridLayout * mainLayout = new QGridLayout;
+    QGridLayout * subLayout = new QGridLayout;
+    subLayout->setAlignment(Qt::AlignTop);
+    subLayout->addWidget(m_movingSpeedLabel, 0, 0);
+    subLayout->addWidget(m_movingSpeedEdit, 0, 1);
+    subLayout->addWidget(m_movingSpeedSlider, 0, 2);
+    subLayout->addWidget(m_fieldOfViewLabel, 1, 0);
+    subLayout->addWidget(m_fieldOfViewEdit, 1, 1);
+    subLayout->addWidget(m_fieldOfViewSlider, 1, 2);
+    subLayout->addWidget(m_nearPlaneLabel, 2, 0);
+    subLayout->addWidget(m_nearPlaneEdit, 2, 1);
+    subLayout->addWidget(m_farPlaneLabel, 3, 0);
+    subLayout->addWidget(m_farPlaneEdit, 3, 1);
+    subLayout->addWidget(m_positionEdit, 4, 0, 1, 3);
+    subLayout->addWidget(m_directionEdit, 5, 0, 1, 3);
+
+    QVBoxLayout * mainLayout = new QVBoxLayout;
     mainLayout->setAlignment(Qt::AlignTop);
-    mainLayout->addWidget(m_movingSpeedLabel, 0, 0);
-    mainLayout->addWidget(m_movingSpeedEdit, 0, 1);
-    mainLayout->addWidget(m_movingSpeedSlider, 0, 2);
-    mainLayout->addWidget(m_fieldOfViewLabel, 1, 0);
-    mainLayout->addWidget(m_fieldOfViewEdit, 1, 1);
-    mainLayout->addWidget(m_fieldOfViewSlider, 1, 2);
-    mainLayout->addWidget(m_nearPlaneLabel, 2, 0);
-    mainLayout->addWidget(m_nearPlaneEdit, 2, 1);
-    mainLayout->addWidget(m_farPlaneLabel, 3, 0);
-    mainLayout->addWidget(m_farPlaneEdit, 3, 1);
-    mainLayout->addWidget(m_positionEdit, 4, 0, 1, 3);
-    mainLayout->addWidget(m_directionEdit, 5, 0, 1, 3);
-    mainLayout->addWidget(m_resetButton, 6, 1);
+    mainLayout->addLayout(subLayout);
+    mainLayout->addWidget(m_resetButton, 0, Qt::AlignCenter);
+
     setLayout(mainLayout);
 }
 
@@ -64,7 +70,7 @@ void CameraProperty::configSignals() {
     connect(m_farPlaneEdit, SIGNAL(valueEdited(float)), m_host, SLOT(setFarPlane(float)));
     connect(m_positionEdit, SIGNAL(valueEdited(QVector3D)), m_host, SLOT(setPosition(QVector3D)));
     connect(m_directionEdit, SIGNAL(valueEdited(QVector3D)), m_host, SLOT(setDirection(QVector3D)));
-    connect(m_resetButton, SIGNAL(clicked(bool)), m_host, SLOT(reset()));
+    connect(m_resetButton, SIGNAL(pressed()), m_host, SLOT(reset()));
     connect(m_movingSpeedSlider, SIGNAL(sliderMoved(float)), m_host, SLOT(setMovingSpeed(float)));
     connect(m_fieldOfViewSlider, SIGNAL(sliderMoved(float)), m_host, SLOT(setFieldOfView(float)));
 

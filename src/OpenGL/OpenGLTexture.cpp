@@ -22,8 +22,8 @@ OpenGLTexture::~OpenGLTexture() {
     m_host->setProperty("OpenGLTexturePointer", QVariant());
 }
 
-void OpenGLTexture::bind() {
-    if (!m_host->enabled()) return;
+bool OpenGLTexture::bind() {
+    if (!m_host->enabled()) return false;
     QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
     if (m_host->textureType() == Texture::Diffuse) { // Diffuse map
         glFuncs->glActiveTexture(GL_TEXTURE0 + 0);
@@ -35,6 +35,7 @@ void OpenGLTexture::bind() {
         glFuncs->glActiveTexture(GL_TEXTURE0 + 2);
         glFuncs->glBindTexture(GL_TEXTURE_2D, m_openGLTexture->textureId());
     }
+    return true;
 }
 
 void OpenGLTexture::release() {

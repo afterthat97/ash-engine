@@ -1,8 +1,8 @@
 #include <Gridline.h>
 
 Gridline::Gridline(QObject* parent): QObject(0) {
-    m_gridlineMesh = new Mesh(Mesh::Line, this);
-    m_gridlineMesh->setMaterial(new Material);
+    m_marker = new Mesh(Mesh::Line, this);
+    m_marker->setMaterial(new Material);
     reset();
     setParent(parent);
 }
@@ -11,8 +11,8 @@ Gridline::Gridline(QObject* parent): QObject(0) {
 
 Gridline::Gridline(const Gridline & gridline): QObject(0) {
     setObjectName(gridline.objectName());
-    m_gridlineMesh = new Mesh(Mesh::Line, 0);
-    m_gridlineMesh->setMaterial(new Material);
+    m_marker = new Mesh(Mesh::Line, 0);
+    m_marker->setMaterial(new Material);
     m_xRange = gridline.m_xRange;
     m_yRange = gridline.m_yRange;
     m_zRange = gridline.m_zRange;
@@ -24,7 +24,7 @@ Gridline::Gridline(const Gridline & gridline): QObject(0) {
 }
 
 Gridline::~Gridline() {
-    delete m_gridlineMesh;
+    delete m_marker;
 #ifdef _DEBUG
     qDebug() << "Gridline" << this->objectName() << "is destroyed";
 #endif
@@ -75,8 +75,8 @@ QVector3D Gridline::color() const {
     return m_color;
 }
 
-Mesh * Gridline::gridlineMesh() {
-    return m_gridlineMesh;
+Mesh * Gridline::marker() {
+    return m_marker;
 }
 
 // Public slots
@@ -120,7 +120,7 @@ void Gridline::setZArguments(QVector3D zargs) {
 void Gridline::setColor(QVector3D color) {
     if (!isEqual(m_color, color)) {
         m_color = color;
-        m_gridlineMesh->material()->setColor(m_color);
+        m_marker->material()->setColor(m_color);
         colorChanged(m_color);
     }
 }
@@ -142,6 +142,6 @@ void Gridline::update() {
             indices.push_back((uint32_t) vertices.size() - 1);
         }
     }
-    m_gridlineMesh->setGeometry(vertices, indices);
-    m_gridlineMesh->material()->setColor(m_color);
+    m_marker->setGeometry(vertices, indices);
+    m_marker->material()->setColor(m_color);
 }

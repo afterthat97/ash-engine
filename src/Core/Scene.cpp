@@ -295,10 +295,7 @@ void Scene::childEvent(QChildEvent * e) {
         qDebug() << "Scene" << this->objectName() << "received child event (Type: Removed)";
 #endif
         if (m_camera == e->child()) {
-#ifdef _DEBUG
-            qDebug() << "Don't delete the camera returned by scene!";
-#endif
-            m_camera = new Camera(this);
+            m_camera = 0;
             return;
         }
         if (removeGridline(e->child())) return;

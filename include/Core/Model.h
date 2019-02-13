@@ -26,7 +26,6 @@ public:
     const QVector<Mesh*> & childMeshes() const;
     const QVector<Model*> & childModels() const;
 
-
 public slots:
     void resetChildrenTransformation();
 

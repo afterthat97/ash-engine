@@ -65,7 +65,9 @@ void FloatSlider::configSignals() {
     connect(m_intSlider, SIGNAL(sliderMoved(int)), this, SLOT(intSliderMoved(int)));
 }
 
-void FloatSlider::intSliderMoved(int) {
-    sliderMoved(this->value());
-    valueChanged(this->value());
+void FloatSlider::intSliderMoved(int value) {
+    float valuef = float(value) / 10000.0f;
+    valuef = valuef * (m_maximum - m_minimum) + m_minimum;
+    sliderMoved(valuef);
+    valueChanged(valuef);
 }

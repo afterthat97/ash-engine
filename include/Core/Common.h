@@ -48,6 +48,7 @@
 #include <QSlider>
 #include <QSpinBox>
 #include <QLabel>
+#include <QScrollArea>
 #include <QGroupBox>
 #include <QCheckBox>
 #include <QLineEdit>

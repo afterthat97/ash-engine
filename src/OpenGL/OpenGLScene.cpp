@@ -91,17 +91,15 @@ OpenGLMesh * OpenGLScene::pick(uint32_t pickingID) {
         return m_normalMeshes[pickingID - 1000];
     else if (pickingID >= 100 && pickingID - 100 < (uint32_t) m_lightMeshes.size())
         return m_lightMeshes[pickingID - 100];
-    else if (pickingID >= 90 && pickingID - 90 < (uint32_t) m_axisMeshes.size())
-        return m_axisMeshes[pickingID - 90];
+    else if (pickingID >= 90 && pickingID - 90 < (uint32_t) m_gizmoMeshes.size())
+        return m_gizmoMeshes[pickingID - 90];
     return 0;
 }
 
 void OpenGLScene::renderAxis() {
     glClear(GL_DEPTH_BUFFER_BIT);
-    for (int i = 0; i < m_axisMeshes.size(); i++) {
-        m_axisMeshes[i]->setPickingID(90 + i);
-        m_axisMeshes[i]->render();
-    }
+    for (int i = 0; i < m_gizmoMeshes.size(); i++)
+        m_gizmoMeshes[i]->render();
 }
 
 void OpenGLScene::renderGridlines() {
@@ -124,6 +122,7 @@ void OpenGLScene::renderModels() {
 }
 
 void OpenGLScene::commitCameraInfo() {
+    if (!m_host->camera()) return;
     memcpy(shaderCameraInfo.projMat, m_host->camera()->projectionMatrix().constData(), 64);
     memcpy(shaderCameraInfo.viewMat, m_host->camera()->viewMatrix().constData(), 64);
     shaderCameraInfo.cameraPos = m_host->camera()->position();
@@ -145,18 +144,18 @@ void OpenGLScene::commitLightInfo() {
     int ambientLightNum = 0, directionalLightNum = 0, pointLightNum = 0, spotLightNum = 0;
     for (int i = 0; i < m_host->ambientLights().size(); i++)
         if (m_host->ambientLights()[i]->enabled()) {
-            shaderlightInfo.ambientLight[ambientLightNum].color = m_host->ambientLights()[i]->color();
+            shaderlightInfo.ambientLight[ambientLightNum].color = m_host->ambientLights()[i]->color() * m_host->ambientLights()[i]->intensity();
             ambientLightNum++;
         }
     for (int i = 0; i < m_host->directionalLights().size(); i++)
         if (m_host->directionalLights()[i]->enabled()) {
-            shaderlightInfo.directionalLight[directionalLightNum].color = m_host->directionalLights()[i]->color();
+            shaderlightInfo.directionalLight[directionalLightNum].color = m_host->directionalLights()[i]->color() * m_host->directionalLights()[i]->intensity();
             shaderlightInfo.directionalLight[directionalLightNum].direction = m_host->directionalLights()[i]->direction();
             directionalLightNum++;
         }
     for (int i = 0; i < m_host->pointLights().size(); i++)
         if (m_host->pointLights()[i]->enabled()) {
-            shaderlightInfo.pointLight[pointLightNum].color = m_host->pointLights()[i]->color();
+            shaderlightInfo.pointLight[pointLightNum].color = m_host->pointLights()[i]->color() * m_host->pointLights()[i]->intensity();
             shaderlightInfo.pointLight[pointLightNum].pos = m_host->pointLights()[i]->position();
             shaderlightInfo.pointLight[pointLightNum].enableAttenuation = m_host->pointLights()[i]->enableAttenuation();
             shaderlightInfo.pointLight[pointLightNum].attenuationQuadratic = m_host->pointLights()[i]->attenuationQuadratic();
@@ -166,7 +165,7 @@ void OpenGLScene::commitLightInfo() {
         }
     for (int i = 0; i < m_host->spotLights().size(); i++)
         if (m_host->spotLights()[i]->enabled()) {
-            shaderlightInfo.spotLight[spotLightNum].color = m_host->spotLights()[i]->color();
+            shaderlightInfo.spotLight[spotLightNum].color = m_host->spotLights()[i]->color() * m_host->spotLights()[i]->intensity();
             shaderlightInfo.spotLight[spotLightNum].pos = m_host->spotLights()[i]->position();
             shaderlightInfo.spotLight[spotLightNum].direction = m_host->spotLights()[i]->direction();
             shaderlightInfo.spotLight[spotLightNum].innerCutOff = rad(m_host->spotLights()[i]->innerCutOff());
@@ -214,13 +213,14 @@ void OpenGLScene::childEvent(QChildEvent * e) {
 
 void OpenGLScene::gizmoAdded(AbstractGizmo* gizmo) {
     for (int i = 0; i < gizmo->markers().size(); i++) {
-        m_axisMeshes.push_back(new OpenGLMesh(gizmo->markers()[i], this));
-        m_axisMeshes.back()->setSizeFixed(true);
+        m_gizmoMeshes.push_back(new OpenGLMesh(gizmo->markers()[i], this));
+        m_gizmoMeshes.back()->setSizeFixed(true);
+        m_gizmoMeshes.back()->setPickingID(90 + i);
     }
 }
 
 void OpenGLScene::gridlineAdded(Gridline * gridline) {
-    m_gridlineMeshes.push_back(new OpenGLMesh(gridline->gridlineMesh(), this));
+    m_gridlineMeshes.push_back(new OpenGLMesh(gridline->marker(), this));
 }
 
 void OpenGLScene::lightAdded(AbstractLight * light) {

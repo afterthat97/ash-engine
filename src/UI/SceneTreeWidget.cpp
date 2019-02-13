@@ -1,6 +1,7 @@
 #include <SceneTreeWidget.h>
 
 SceneTreeWidget::SceneTreeWidget(Scene* scene, QWidget* parent): QTreeWidget(parent) {
+    setAnimated(true);
     setScene(scene);
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
             this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));

@@ -19,7 +19,8 @@ MainWindow::MainWindow(Scene * scene, QWidget * parent): QMainWindow(parent) {
     m_fpsLabel = new QLabel(this);
     m_sceneTreeWidget = new SceneTreeWidget(m_host, this);
     m_openGLWindow = new OpenGLWindow(new OpenGLScene(m_host), new OpenGLRenderer);
-    m_propertyWidget = new QWidget(this);
+    m_propertyWidget = new QScrollArea(this);
+    m_propertyWidget->setWidgetResizable(true);
 
     statusBar()->addPermanentWidget(m_fpsLabel);
 
@@ -37,6 +38,18 @@ MainWindow::MainWindow(Scene * scene, QWidget * parent): QMainWindow(parent) {
 
 void MainWindow::resizeEvent(QResizeEvent *) {
     m_splitter->setSizes(QList<int>{160, width() - 160 - 300, 300});
+}
+
+bool MainWindow::askToSaveScene() {
+    int answer = QMessageBox::question(this,
+                                       "Unsaved scene",
+                                       "Save current scene? Any unsaved changes will be lost.",
+                                       QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    if (answer == QMessageBox::Cancel)
+        return false;
+    if (answer == QMessageBox::Yes)
+        fileSaveScene();
+    return true;
 }
 
 void MainWindow::configMenu() {
@@ -121,46 +134,49 @@ void MainWindow::fpsChanged(int fps) {
 }
 
 void MainWindow::itemSelected(QVariant item) {
+    delete m_propertyWidget->takeWidget();
     if (item.canConvert<Camera*>()) {
-        m_propertyWidget = new CameraProperty(item.value<Camera*>(), this);
+        m_propertyWidget->setWidget(new CameraProperty(item.value<Camera*>(), this));
     } else if (item.canConvert<Gridline*>()) {
-        m_propertyWidget = new GridlineProperty(item.value<Gridline*>(), this);
+        m_propertyWidget->setWidget(new GridlineProperty(item.value<Gridline*>(), this));
     } else if (item.canConvert<AmbientLight*>()) {
-        m_propertyWidget = new AmbientLightProperty(item.value<AmbientLight*>(), this);
+        m_propertyWidget->setWidget(new AmbientLightProperty(item.value<AmbientLight*>(), this));
     } else if (item.canConvert<DirectionalLight*>()) {
-        m_propertyWidget = new DirectionalLightProperty(item.value<DirectionalLight*>(), this);
+        m_propertyWidget->setWidget(new DirectionalLightProperty(item.value<DirectionalLight*>(), this));
     } else if (item.canConvert<PointLight*>()) {
-        m_propertyWidget = new PointLightProperty(item.value<PointLight*>(), this);
+        m_propertyWidget->setWidget(new PointLightProperty(item.value<PointLight*>(), this));
     } else if (item.canConvert<SpotLight*>()) {
-        m_propertyWidget = new SpotLightProperty(item.value<SpotLight*>(), this);
+        m_propertyWidget->setWidget(new SpotLightProperty(item.value<SpotLight*>(), this));
     } else if (item.canConvert<Model*>()) {
-        m_propertyWidget = new ModelProperty(item.value<Model*>(), this);
+        m_propertyWidget->setWidget(new ModelProperty(item.value<Model*>(), this));
     } else if (item.canConvert<Mesh*>()) {
-        m_propertyWidget = new MeshProperty(item.value<Mesh*>(), this);
+        m_propertyWidget->setWidget(new MeshProperty(item.value<Mesh*>(), this));
     } else if (item.canConvert<Material*>()) {
-        m_propertyWidget = new MaterialProperty(item.value<Material*>(), this);
+        m_propertyWidget->setWidget(new MaterialProperty(item.value<Material*>(), this));
     }
-    delete m_splitter->replaceWidget(2, m_propertyWidget);
 }
 
 void MainWindow::itemDeselected(QVariant) {
-    m_propertyWidget = new QWidget(this);
-    delete m_splitter->replaceWidget(2, m_propertyWidget);
+    m_propertyWidget->setWidget(0);
 }
 
 void MainWindow::fileNewScene() {
-    m_propertyWidget = new QWidget(this);
-    delete m_splitter->replaceWidget(2, m_propertyWidget);
+    if (!askToSaveScene()) return;
+    delete m_propertyWidget->takeWidget();
+    m_propertyWidget->setWidget(0);
     delete m_host;
     m_host = new Scene;
     m_host->addGridline(new Gridline);
     m_host->addDirectionalLight(new DirectionalLight);
     m_sceneTreeWidget->setScene(m_host);
     m_openGLWindow->setScene(new OpenGLScene(m_host));
+    m_sceneFilePath = "";
 }
 
 void MainWindow::fileOpenScene() {
+    if (!askToSaveScene()) return;
     QString filePath = QFileDialog::getOpenFileName(this, "Open Project", "", "Ash Engine Project (*.aeproj)");
+    if (filePath == 0) return;
     SceneLoader loader;
     Scene* scene = loader.loadFromFile(filePath);
     if (scene == 0) {
@@ -169,17 +185,18 @@ void MainWindow::fileOpenScene() {
         qWarning() << log;
         QMessageBox::critical(0, "Failed to load file", log);
     } else {
-        m_propertyWidget = new QWidget(this);
-        delete m_splitter->replaceWidget(2, m_propertyWidget);
+        m_propertyWidget->setWidget(0);
         delete m_host;
         m_host = scene;
         m_sceneTreeWidget->setScene(m_host);
         m_openGLWindow->setScene(new OpenGLScene(m_host));
+        m_sceneFilePath = filePath;
     }
 }
 
 void MainWindow::fileImportModel() {
     QString filePath = QFileDialog::getOpenFileName(this, "Load Model", "", "All Files (*)");
+    if (filePath == 0) return;
     ModelLoader loader;
     Model* model = loader.loadModelFromFile(filePath);
     if (model == 0) {
@@ -222,14 +239,22 @@ void MainWindow::fileExportModel() {
 }
 
 void MainWindow::fileSaveScene() {
+    if (m_sceneFilePath.length()) {
+        SceneSaver saver(m_host);
+        saver.saveToFile(m_sceneFilePath);
+    } else
+        fileSaveAsScene();
+}
+
+void MainWindow::fileSaveAsScene() {
     QString filePath = QFileDialog::getSaveFileName(this, "Save Project", "", "Ash Engine Project (*.aeproj)");
     SceneSaver saver(m_host);
     saver.saveToFile(filePath);
+    m_sceneFilePath = filePath;
 }
 
-void MainWindow::fileSaveAsScene() {}
-
 void MainWindow::fileQuit() {
+    if (!askToSaveScene()) return;
     QApplication::quit();
 }
 
@@ -257,6 +282,10 @@ void MainWindow::editPaste() {
 void MainWindow::editRemove() {
     if (!m_sceneTreeWidget->currentItem()) return;
     QVariant item = m_sceneTreeWidget->currentItem()->data(0, Qt::UserRole);
+    if (item.value<QObject*>() == m_host->camera()) {
+        QMessageBox::warning(this, "Warning", "Camera can not be deleted.");
+        return;
+    }
     itemDeselected(item);
     if (m_copyedObject == item.value<QObject*>())
         m_copyedObject = 0;
@@ -351,7 +380,7 @@ void MainWindow::replyOfUpdates(QNetworkReply * reply) {
         QString info = "A new version has been released, do you want to upgrade?\n\n";
         info += "Current version: " + QString(APP_VERSION) + "\n";
         info += "Latest version: " + latestVersion;
-        if (QMessageBox::question(this, "Update", info, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+        if (QMessageBox::question(this, "New Update Available", info, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
             QDesktopServices::openUrl(QUrl(jsonObject["html_url"].toString()));
         }
     }

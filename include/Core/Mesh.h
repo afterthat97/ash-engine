@@ -24,7 +24,6 @@ public:
     void dumpObjectInfo(int level = 0) override;
     void dumpObjectTree(int level = 0) override;
 
-    bool isOnlyChild() const;
     QVector3D centerOfMass() const;
     float mass() const;
 

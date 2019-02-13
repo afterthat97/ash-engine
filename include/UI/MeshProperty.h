@@ -12,12 +12,18 @@ public:
 private:
     Mesh *m_host;
     QCheckBox *m_visibleCheckBox;
+    QLabel *m_meshTypeTextLabel, *m_meshTypeValueLabel;
+    QLabel *m_numOfVerticesTextLabel, *m_numOfVerticesValueLabel;
+    QLabel *m_numOfFacesTextLabel, *m_numOfFacesValueLabel;
     Vector3DEdit *m_positionEdit, *m_scalingEdit;
     Vector3DEditSlider *m_rotationEditSlider;
+    QPushButton *m_resetTransformationButton;
 
     void configLayout();
     void configSignals();
 
 private slots:
     void hostDestroyed(QObject* host);
+    void meshTypeChanged(Mesh::MeshType meshType);
+    void geometryChanged(const QVector<Vertex>& vertices, const QVector<uint32_t>& indices);
 };

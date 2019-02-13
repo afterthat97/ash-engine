@@ -67,7 +67,7 @@ vec3 calcSpotLight(int idx, vec3 normal, vec3 color, float diff, float spec) {
 void main() {
     vec3 color  = material.useDiffuseMap == 1 ? texture(diffuseMap, fragTexCoords).rgb : vec3(material.color);
     float spec  = material.useSpecularMap == 1 ? texture(specularMap, fragTexCoords).r : material.specular;
-    vec3 normal = material.useBumpMap == 1 ? (texture(bumpMap, fragTexCoords).rgb * 2 - 1) : vec3(0, 0, 1);
+    vec3 normal = material.useBumpMap == 1 ? texture(bumpMap, fragTexCoords).rgb * 2 - 1 : vec3(0, 0, 1);
     normal = normalize(TBN * normalize(normal));
 
     fragColor = vec4(0, 0, 0, 1);

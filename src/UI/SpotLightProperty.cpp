@@ -60,6 +60,17 @@ void SpotLightProperty::configSignals() {
     connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
 
     connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_host, SLOT(setEnabled(bool)));
+    connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_intensityEdit, SLOT(setEnabled(bool)));
+    connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_intensitySlider, SLOT(setEnabled(bool)));
+    connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_innerCutOffEdit, SLOT(setEnabled(bool)));
+    connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_innerCutOffSlider, SLOT(setEnabled(bool)));
+    connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_outerCutOffEdit, SLOT(setEnabled(bool)));
+    connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_outerCutOffSlider, SLOT(setEnabled(bool)));
+    connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_colorEditSlider, SLOT(setEnabled(bool)));
+    connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_positionEdit, SLOT(setEnabled(bool)));
+    connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_directionEdit, SLOT(setEnabled(bool)));
+    connect(m_enabledCheckBox, SIGNAL(toggled(bool)), m_attenuationEdit, SLOT(setEnabled(bool)));
+
     connect(m_intensityEdit, SIGNAL(valueEdited(float)), m_host, SLOT(setIntensity(float)));
     connect(m_intensitySlider, SIGNAL(sliderMoved(float)), m_host, SLOT(setIntensity(float)));
     connect(m_innerCutOffEdit, SIGNAL(valueEdited(float)), m_host, SLOT(setInnerCutOff(float)));
