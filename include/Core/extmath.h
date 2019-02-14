@@ -12,7 +12,7 @@
 
 #define eps (1e-4)
 #define inf (1000000.0f)
-#define rad(n) ((float) cos((n) * M_PI / 180.0))
+#define rad(n) ((float) cos((n) * 3.1415926 / 180.0))
 
 bool isEqual(float a, float b);
 

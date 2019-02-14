@@ -106,21 +106,21 @@ void RotateGizmo::drag(QPoint from, QPoint to, int scnWidth, int scnHeight, QMat
         float theta = acos(fmin(fmax(QVector3D::dotProduct(p1, p2) / p1.length() / p2.length(), -1.0f), 1.0f));
         if (QVector3D::dotProduct(QVector3D(1, 0, 0), QVector3D::crossProduct(p1, p2)) < 0)
             theta = -theta;
-        rotate(theta * QVector3D(180.0f / float(M_PI), 0.0f, 0.0f));
+        rotate(theta * QVector3D(180.0f / 3.1415926, 0.0f, 0.0f));
     } else if (m_axis == Y) {
         QVector3D p1 = getIntersectionOfLinePlane(l1, { QVector3D(0, 0, 0), QVector3D(0, 1, 0) });
         QVector3D p2 = getIntersectionOfLinePlane(l2, { QVector3D(0, 0, 0), QVector3D(0, 1, 0) });
         float theta = acos(fmin(fmax(QVector3D::dotProduct(p1, p2) / p1.length() / p2.length(), -1.0f), 1.0f));
         if (QVector3D::dotProduct(QVector3D(0, 1, 0), QVector3D::crossProduct(p1, p2)) < 0)
             theta = -theta;
-        rotate(theta * QVector3D(0.0f, 180.0f / float(M_PI), 0.0f));
+        rotate(theta * QVector3D(0.0f, 180.0f / 3.1415926, 0.0f));
     } else if (m_axis == Z) {
         QVector3D p1 = getIntersectionOfLinePlane(l1, { QVector3D(0, 0, 0), QVector3D(0, 0, 1) });
         QVector3D p2 = getIntersectionOfLinePlane(l2, { QVector3D(0, 0, 0), QVector3D(0, 0, 1) });
         float theta = acos(fmin(fmax(QVector3D::dotProduct(p1, p2) / p1.length() / p2.length(), -1.0f), 1.0f));
         if (QVector3D::dotProduct(QVector3D(0, 0, 1), QVector3D::crossProduct(p1, p2)) < 0)
             theta = -theta;
-        rotate(theta * QVector3D(0.0f, 0.0f, 180.0f / float(M_PI)));
+        rotate(theta * QVector3D(0.0f, 0.0f, 180.0f / 3.1415926));
     }
 }
 
