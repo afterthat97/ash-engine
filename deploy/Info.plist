@@ -5,26 +5,26 @@
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
     <key>CFBundleDisplayName</key>
-    <string>@EXECUTABLE@</string>
+    <string>masterEngine</string>
     <key>CFBundleName</key>
-    <string>@EXECUTABLE@</string>
+    <string>masterEngine</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleVersion</key>
-    <string>@FULL_VERSION@</string>
+    <string>1.0.0-rc4</string>
     <key>CFBundleShortVersionString</key>
-    <string>@SHORT_VERSION@</string>
+    <string>1.0</string>
     <key>CFBundleGetInfoString</key>
     <string>A cross-platform 3D Engine for learning purpose.</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleExecutable</key>
-    <string>@EXECUTABLE@</string>
+    <string>masterEngine</string>
     <key>CFBundleIconFile</key>
-    <string>${ASSETCATALOG_COMPILER_APPICON_NAME}</string>
+    <string>AppIcon.icns</string>
     <key>CFBundleIdentifier</key>
-    <string>@BUNDLEIDENTIFIER@</string>
+    <string>Alfred.masterEngine</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright © 2017 monster Liu. All rights reserved.</string>
+    <string>Copyright © 2017 master Liu. All rights reserved.</string>
 </dict>
 </plist>
