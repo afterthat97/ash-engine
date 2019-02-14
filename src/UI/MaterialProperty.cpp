@@ -132,9 +132,9 @@ TextureProperty::TextureProperty(Texture * texture, QWidget * parent): QGroupBox
     setChecked(m_host->enabled());
 
     m_widthTextLabel = new QLabel("Width:", this);
-    m_widthValueLabel = new QLabel(QString::number(m_host->image().mirrored().width()), this);
+    m_widthValueLabel = new QLabel(QString::number(m_host->image().width()), this);
     m_heightTextLabel = new QLabel("Height:", this);
-    m_heightValueLabel = new QLabel(QString::number(m_host->image().mirrored().height()), this);
+    m_heightValueLabel = new QLabel(QString::number(m_host->image().height()), this);
 
     m_imageLabel = new QLabel(this);
     m_imageLabel->setMinimumWidth(1);
@@ -144,9 +144,8 @@ TextureProperty::TextureProperty(Texture * texture, QWidget * parent): QGroupBox
 }
 
 void TextureProperty::resizeEvent(QResizeEvent * e) {
-    QImage image = m_host->image().mirrored();
-    QPixmap pixmap = QPixmap::fromImage(image);
-    pixmap = pixmap.scaledToWidth(qMin(int(m_imageLabel->width() * devicePixelRatioF()), image.width()));
+    QPixmap pixmap = QPixmap::fromImage(m_host->image());
+    pixmap = pixmap.scaledToWidth(qMin(int(m_imageLabel->width() * devicePixelRatioF()), m_host->image().width()));
     pixmap.setDevicePixelRatio(devicePixelRatioF());
     m_imageLabel->setPixmap(pixmap);
     e->accept();
@@ -169,7 +168,7 @@ void TextureProperty::configLayout() {
 void TextureProperty::configSignals() {
     connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
     connect(m_host, SIGNAL(enabledChanged(bool)), this, SLOT(setChecked(bool)));
-    connect(m_host, SIGNAL(textureTypeChanged(Texture::TextureType)), this, SLOT(textureTypeChanged(Texture::TextureType)));
+    connect(m_host, SIGNAL(textureTypeChanged(int)), this, SLOT(textureTypeChanged(int)));
     connect(m_host, SIGNAL(imageChanged(const QImage &)), this, SLOT(imageChanged(const QImage &)));
 
     connect(this, SIGNAL(toggled(bool)), m_host, SLOT(setEnabled(bool)));
@@ -179,7 +178,7 @@ void TextureProperty::hostDestroyed(QObject *) {
     delete this;
 }
 
-void TextureProperty::textureTypeChanged(Texture::TextureType textureType) {
+void TextureProperty::textureTypeChanged(int textureType) {
     if (textureType == Texture::Diffuse)
         setTitle("Diffuse Map");
     else if (textureType == Texture::Specular)
@@ -189,6 +188,6 @@ void TextureProperty::textureTypeChanged(Texture::TextureType textureType) {
 }
 
 void TextureProperty::imageChanged(const QImage & image) {
-    m_widthValueLabel->setText(QString::number(image.mirrored().width()));
-    m_heightValueLabel->setText(QString::number(image.mirrored().height()));
+    m_widthValueLabel->setText(QString::number(image.width()));
+    m_heightValueLabel->setText(QString::number(image.height()));
 }

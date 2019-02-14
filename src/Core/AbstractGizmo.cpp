@@ -9,6 +9,22 @@ AbstractGizmo::AbstractGizmo(QObject* parent): AbstractEntity(0) {
 
 AbstractGizmo::~AbstractGizmo() {}
 
+bool AbstractGizmo::isGizmo() const {
+    return true;
+}
+
+bool AbstractGizmo::isLight() const {
+    return false;
+}
+
+bool AbstractGizmo::isMesh() const {
+    return false;
+}
+
+bool AbstractGizmo::isModel() const {
+    return false;
+}
+
 AbstractGizmo::TransformAxis AbstractGizmo::transformAxis() const {
     return m_axis;
 }
@@ -37,6 +53,12 @@ void AbstractGizmo::unbind() {
         dout << this->objectName() << "is unbound";
 #endif
     }
+}
+
+void AbstractGizmo::setTransformAxis(void* marker) {
+    for (int i = 0; i < m_markers.size(); i++)
+        if (m_markers[i] == marker)
+            m_axis = static_cast<AbstractGizmo::TransformAxis>(AbstractGizmo::X + i);
 }
 
 void AbstractGizmo::setTransformAxis(TransformAxis axis) {

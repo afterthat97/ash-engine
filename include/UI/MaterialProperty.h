@@ -46,6 +46,6 @@ private:
 
 private slots:
     void hostDestroyed(QObject* host);
-    void textureTypeChanged(Texture::TextureType textureType);
+    void textureTypeChanged(int textureType);
     void imageChanged(const QImage& image);
 };

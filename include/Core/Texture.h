@@ -30,7 +30,7 @@ public slots:
 
 signals:
     void enabledChanged(bool enabled);
-    void textureTypeChanged(TextureType textureType);
+    void textureTypeChanged(int textureType);
     void imageChanged(const QImage& image);
 
 private:

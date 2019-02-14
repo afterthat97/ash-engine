@@ -75,6 +75,10 @@ void SpotLight::dumpObjectTree(int l) {
     dumpObjectInfo(l);
 }
 
+bool SpotLight::visible() const {
+    return m_marker->visible();
+}
+
 QVector3D SpotLight::position() const {
     return m_position;
 }
@@ -118,6 +122,10 @@ Mesh * SpotLight::marker() const {
 void SpotLight::setColor(QVector3D color) {
     AbstractLight::setColor(color);
     m_marker->material()->setColor(color);
+}
+
+void SpotLight::setVisible(bool visible) {
+    m_marker->setVisible(visible);
 }
 
 void SpotLight::setEnabled(bool enabled) {
@@ -203,6 +211,7 @@ void SpotLight::initMarker() {
     m_marker->setRotation(QQuaternion::rotationTo(QVector3D(0, -1, 0), this->direction()));
     m_marker->setParent(this);
 
+    connect(m_marker, SIGNAL(visibleChanged(bool)), this, SIGNAL(visibleChanged(bool)));
     connect(m_marker, SIGNAL(positionChanged(QVector3D)), this, SLOT(setPosition(QVector3D)));
     connect(m_marker, SIGNAL(rotationChanged(QVector3D)), this, SLOT(setDirectionFromRotation(QVector3D)));
 }

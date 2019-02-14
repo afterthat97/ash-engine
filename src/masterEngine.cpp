@@ -22,16 +22,7 @@ int main(int argc, char *argv[]) {
 
     QApplication a(argc, argv);
 
-    Scene* scene = new Scene;
-    scene->addGridline(new Gridline);
-    scene->addDirectionalLight(new DirectionalLight);
-    scene->addModel(ModelLoader::loadCubeModel());
-
-    // TODO: Test single OpenGL Window
-    //OpenGLWindow * w = new OpenGLWindow(new OpenGLScene(scene), new OpenGLRenderer);
-    //w->show();
-    
-    MainWindow *window = new MainWindow(scene);
+    MainWindow *window = new MainWindow;
     window->show();
 
     return a.exec();

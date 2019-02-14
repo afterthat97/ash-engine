@@ -24,6 +24,11 @@ public:
     void dumpObjectInfo(int level = 0) override;
     void dumpObjectTree(int level = 0) override;
 
+    bool isGizmo() const override;
+    bool isLight() const override;
+    bool isMesh() const override;
+    bool isModel() const override;
+
     QVector3D centerOfMass() const;
     float mass() const;
 
@@ -38,9 +43,12 @@ public slots:
     void setMeshType(MeshType meshType);
     void setGeometry(const QVector<Vertex>& vertices, const QVector<uint32_t>& indices);
     bool setMaterial(Material *newMaterial);
+    void reverseNormals();
+    void reverseTangents();
+    void reverseBitangents();
 
 signals:
-    void meshTypeChanged(MeshType meshType);
+    void meshTypeChanged(int meshType);
     void geometryChanged(const QVector<Vertex>& vertices, const QVector<uint32_t>& indices);
     void materialChanged(Material* material);
 

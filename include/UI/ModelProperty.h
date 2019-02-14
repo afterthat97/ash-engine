@@ -11,13 +11,11 @@ public:
 
 private:
     Model *m_host;
-    QCheckBox *m_visibleCheckBox;
+    QCheckBox *m_visibleCheckBox, *m_wireFrameModeCheckBox;
     QLabel *m_numOfChildMeshesTextLabel, *m_numOfChildMeshesValueLabel;
     QLabel *m_numOfChildModelsTextLabel, *m_numOfChildModelsValueLabel;
     Vector3DEdit *m_positionEdit, *m_scalingEdit;
     Vector3DEditSlider *m_rotationEditSlider;
-    QPushButton *m_resetTransformationButton;
-    QPushButton *m_resetChildrenTransformationButton;
 
     void configLayout();
     void configSignals();

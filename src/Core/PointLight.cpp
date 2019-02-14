@@ -56,6 +56,10 @@ void PointLight::dumpObjectTree(int l) {
     dumpObjectInfo(l);
 }
 
+bool PointLight::visible() const {
+    return m_marker->visible();
+}
+
 QVector3D PointLight::position() const {
     return m_position;
 }
@@ -87,6 +91,10 @@ Mesh * PointLight::marker() const {
 void PointLight::setColor(QVector3D color) {
     AbstractLight::setColor(color);
     m_marker->material()->setColor(color);
+}
+
+void PointLight::setVisible(bool visible) {
+    m_marker->setVisible(visible);
 }
 
 void PointLight::setPosition(QVector3D position) {
@@ -146,5 +154,6 @@ void PointLight::initMarker() {
     m_marker->setPosition(this->position());
     m_marker->setParent(this);
 
+    connect(m_marker, SIGNAL(visibleChanged(bool)), this, SIGNAL(visibleChanged(bool)));
     connect(m_marker, SIGNAL(positionChanged(QVector3D)), this, SLOT(setPosition(QVector3D)));
 }

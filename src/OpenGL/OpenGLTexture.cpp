@@ -9,7 +9,7 @@ OpenGLTexture::OpenGLTexture(Texture * texture) {
     }
     m_host->setProperty("OpenGLTexturePointer", QVariant::fromValue(this));
 
-    m_openGLTexture = new QOpenGLTexture(texture->image());
+    m_openGLTexture = new QOpenGLTexture(texture->image().mirrored());
     m_openGLTexture->setMinificationFilter(QOpenGLTexture::Nearest);
     m_openGLTexture->setMagnificationFilter(QOpenGLTexture::Linear);
     m_openGLTexture->setWrapMode(QOpenGLTexture::Repeat);

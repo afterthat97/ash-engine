@@ -19,6 +19,11 @@ public:
     void dumpObjectInfo(int) override {}
     void dumpObjectTree(int) override {}
 
+    bool isGizmo() const override;
+    bool isLight() const override;
+    bool isMesh() const override;
+    bool isModel() const override;
+
     virtual TransformAxis transformAxis() const;
     virtual QVector<Mesh*>& markers();
     virtual void drag(QPoint from, QPoint to, int scnWidth, int scnHeight, QMatrix4x4 proj, QMatrix4x4 view) = 0;
@@ -27,6 +32,7 @@ public:
 
 public slots:
     virtual void setTransformAxis(TransformAxis axis);
+    virtual void setTransformAxis(void* marker);
 
 protected:
     TransformAxis m_axis;

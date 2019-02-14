@@ -16,6 +16,7 @@ public:
     void dumpObjectInfo(int level = 0) override;
     void dumpObjectTree(int level = 0) override;
 
+    bool visible() const;
     QVector3D position() const;
     QVector3D direction() const;
     float innerCutOff() const;
@@ -28,8 +29,9 @@ public:
     Mesh* marker() const override;
 
 public slots:
-    void setColor(QVector3D color) override;
     void setEnabled(bool enabled) override;
+    void setColor(QVector3D color) override;
+    void setVisible(bool visible);
     void setPosition(QVector3D position);
     void setDirection(QVector3D direction);
     void setInnerCutOff(float innerCutOff);
@@ -41,6 +43,7 @@ public slots:
     void setAttenuationConstant(float value);
 
 signals:
+    void visibleChanged(bool visible);
     void positionChanged(QVector3D position);
     void directionChanged(QVector3D direction);
     void innerCutOffChanged(float innerCutOff);

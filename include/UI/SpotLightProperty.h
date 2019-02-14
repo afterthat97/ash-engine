@@ -11,7 +11,7 @@ public:
 
 private:
     SpotLight *m_host;
-    QCheckBox *m_enabledCheckBox;
+    QCheckBox *m_enabledCheckBox, *m_visibleCheckBox;
     QLabel *m_intensityLabel, *m_innerCutOffLabel, *m_outerCutOffLabel;
     FloatEdit *m_intensityEdit, *m_innerCutOffEdit, *m_outerCutOffEdit;
     FloatSlider *m_intensitySlider, *m_innerCutOffSlider, *m_outerCutOffSlider;

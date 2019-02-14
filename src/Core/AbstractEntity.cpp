@@ -1,4 +1,7 @@
 #include <AbstractEntity.h>
+#include <AbstractGizmo.h>
+#include <AbstractLight.h>
+#include <Model.h>
 
 AbstractEntity* AbstractEntity::m_highlightedObject = 0;
 AbstractEntity* AbstractEntity::m_selectedObject = 0;
@@ -7,7 +10,10 @@ AbstractEntity::AbstractEntity(QObject * parent): QObject(0) {
     m_visible = true;
     m_highlighted = false;
     m_selected = false;
-    resetTransformation();
+    m_wireFrameMode = false;
+    m_position = QVector3D(0, 0, 0);
+    m_rotation = QVector3D(0, 0, 0);
+    m_scaling = QVector3D(1, 1, 1);
     setParent(parent);
 }
 
@@ -16,6 +22,7 @@ AbstractEntity::AbstractEntity(const AbstractEntity & abstractObject3D): QObject
     m_visible = true;
     m_highlighted = false;
     m_selected = false;
+    m_wireFrameMode = abstractObject3D.m_wireFrameMode;
     m_position = abstractObject3D.m_position;
     m_rotation = abstractObject3D.m_rotation;
     m_scaling = abstractObject3D.m_scaling;
@@ -63,6 +70,13 @@ bool AbstractEntity::selected() const {
         return m_selected;
 }
 
+bool AbstractEntity::wireFrameMode() const {
+    if (AbstractEntity* par = qobject_cast<AbstractEntity*>(parent()))
+        return par->wireFrameMode() || m_wireFrameMode;
+    else
+        return m_wireFrameMode;
+}
+
 QVector3D AbstractEntity::position() const {
     return m_position;
 }
@@ -98,12 +112,6 @@ AbstractEntity * AbstractEntity::getHighlighted() {
 
 AbstractEntity * AbstractEntity::getSelected() {
     return m_selectedObject;
-}
-
-void AbstractEntity::resetTransformation() {
-    setPosition(QVector3D());
-    setRotation(QVector3D());
-    setScaling(QVector3D(1.0f, 1.0f, 1.0f));
 }
 
 void AbstractEntity::setVisible(bool visible) {
@@ -145,6 +153,13 @@ void AbstractEntity::setSelected(bool selected) {
 
     m_selected = selected;
     selectedChanged(m_selected);
+}
+
+void AbstractEntity::setWireFrameMode(bool enabled) {
+    if (m_wireFrameMode != enabled) {
+        m_wireFrameMode = enabled;
+        wireFrameModeChanged(m_wireFrameMode);
+    }
 }
 
 void AbstractEntity::setPosition(QVector3D position) {

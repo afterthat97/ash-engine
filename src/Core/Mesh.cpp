@@ -1,10 +1,11 @@
 #include <Mesh.h>
+#include <AbstractGizmo.h>
+#include <AbstractLight.h>
 
 Mesh::Mesh(QObject * parent): AbstractEntity(0) {
     setObjectName("Untitled mesh");
     m_meshType = Triangle;
     m_material = 0;
-    resetTransformation();
     setParent(parent);
 }
 
@@ -12,7 +13,6 @@ Mesh::Mesh(MeshType _meshType, QObject * parent): AbstractEntity(0) {
     setObjectName("Untitled mesh");
     m_meshType = _meshType;
     m_material = 0;
-    resetTransformation();
     setParent(parent);
 }
 
@@ -47,6 +47,26 @@ void Mesh::dumpObjectTree(int l) {
     dumpObjectInfo(l);
     if (m_material)
         m_material->dumpObjectTree(l + 1);
+}
+
+bool Mesh::isGizmo() const {
+    if (qobject_cast<AbstractGizmo*>(parent())) return true;
+    return false;
+}
+
+bool Mesh::isLight() const {
+    if (qobject_cast<AbstractLight*>(parent())) return true;
+    return false;
+}
+
+bool Mesh::isMesh() const {
+    if (isGizmo()) return false;
+    if (isLight()) return false;
+    return true;
+}
+
+bool Mesh::isModel() const {
+    return false;
 }
 
 QVector3D Mesh::centerOfMass() const {
@@ -197,13 +217,33 @@ bool Mesh::setMaterial(Material * material) {
     return true;
 }
 
+void Mesh::reverseNormals() {
+    for (int i = 0; i < m_vertices.size(); i++)
+        m_vertices[i].normal = -m_vertices[i].normal;
+    geometryChanged(m_vertices, m_indices);
+}
+
+void Mesh::reverseTangents() {
+    for (int i = 0; i < m_vertices.size(); i++)
+        m_vertices[i].tangent = -m_vertices[i].tangent;
+    geometryChanged(m_vertices, m_indices);
+}
+
+void Mesh::reverseBitangents() {
+    for (int i = 0; i < m_vertices.size(); i++)
+        m_vertices[i].bitangent = -m_vertices[i].bitangent;
+    geometryChanged(m_vertices, m_indices);
+}
+
 void Mesh::childEvent(QChildEvent * e) {
     if (e->added()) {
         if (Material* material = qobject_cast<Material*>(e->child()))
             setMaterial(material);
     } else if (e->removed()) {
-        if (e->child() == m_material)
-            setMaterial(0);
+        if (e->child() == m_material) {
+            m_material = 0;
+            materialChanged(0);
+        }
     }
 }
 

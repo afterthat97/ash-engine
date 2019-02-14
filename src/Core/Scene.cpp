@@ -320,7 +320,8 @@ void Scene::childEvent(QChildEvent * e) {
             addModel(model);
     } else if (e->removed()) {
         if (m_camera == e->child()) {
-            setCamera(0);
+            m_camera = 0;
+            cameraChanged(0);
             return;
         }
         if (removeGridline(e->child())) return;

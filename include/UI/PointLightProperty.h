@@ -11,7 +11,7 @@ public:
 
 private:
     PointLight *m_host;
-    QCheckBox *m_enabledCheckBox;
+    QCheckBox *m_enabledCheckBox, *m_visibleCheckBox;
     QLabel *m_intensityLabel;
     FloatEdit *m_intensityEdit;
     FloatSlider *m_intensitySlider;

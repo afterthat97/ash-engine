@@ -7,7 +7,7 @@ class MainWindow: public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(Scene * scene, QWidget *parent = 0);
+    MainWindow(QWidget *parent = 0);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -58,14 +58,22 @@ private slots:
     void createBasicPlane();
     void createBasicSphere();
 
-    void setAxisTypeTranslate();
-    void setAxisTypeRotate();
-    void setAxisTypeScale();
+    void polygonAssignMaterial();
+    void polygonReverseNormals();
+    void polygonReverseTangents();
+    void polygonReverseBitangents();
 
-    void helpAbout();
+    void gizmoAlwaysOnTop(bool alwaysOnTop);
+    void gizmoTypeTranslate();
+    void gizmoTypeRotate();
+    void gizmoTypeScale();
+
+    void helpCheckForUpdates();
     void helpSourceCode();
     void helpBugReport();
     void helpFeatureRequest();
-    void helpCheckForUpdates();
+    void helpSystemInfo();
+    void helpAbout();
+
     void replyOfUpdates(QNetworkReply* reply);
 };

@@ -52,7 +52,7 @@ void ModelExporter::saveToFile(Model* model, QString filePath) {
             fileName = "S_" + QString::number((intptr_t) m_tmp_textures[i].data()) + ".png";
         else if (m_tmp_textures[i]->textureType() == Texture::Bump)
             fileName = "N_" + QString::number((intptr_t) m_tmp_textures[i].data()) + ".png";
-        m_tmp_textures[i]->image().mirrored().save(QFileInfo(filePath).absoluteDir().absoluteFilePath(fileName));
+        m_tmp_textures[i]->image().save(QFileInfo(filePath).absoluteDir().absoluteFilePath(fileName));
     }
 }
 
@@ -92,15 +92,15 @@ void ModelExporter::saveToFile(Mesh * mesh, QString filePath) {
     if (mesh->material()) {
         if (Texture* texture = mesh->material()->diffuseTexture().data()) {
             QString fileName = "D_" + QString::number((intptr_t) texture) + ".png";
-            texture->image().mirrored().save(QFileInfo(filePath).absoluteDir().absoluteFilePath(fileName));
+            texture->image().save(QFileInfo(filePath).absoluteDir().absoluteFilePath(fileName));
         }
         if (Texture* texture = mesh->material()->specularTexture().data()) {
             QString fileName = "S_" + QString::number((intptr_t) texture) + ".png";
-            texture->image().mirrored().save(QFileInfo(filePath).absoluteDir().absoluteFilePath(fileName));
+            texture->image().save(QFileInfo(filePath).absoluteDir().absoluteFilePath(fileName));
         }
         if (Texture* texture = mesh->material()->bumpTexture().data()) {
             QString fileName = "N_" + QString::number((intptr_t) texture) + ".png";
-            texture->image().mirrored().save(QFileInfo(filePath).absoluteDir().absoluteFilePath(fileName));
+            texture->image().save(QFileInfo(filePath).absoluteDir().absoluteFilePath(fileName));
         }
     }
 }

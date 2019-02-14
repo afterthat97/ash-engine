@@ -1,5 +1,12 @@
 #include <SceneTreeWidget.h>
 
+SceneTreeWidget::SceneTreeWidget(QWidget * parent): QTreeWidget(parent) {
+    setAnimated(true);
+    setScene(0);
+    connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
+            this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+}
+
 SceneTreeWidget::SceneTreeWidget(Scene* scene, QWidget* parent): QTreeWidget(parent) {
     setAnimated(true);
     setScene(scene);
@@ -64,6 +71,10 @@ void SceneTreeWidget::keyPressEvent(QKeyEvent * e) {
 void SceneTreeWidget::currentItemChanged(QTreeWidgetItem * current, QTreeWidgetItem * previous) {
     if (previous)
         itemDeselected(previous->data(0, Qt::UserRole));
+    if (AbstractEntity::getSelected()) {
+        AbstractEntity::getSelected()->setSelected(false);
+        m_host->transformGizmo()->unbind();
+    }
     if (current) {
         itemSelected(current->data(0, Qt::UserRole));
         static_cast<BaseItem*>(currentItem())->selectHost();

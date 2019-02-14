@@ -13,11 +13,10 @@ public:
     Mesh* host() const;
 
     void create();
-    void commitInfo();
+    void commit();
     void render();
     void destroy();
 
-public slots:
     void setSizeFixed(bool sizeFixed);
     void setPickingID(uint id);
 

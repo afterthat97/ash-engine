@@ -10,6 +10,8 @@ TransformGizmo::TransformGizmo(QObject* parent): AbstractGizmo(0) {
     m_activatedGizmo = m_translateGizmo;
     m_activatedGizmo->setVisible(true);
 
+    m_alwaysOnTop = true;
+
     for (int i = 0; i < m_translateGizmo->markers().size(); i++)
         m_markers.push_back(m_translateGizmo->markers()[i]);
 
@@ -87,6 +89,10 @@ TransformGizmo::TransformMode TransformGizmo::transformMode() const {
     return Scale;
 }
 
+bool TransformGizmo::alwaysOnTop() const {
+    return m_alwaysOnTop;
+}
+
 QVector<Mesh*>& TransformGizmo::markers() {
     return m_markers;
 }
@@ -97,6 +103,7 @@ void TransformGizmo::drag(QPoint from, QPoint to, int scnWidth, int scnHeight, Q
 }
 
 void TransformGizmo::bindTo(AbstractEntity * host) {
+    if (!host) return;
     AbstractGizmo::bindTo(host);
     m_translateGizmo->bindTo(host);
     m_rotateGizmo->bindTo(host);
@@ -115,6 +122,11 @@ void TransformGizmo::unbind() {
 void TransformGizmo::setTransformAxis(TransformAxis axis) {
     if (m_activatedGizmo)
         m_activatedGizmo->setTransformAxis(axis);
+}
+
+void TransformGizmo::setTransformAxis(void* marker) {
+    if (m_activatedGizmo)
+        m_activatedGizmo->setTransformAxis(marker);
 }
 
 void TransformGizmo::setTransformMode(TransformMode mode) {
@@ -147,4 +159,8 @@ void TransformGizmo::setRotation(QVector3D rotation) {
 void TransformGizmo::setScaling(QVector3D scaling) {
     if (m_activatedGizmo)
         m_activatedGizmo->setScaling(scaling);
+}
+
+void TransformGizmo::setAlwaysOnTop(bool alwaysOnTop) {
+    m_alwaysOnTop = alwaysOnTop;
 }

@@ -97,7 +97,8 @@ OpenGLMesh * OpenGLScene::pick(uint32_t pickingID) {
 }
 
 void OpenGLScene::renderAxis() {
-    glClear(GL_DEPTH_BUFFER_BIT);
+    if (m_host->transformGizmo()->alwaysOnTop())
+        glClear(GL_DEPTH_BUFFER_BIT);
     for (int i = 0; i < m_gizmoMeshes.size(); i++)
         m_gizmoMeshes[i]->render();
 }

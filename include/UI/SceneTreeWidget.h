@@ -6,6 +6,7 @@ class SceneTreeWidget: public QTreeWidget {
     Q_OBJECT
 
 public:
+    SceneTreeWidget(QWidget* parent = 0);
     SceneTreeWidget(Scene* scene, QWidget* parent = 0);
 
     void setScene(Scene* scene);
@@ -202,6 +203,7 @@ public:
         if (m_host->material())
             new MaterialItem(m_host->material(), this);
         connect(m_host, SIGNAL(selectedChanged(bool)), this, SLOT(selectedChanged(bool)));
+        connect(m_host, SIGNAL(materialChanged(Material*)), this, SLOT(materialChanged(Material*)));
     }
 
     void selectHost() override {
@@ -216,6 +218,10 @@ private slots:
         if (!selected) return;
         if (!isExpanded()) setExpanded(true);
         treeWidget()->setCurrentItem(this);
+    }
+    void materialChanged(Material* material) {
+        if (material)
+            new MaterialItem(material, this);
     }
 };
 

@@ -10,7 +10,7 @@ QSharedPointer<Texture> TextureLoader::loadFromFile(Texture::TextureType texture
         QSharedPointer<Texture> texture(new Texture(textureType));
         QImageReader reader(filePath);
         texture->setObjectName(filePath);
-        texture->setImage(reader.read().mirrored());
+        texture->setImage(reader.read());
 
         if (texture->image().isNull()) {
             m_log += "Failed to load texture " + filePath + ": " + reader.errorString() + '\n';

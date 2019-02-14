@@ -13,15 +13,15 @@
 #include <SceneLoader.h>
 #include <SceneSaver.h>
 
-MainWindow::MainWindow(Scene * scene, QWidget * parent): QMainWindow(parent) {
-    m_host = scene;
+MainWindow::MainWindow(QWidget * parent): QMainWindow(parent), m_host(0) {
     m_copyedObject = 0;
+
     m_fpsLabel = new QLabel(this);
-    m_sceneTreeWidget = new SceneTreeWidget(m_host, this);
-    m_openGLWindow = new OpenGLWindow(new OpenGLScene(m_host), new OpenGLRenderer);
+    m_sceneTreeWidget = new SceneTreeWidget(this);
+    m_openGLWindow = new OpenGLWindow;
+    m_openGLWindow->setRenderer(new OpenGLRenderer);
     m_propertyWidget = new QScrollArea(this);
     m_propertyWidget->setWidgetResizable(true);
-
     statusBar()->addPermanentWidget(m_fpsLabel);
 
     setAcceptDrops(true);
@@ -33,6 +33,7 @@ MainWindow::MainWindow(Scene * scene, QWidget * parent): QMainWindow(parent) {
     configSignals();
 
     resize(1200, 720);
+    fileNewScene();
     helpCheckForUpdates();
 }
 
@@ -87,19 +88,31 @@ void MainWindow::configMenu() {
     menuCreateBasicShapes->addAction("Plane", this, SLOT(createBasicPlane()));
     menuCreateBasicShapes->addAction("Sphere", this, SLOT(createBasicSphere()));
 
-    QMenu *menuAxisType = menuBar()->addMenu("Axis Type");
-    QAction *actionAxisTypeTranslate = menuAxisType->addAction("Translate", this, SLOT(setAxisTypeTranslate()), QKeySequence(Qt::CTRL + Qt::Key_F1));
-    QAction *actionAxisTypeRotate = menuAxisType->addAction("Rotate", this, SLOT(setAxisTypeRotate()), QKeySequence(Qt::CTRL + Qt::Key_F2));
-    QAction *actionAxisTypeScale = menuAxisType->addAction("Scale", this, SLOT(setAxisTypeScale()), QKeySequence(Qt::CTRL + Qt::Key_F3));
-    actionAxisTypeTranslate->setCheckable(true);
-    actionAxisTypeRotate->setCheckable(true);
-    actionAxisTypeScale->setCheckable(true);
+    QMenu *menuMesh = menuBar()->addMenu("Mesh");
+    menuMesh->addAction("Assign material", this, SLOT(polygonAssignMaterial()));
+    menuMesh->addSeparator();
+    menuMesh->addAction("Reverse Normals", this, SLOT(polygonReverseNormals()));
+    menuMesh->addAction("Reverse Tangents", this, SLOT(polygonReverseTangents()));
+    menuMesh->addAction("Reverse Bitangents", this, SLOT(polygonReverseBitangents()));
 
-    QActionGroup *actionAxisTypeGroup = new QActionGroup(menuAxisType);
-    actionAxisTypeGroup->addAction(actionAxisTypeTranslate);
-    actionAxisTypeGroup->addAction(actionAxisTypeRotate);
-    actionAxisTypeGroup->addAction(actionAxisTypeScale);
-    actionAxisTypeTranslate->setChecked(true);
+    QMenu *menuGizmo = menuBar()->addMenu("Gizmo");
+    QAction *actionGizmoAlwaysOnTop = menuGizmo->addAction("Always On Top", this, SLOT(gizmoAlwaysOnTop(bool)));
+    menuGizmo->addSeparator();
+    QAction *actionGizmoTypeTranslate = menuGizmo->addAction("Translate", this, SLOT(gizmoTypeTranslate()), QKeySequence(Qt::CTRL + Qt::Key_F1));
+    QAction *actionGizmoTypeRotate = menuGizmo->addAction("Rotate", this, SLOT(gizmoTypeRotate()), QKeySequence(Qt::CTRL + Qt::Key_F2));
+    QAction *actionGizmoTypeScale = menuGizmo->addAction("Scale", this, SLOT(gizmoTypeScale()), QKeySequence(Qt::CTRL + Qt::Key_F3));
+    
+    actionGizmoAlwaysOnTop->setCheckable(true);
+    actionGizmoTypeTranslate->setCheckable(true);
+    actionGizmoTypeRotate->setCheckable(true);
+    actionGizmoTypeScale->setCheckable(true);
+
+    QActionGroup *actionAxisTypeGroup = new QActionGroup(menuGizmo);
+    actionAxisTypeGroup->addAction(actionGizmoTypeTranslate);
+    actionAxisTypeGroup->addAction(actionGizmoTypeRotate);
+    actionAxisTypeGroup->addAction(actionGizmoTypeScale);
+    actionGizmoAlwaysOnTop->setChecked(true);
+    actionGizmoTypeTranslate->setChecked(true);
 
     QMenu *menuHelp = menuBar()->addMenu("Help");
     menuHelp->addAction("Check for Update", this, SLOT(helpCheckForUpdates()));
@@ -108,6 +121,7 @@ void MainWindow::configMenu() {
     menuHelp->addAction("Bug Report", this, SLOT(helpBugReport()));
     menuHelp->addAction("Feature Request", this, SLOT(helpFeatureRequest()));
     menuHelp->addSeparator();
+    menuHelp->addAction("System Info", this, SLOT(helpSystemInfo()));
     menuHelp->addAction("About", this, SLOT(helpAbout()));
 }
 
@@ -161,14 +175,18 @@ void MainWindow::itemDeselected(QVariant) {
 }
 
 void MainWindow::fileNewScene() {
-    if (!askToSaveScene()) return;
-
-    m_propertyWidget->setWidget(0);
-    if (m_host) delete m_host;
+    if (m_host) {
+        if (!askToSaveScene()) return;
+        m_propertyWidget->setWidget(0);
+        delete m_host;
+        m_host = 0;
+    }
 
     m_host = new Scene;
     m_host->addGridline(new Gridline);
     m_host->addDirectionalLight(new DirectionalLight);
+    m_host->addModel(ModelLoader::loadCubeModel());
+
     m_sceneTreeWidget->setScene(m_host);
     m_openGLWindow->setScene(new OpenGLScene(m_host));
     m_sceneFilePath = "";
@@ -216,12 +234,13 @@ void MainWindow::fileImportModel() {
 #endif
     }
 
-    if (model) m_host->addModel(model);
+    if (m_host && model) m_host->addModel(model);
 }
 
 void MainWindow::fileExportModel() {
-    if (AbstractEntity::getSelected() == 0 || qobject_cast<AbstractLight*>(AbstractEntity::getSelected()->parent())) {
-        QMessageBox::warning(0, "Failed to export model", "Select a Model/Mesh to export.");
+    if (!m_host) return;
+    if (AbstractEntity::getSelected() == 0 || (!AbstractEntity::getSelected()->isMesh() && !AbstractEntity::getSelected()->isModel())) {
+        QMessageBox::critical(0, "Failed to export model", "Select a Model/Mesh to export.");
         return;
     }
 
@@ -251,6 +270,7 @@ void MainWindow::fileExportModel() {
 }
 
 void MainWindow::fileSaveScene() {
+    if (!m_host) return;
     if (m_sceneFilePath.length()) {
         SceneSaver saver(m_host);
         saver.saveToFile(m_sceneFilePath);
@@ -259,6 +279,7 @@ void MainWindow::fileSaveScene() {
 }
 
 void MainWindow::fileSaveAsScene() {
+    if (!m_host) return;
     QString filePath = QFileDialog::getSaveFileName(this, "Save Project", "", "Ash Engine Project (*.aeproj)");
     SceneSaver saver(m_host);
     saver.saveToFile(filePath);
@@ -310,7 +331,7 @@ void MainWindow::editPaste() {
 }
 
 void MainWindow::editRemove() {
-    if (!m_sceneTreeWidget->currentItem()) return;
+    if (!m_host || !m_sceneTreeWidget->currentItem()) return;
     QVariant item = m_sceneTreeWidget->currentItem()->data(0, Qt::UserRole);
     if (item.value<QObject*>() == m_host->camera()) {
         QMessageBox::warning(this, "Warning", "Camera can not be deleted.");
@@ -319,70 +340,110 @@ void MainWindow::editRemove() {
 #endif
         return;
     }
-    itemDeselected(item);
+    m_sceneTreeWidget->setCurrentItem(0);
     if (m_copyedObject == item.value<QObject*>())
         m_copyedObject = 0;
     delete item.value<QObject*>();
 }
 
 void MainWindow::createGridline() {
-    m_host->addGridline(new Gridline);
+    if (m_host) m_host->addGridline(new Gridline);
 }
 
 void MainWindow::createAmbientLight() {
-    m_host->addLight(new AmbientLight);
+   if (m_host) m_host->addLight(new AmbientLight);
 }
 
 void MainWindow::createDirectionalLight() {
-    m_host->addLight(new DirectionalLight);
+    if (m_host) m_host->addLight(new DirectionalLight);
 }
 
 void MainWindow::createPointLight() {
-    m_host->addLight(new PointLight);
+    if (m_host) m_host->addLight(new PointLight);
 }
 
 void MainWindow::createSpotLight() {
-    m_host->addLight(new SpotLight);
+    if (m_host) m_host->addLight(new SpotLight);
 }
 
 void MainWindow::createBasicCone() {
-    m_host->addModel(ModelLoader::loadConeModel());
+    if (m_host) m_host->addModel(ModelLoader::loadConeModel());
 }
 
 void MainWindow::createBasicCube() {
-    m_host->addModel(ModelLoader::loadCubeModel());
+    if (m_host) m_host->addModel(ModelLoader::loadCubeModel());
 }
 
 void MainWindow::createBasicCylinder() {
-    m_host->addModel(ModelLoader::loadCylinderModel());
+    if (m_host) m_host->addModel(ModelLoader::loadCylinderModel());
 }
 
 void MainWindow::createBasicPlane() {
-    m_host->addModel(ModelLoader::loadPlaneModel());
+    if (m_host) m_host->addModel(ModelLoader::loadPlaneModel());
 }
 
 void MainWindow::createBasicSphere() {
-    m_host->addModel(ModelLoader::loadSphereModel());
+    if (m_host) m_host->addModel(ModelLoader::loadSphereModel());
 }
 
-void MainWindow::setAxisTypeTranslate() {
-    m_host->transformGizmo()->setTransformMode(TransformGizmo::Translate);
+void MainWindow::polygonAssignMaterial() {
+    if (AbstractEntity::getSelected() && AbstractEntity::getSelected()->isMesh())
+        static_cast<Mesh*>(AbstractEntity::getSelected())->setMaterial(new Material);
+    else
+        QMessageBox::critical(0, "Failed to assign material", "Material must be assigned to a mesh.");
 }
 
-void MainWindow::setAxisTypeRotate() {
-    m_host->transformGizmo()->setTransformMode(TransformGizmo::Rotate);
+void MainWindow::polygonReverseNormals() {
+    if (AbstractEntity::getSelected() && AbstractEntity::getSelected()->isModel())
+        static_cast<Model*>(AbstractEntity::getSelected())->reverseNormals();
+    else if (AbstractEntity::getSelected() && AbstractEntity::getSelected()->isMesh())
+        static_cast<Mesh*>(AbstractEntity::getSelected())->reverseNormals();
+    else
+        QMessageBox::critical(0, "Failed to reverse normals", "You must select a model/mesh to do this operation.");
 }
 
-void MainWindow::setAxisTypeScale() {
-    m_host->transformGizmo()->setTransformMode(TransformGizmo::Scale);
+void MainWindow::polygonReverseTangents() {
+    if (AbstractEntity::getSelected() && AbstractEntity::getSelected()->isModel())
+        static_cast<Model*>(AbstractEntity::getSelected())->reverseTangents();
+    else if (AbstractEntity::getSelected() && AbstractEntity::getSelected()->isMesh())
+        static_cast<Mesh*>(AbstractEntity::getSelected())->reverseTangents();
+    else
+        QMessageBox::critical(0, "Failed to reverse tangents", "You must select a model/mesh to do this operation.");
 }
 
-void MainWindow::helpAbout() {
-    QString info = "Current version: " + QString(APP_VERSION) + "\n\n";
-    info += "masterEngine is a cross-platform 3D engine for learning purpose, based on Qt, OpenGL and Assimp.\n\n";
-    info += "Author: Alfred Liu\n";
-    info += "Email:  afterthat97@foxmail.com";
-    QMessageBox::about(this, "About", info);
+void MainWindow::polygonReverseBitangents() {
+    if (AbstractEntity::getSelected() && AbstractEntity::getSelected()->isModel())
+        static_cast<Model*>(AbstractEntity::getSelected())->reverseBitangents();
+    else if (AbstractEntity::getSelected() && AbstractEntity::getSelected()->isMesh())
+        static_cast<Mesh*>(AbstractEntity::getSelected())->reverseBitangents();
+    else
+        QMessageBox::critical(0, "Failed to reverse bitangents", "You must select a model/mesh to do this operation.");
+}
+
+void MainWindow::gizmoAlwaysOnTop(bool alwaysOnTop) {
+    if (m_host) m_host->transformGizmo()->setAlwaysOnTop(alwaysOnTop);
+}
+
+void MainWindow::gizmoTypeTranslate() {
+    if (m_host) m_host->transformGizmo()->setTransformMode(TransformGizmo::Translate);
+}
+
+void MainWindow::gizmoTypeRotate() {
+    if (m_host) m_host->transformGizmo()->setTransformMode(TransformGizmo::Rotate);
+}
+
+void MainWindow::gizmoTypeScale() {
+    if (m_host)m_host->transformGizmo()->setTransformMode(TransformGizmo::Scale);
+}
+
+void MainWindow::helpCheckForUpdates() {
+    QString url = "https://api.github.com/repos/afterthat97/masterEngine/releases/latest";
+    QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
+    connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyOfUpdates(QNetworkReply*)));
+    networkManager->get(QNetworkRequest(QUrl(url)));
+#ifdef DEBUG_OUTPUT
+    dout << "GET request sent to " << url;
+#endif
 }
 
 void MainWindow::helpSourceCode() {
@@ -397,14 +458,20 @@ void MainWindow::helpFeatureRequest() {
     QDesktopServices::openUrl(QUrl("https://github.com/afterthat97/masterEngine/issues/new?template=feature_request.md"));
 }
 
-void MainWindow::helpCheckForUpdates() {
-    QString url = "https://api.github.com/repos/afterthat97/masterEngine/releases/latest";
-    QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
-    connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyOfUpdates(QNetworkReply*)));
-    networkManager->get(QNetworkRequest(QUrl(url)));
-#ifdef DEBUG_OUTPUT
-    dout << "GET request sent to " << url;
-#endif
+void MainWindow::helpSystemInfo() {
+    QString info = "";
+    info += "Renderer: " + m_openGLWindow->rendererName() + "\n";
+    info += "OpenGL Version: " + m_openGLWindow->openGLVersion() + "\n";
+    info += "GLSL Version: " + m_openGLWindow->shadingLanguageVersion() + "\n";
+    QMessageBox::about(this, "System Info", info);
+}
+
+void MainWindow::helpAbout() {
+    QString info = "Current version: " + QString(APP_VERSION) + "\n\n";
+    info += "masterEngine is a cross-platform 3D engine for learning purpose, based on Qt, OpenGL and Assimp.\n\n";
+    info += "Author: Alfred Liu\n";
+    info += "Email:  afterthat97@foxmail.com";
+    QMessageBox::about(this, "About", info);
 }
 
 void MainWindow::replyOfUpdates(QNetworkReply * reply) {

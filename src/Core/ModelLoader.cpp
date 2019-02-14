@@ -140,7 +140,7 @@ Mesh * ModelLoader::loadMesh(const aiMesh * aiMeshPtr) {
         if (aiMeshPtr->HasNormals())
             vertex.normal = QVector3D(aiMeshPtr->mNormals[i].x, aiMeshPtr->mNormals[i].y, aiMeshPtr->mNormals[i].z);
         if (aiMeshPtr->HasTangentsAndBitangents()) {
-            // Assimp use left-handed tangent space
+            // Use left-handed tangent space
             vertex.tangent = QVector3D(aiMeshPtr->mTangents[i].x, aiMeshPtr->mTangents[i].y, aiMeshPtr->mTangents[i].z);
             vertex.bitangent = QVector3D(aiMeshPtr->mBitangents[i].x, aiMeshPtr->mBitangents[i].y, aiMeshPtr->mBitangents[i].z);
 

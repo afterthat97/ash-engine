@@ -31,6 +31,8 @@ public:
     TransformAxis transformAxis() const override;
     TransformMode transformMode() const;
 
+    bool alwaysOnTop() const;
+
     QVector<Mesh*>& markers() override;
     void drag(QPoint from, QPoint to, int scnWidth, int scnHeight, QMatrix4x4 proj, QMatrix4x4 view) override;
 
@@ -39,15 +41,20 @@ public:
 
 public slots:
     void setTransformAxis(TransformAxis axis) override;
+    void setTransformAxis(void* marker) override;
     void setTransformMode(TransformMode mode);
+
     void setPosition(QVector3D position) override;
     void setRotation(QQuaternion rotation) override;
     void setRotation(QVector3D rotation) override;
     void setScaling(QVector3D scaling) override;
+
+    void setAlwaysOnTop(bool alwaysOnTop);
 
 private:
     TranslateGizmo* m_translateGizmo;
     RotateGizmo* m_rotateGizmo;
     ScaleGizmo* m_scaleGizmo;
     AbstractGizmo* m_activatedGizmo;
+    bool m_alwaysOnTop;
 };

@@ -11,6 +11,10 @@ public:
     OpenGLWindow();
     OpenGLWindow(OpenGLScene* openGLScene, OpenGLRenderer* renderer);
 
+    QString rendererName();
+    QString openGLVersion();
+    QString shadingLanguageVersion();
+
     void setScene(OpenGLScene* openGLScene);
     void setRenderer(OpenGLRenderer* renderer);
     void setCaptureUserInput(bool captureUserInput);

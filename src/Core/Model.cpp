@@ -2,8 +2,6 @@
 
 Model::Model(QObject * parent): AbstractEntity(0) {
     setObjectName("Untitled model");
-    m_visible = true;
-    resetTransformation();
     setParent(parent);
 }
 
@@ -104,6 +102,22 @@ void Model::dumpObjectTree(int l) {
         m_childModels[i]->dumpObjectTree(l + 1);
 }
 
+bool Model::isGizmo() const {
+    return false;
+}
+
+bool Model::isLight() const {
+    return false;
+}
+
+bool Model::isMesh() const {
+    return false;
+}
+
+bool Model::isModel() const {
+    return true;
+}
+
 QVector3D Model::centerOfMass() const {
     QVector3D centerOfMass;
     float totalMass = 0;
@@ -152,13 +166,25 @@ const QVector<Model*>& Model::childModels() const {
     return m_childModels;
 }
 
-void Model::resetChildrenTransformation() {
+void Model::reverseNormals() {
     for (int i = 0; i < m_childMeshes.size(); i++)
-        m_childMeshes[i]->resetTransformation();
-    for (int i = 0; i < m_childModels.size(); i++) {
-        m_childModels[i]->resetTransformation();
-        m_childModels[i]->resetChildrenTransformation();
-    }
+        m_childMeshes[i]->reverseNormals();
+    for (int i = 0; i < m_childModels.size(); i++)
+        m_childModels[i]->reverseNormals();
+}
+
+void Model::reverseTangents() {
+    for (int i = 0; i < m_childMeshes.size(); i++)
+        m_childMeshes[i]->reverseTangents();
+    for (int i = 0; i < m_childModels.size(); i++)
+        m_childModels[i]->reverseTangents();
+}
+
+void Model::reverseBitangents() {
+    for (int i = 0; i < m_childMeshes.size(); i++)
+        m_childMeshes[i]->reverseBitangents();
+    for (int i = 0; i < m_childModels.size(); i++)
+        m_childModels[i]->reverseBitangents();
 }
 
 void Model::childEvent(QChildEvent * e) {

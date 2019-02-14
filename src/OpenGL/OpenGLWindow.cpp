@@ -19,6 +19,18 @@ OpenGLWindow::OpenGLWindow(OpenGLScene * openGLScene, OpenGLRenderer * renderer)
     configSignals();
 }
 
+QString OpenGLWindow::rendererName() {
+    return isInitialized() ? QString((char*) glGetString(GL_RENDERER)) : "";
+}
+
+QString OpenGLWindow::openGLVersion() {
+    return isInitialized() ? QString((char*) glGetString(GL_VERSION)) : "";
+}
+
+QString OpenGLWindow::shadingLanguageVersion() {
+    return isInitialized() ? QString((char*) glGetString(GL_SHADING_LANGUAGE_VERSION)) : "";
+}
+
 void OpenGLWindow::setScene(OpenGLScene* openGLScene) {
     if (m_openGLScene)
         disconnect(m_openGLScene, 0, this, 0);
@@ -59,6 +71,7 @@ void OpenGLWindow::initializeGL() {
 #endif
         }
     } else {
+        QMessageBox::critical(0, "Failed to initialize OpenGL", "No renderer specified.");
 #ifdef DEBUG_OUTPUT
         dout << "No renderer specified";
 #endif
@@ -72,7 +85,7 @@ void OpenGLWindow::paintGL() {
     if (m_captureUserInput)
         processUserInput();
 
-    if (m_openGLScene && m_openGLScene->host()->camera()) {
+    if (m_renderer && m_openGLScene && m_openGLScene->host()->camera()) {
         m_openGLScene->host()->camera()->setAspectRatio(float(width()) / height());
         m_openGLScene->commitCameraInfo();
         m_openGLScene->commitLightInfo();
@@ -139,38 +152,35 @@ void OpenGLWindow::keyReleaseEvent(QKeyEvent * event) {
 }
 
 void OpenGLWindow::mousePressEvent(QMouseEvent * event) {
-    if (!m_openGLScene) return;
+    if (!m_openGLScene || event->button() != Qt::LeftButton) return;
+
     m_lastCursorPos = mapFromGlobal(QCursor::pos());
     m_lastMousePressTime = QTime::currentTime();
     m_keyPressed[event->button()] = true;
-    if (event->button() == Qt::LeftButton && Mesh::getHighlighted()) {
-        if (AbstractGizmo* gizmo = qobject_cast<AbstractGizmo*>(Mesh::getHighlighted()->parent())) {
-            for (int i = 0; i < gizmo->markers().size(); i++)
-                if (gizmo->markers()[i] == Mesh::getHighlighted())
-                    gizmo->setTransformAxis(static_cast<AbstractGizmo::TransformAxis>(AbstractGizmo::X + i));
-        }
-    }
     event->accept();
+
+    if (Mesh::getHighlighted() && Mesh::getHighlighted()->isGizmo())
+        m_openGLScene->host()->transformGizmo()->setTransformAxis(Mesh::getHighlighted());
 }
 
 void OpenGLWindow::mouseReleaseEvent(QMouseEvent * event) {
-    if (!m_openGLScene) return;
+    if (!m_openGLScene || event->button() != Qt::LeftButton) return;
+
+    m_keyPressed[event->button()] = false;
     m_openGLScene->host()->transformGizmo()->setTransformAxis(TransformGizmo::None);
+    event->accept();
+
     if (m_lastMousePressTime.msecsTo(QTime::currentTime()) < 200) { // click
-        if (AbstractEntity::getHighlighted()) {
-            if (AbstractGizmo* gizmo = qobject_cast<AbstractGizmo*>(Mesh::getHighlighted()->parent())) {
-                gizmo->setTransformAxis(AbstractGizmo::None);
-            } else {
-                AbstractEntity::getHighlighted()->setSelected(true);
-                m_openGLScene->host()->transformGizmo()->bindTo(AbstractEntity::getSelected());
+        if (Mesh::getHighlighted()) {
+            if (!Mesh::getHighlighted()->isGizmo()) {
+                Mesh::getHighlighted()->setSelected(true);
+                m_openGLScene->host()->transformGizmo()->bindTo(Mesh::getSelected());
             }
-        } else if (AbstractEntity::getSelected()) {
-            AbstractEntity::getSelected()->setSelected(false);
+        } else if (Mesh::getSelected()) {
+            Mesh::getSelected()->setSelected(false);
             m_openGLScene->host()->transformGizmo()->unbind();
         }
     }
-    m_keyPressed[event->button()] = false;
-    event->accept();
 }
 
 void OpenGLWindow::wheelEvent(QWheelEvent * event) {
@@ -191,6 +201,7 @@ void OpenGLWindow::focusOutEvent(QFocusEvent *) {
 
 void OpenGLWindow::processUserInput() {
     if (!m_openGLScene || !m_openGLScene->host()->camera()) return;
+    
     float shift = 1.0f;
     if (m_keyPressed[Qt::Key_Shift]) shift *= 5.0f;
     if (m_keyPressed[Qt::Key_W]) m_openGLScene->host()->camera()->moveForward(shift);

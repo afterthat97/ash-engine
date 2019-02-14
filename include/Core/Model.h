@@ -19,15 +19,23 @@ public:
     void dumpObjectInfo(int level = 0) override;
     void dumpObjectTree(int level = 0) override;
 
+    bool isGizmo() const override;
+    bool isLight() const override;
+    bool isMesh() const override;
+    bool isModel() const override;
+
     QVector3D centerOfMass() const;
     float mass() const;
+
     Mesh* assemble() const;
 
     const QVector<Mesh*> & childMeshes() const;
     const QVector<Model*> & childModels() const;
 
 public slots:
-    void resetChildrenTransformation();
+    void reverseNormals();
+    void reverseTangents();
+    void reverseBitangents();
 
 signals:
     void childMeshAdded(Mesh* mesh);

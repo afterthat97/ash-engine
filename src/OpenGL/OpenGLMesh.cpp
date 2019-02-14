@@ -68,7 +68,7 @@ void OpenGLMesh::create() {
     m_vao->release();
 }
 
-void OpenGLMesh::commitInfo() {
+void OpenGLMesh::commit() {
     QMatrix4x4 modelMat = m_host->globalModelMatrix();
 
     memcpy(shaderModelInfo.modelMat, modelMat.constData(), 64);
@@ -93,20 +93,23 @@ void OpenGLMesh::commitInfo() {
 void OpenGLMesh::render() {
     if (!m_host->visible()) return;
     if (m_vao == 0 || m_vbo == 0 || m_ebo == 0) create();
-    if (m_openGLMaterial) m_openGLMaterial->bind();
-
-    commitInfo();
+    
+    commit();
 
     m_vao->bind();
+    if (m_openGLMaterial) m_openGLMaterial->bind();
+    if (m_host->wireFrameMode()) glFuncs->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     if (m_host->meshType() == Mesh::Triangle)
         glFuncs->glDrawElements(GL_TRIANGLES, (GLsizei) m_host->indices().size(), GL_UNSIGNED_INT, 0);
     else if (m_host->meshType() == Mesh::Line)
         glFuncs->glDrawElements(GL_LINES, (GLsizei) m_host->indices().size(), GL_UNSIGNED_INT, 0);
     else
         glFuncs->glDrawElements(GL_POINTS, (GLsizei) m_host->indices().size(), GL_UNSIGNED_INT, 0);
+    
     m_vao->release();
-
     if (m_openGLMaterial) m_openGLMaterial->release();
+    if (m_host->wireFrameMode()) glFuncs->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void OpenGLMesh::destroy() {
