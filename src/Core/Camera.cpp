@@ -28,8 +28,8 @@ Camera::Camera(const Camera & camera): QObject(0) {
 }
 
 Camera::~Camera() {
-#ifdef _DEBUG
-    qDebug() << "Camera" << this->objectName() << "is destroyed";
+#ifdef DEBUG_OUTPUT
+    dout << "Camera" << objectName() << "is destroyed";
 #endif
 }
 

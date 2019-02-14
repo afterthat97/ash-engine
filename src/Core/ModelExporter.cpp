@@ -37,8 +37,8 @@ void ModelExporter::saveToFile(Model* model, QString filePath) {
     if (AI_SUCCESS != exporter.Export(m_aiScenePtr,
                                       QFileInfo(filePath).suffix().toStdString(),
                                       filePath.toStdString())) {
-#ifdef _DEBUG
-        qDebug() << "ModelExporter::saveToFile:" << exporter.GetErrorString();
+#ifdef DEBUG_OUTPUT
+        dout << exporter.GetErrorString();
 #endif
         m_log += exporter.GetErrorString();
         return;
@@ -82,10 +82,10 @@ void ModelExporter::saveToFile(Mesh * mesh, QString filePath) {
     if (AI_SUCCESS != exporter.Export(m_aiScenePtr,
                                       QFileInfo(filePath).suffix().toStdString(),
                                       filePath.toStdString())) {
-#ifdef _DEBUG
-        qDebug() << "ModelExporter::saveToFile:" << exporter.GetErrorString();
-#endif
         m_log += exporter.GetErrorString();
+#ifdef DEBUG_OUTPUT
+        dout << exporter.GetErrorString();
+#endif
         return;
     }
 
@@ -105,11 +105,11 @@ void ModelExporter::saveToFile(Mesh * mesh, QString filePath) {
     }
 }
 
-bool ModelExporter::hasLog() {
+bool ModelExporter::hasErrorLog() {
     return m_log != "";
 }
 
-QString ModelExporter::log() {
+QString ModelExporter::errorLog() {
     QString tmp = m_log;
     m_log = "";
     return tmp;

@@ -1,9 +1,12 @@
 #include <TransformGizmo.h>
 
 TransformGizmo::TransformGizmo(QObject* parent): AbstractGizmo(0) {
+    setObjectName("Transform Gizmo");
+
     m_translateGizmo = new TranslateGizmo(this);
     m_rotateGizmo = new RotateGizmo(this);
     m_scaleGizmo = new ScaleGizmo(this);
+
     m_activatedGizmo = m_translateGizmo;
     m_activatedGizmo->setVisible(true);
 

@@ -23,7 +23,7 @@ RotateGizmo::RotateGizmo(QObject* parent): AbstractGizmo(0) {
 RotateGizmo::~RotateGizmo() {}
 
 void RotateGizmo::translate(QVector3D) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to translate a ROTATION ONLY gizmo is not allowed.";
 #endif
 }
@@ -39,7 +39,7 @@ void RotateGizmo::rotate(QVector3D rotation) {
 }
 
 void RotateGizmo::scale(QVector3D) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to scale a ROTATION ONLY gizmo is not allowed.";
 #endif
 }
@@ -125,7 +125,7 @@ void RotateGizmo::drag(QPoint from, QPoint to, int scnWidth, int scnHeight, QMat
 }
 
 void RotateGizmo::setPosition(QVector3D) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to translate a ROTATION ONLY gizmo is not allowed.";
 #endif
 }
@@ -141,7 +141,7 @@ void RotateGizmo::setRotation(QVector3D rotation) {
 }
 
 void RotateGizmo::setScaling(QVector3D) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to scale a ROTATION ONLY gizmo is not allowed.";
 #endif
 }

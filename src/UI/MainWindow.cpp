@@ -162,9 +162,10 @@ void MainWindow::itemDeselected(QVariant) {
 
 void MainWindow::fileNewScene() {
     if (!askToSaveScene()) return;
-    delete m_propertyWidget->takeWidget();
+
     m_propertyWidget->setWidget(0);
-    delete m_host;
+    if (m_host) delete m_host;
+
     m_host = new Scene;
     m_host->addGridline(new Gridline);
     m_host->addDirectionalLight(new DirectionalLight);
@@ -177,16 +178,22 @@ void MainWindow::fileOpenScene() {
     if (!askToSaveScene()) return;
     QString filePath = QFileDialog::getOpenFileName(this, "Open Project", "", "Ash Engine Project (*.aeproj)");
     if (filePath == 0) return;
+
     SceneLoader loader;
     Scene* scene = loader.loadFromFile(filePath);
-    if (scene == 0) {
-        QString log = loader.log();
-        qWarning() << "Failed to load" << filePath;
-        qWarning() << log;
-        QMessageBox::critical(0, "Failed to load file", log);
-    } else {
+
+    if (loader.hasErrorLog()) {
+        QString log = loader.errorLog();
+        QMessageBox::critical(0, "Error when loading", log);
+#ifdef DEBUG_OUTPUT
+        dout << log;
+#endif
+    }
+
+    if (scene) {
         m_propertyWidget->setWidget(0);
-        delete m_host;
+        if (m_host) delete m_host;
+
         m_host = scene;
         m_sceneTreeWidget->setScene(m_host);
         m_openGLWindow->setScene(new OpenGLScene(m_host));
@@ -197,15 +204,19 @@ void MainWindow::fileOpenScene() {
 void MainWindow::fileImportModel() {
     QString filePath = QFileDialog::getOpenFileName(this, "Load Model", "", "All Files (*)");
     if (filePath == 0) return;
+    
     ModelLoader loader;
     Model* model = loader.loadModelFromFile(filePath);
-    if (model == 0) {
-        QString log = loader.log();
-        qWarning() << "Failed to load" << filePath;
-        qWarning() << log;
-        QMessageBox::critical(0, "Failed to load file", log);
-    } else
-        m_host->addModel(model);
+    
+    if (loader.hasErrorLog()) {
+        QString log = loader.errorLog();
+        QMessageBox::critical(0, "Error when loading", log);
+#ifdef DEBUG_OUTPUT
+        dout << log;
+#endif
+    }
+
+    if (model) m_host->addModel(model);
 }
 
 void MainWindow::fileExportModel() {
@@ -230,11 +241,12 @@ void MainWindow::fileExportModel() {
     else if (Mesh* mesh = qobject_cast<Mesh*>(AbstractEntity::getSelected()))
         exporter.saveToFile(mesh, filePath);
 
-    if (exporter.hasLog()) {
-        QString log = exporter.log();
-        qWarning() << "Failed to export model to" << filePath;
-        qWarning() << log;
-        QMessageBox::critical(0, "Failed to export model", log);
+    if (exporter.hasErrorLog()) {
+        QString log = exporter.errorLog();
+        QMessageBox::critical(0, "Error when exporting", log);
+#ifdef DEBUG_OUTPUT
+        dout << log;
+#endif
     }
 }
 
@@ -251,6 +263,14 @@ void MainWindow::fileSaveAsScene() {
     SceneSaver saver(m_host);
     saver.saveToFile(filePath);
     m_sceneFilePath = filePath;
+
+    if (saver.hasErrorLog()) {
+        QString log = saver.errorLog();
+        QMessageBox::critical(0, "Error when saving", log);
+#ifdef DEBUG_OUTPUT
+        dout << log;
+#endif
+    }
 }
 
 void MainWindow::fileQuit() {
@@ -260,6 +280,12 @@ void MainWindow::fileQuit() {
 
 void MainWindow::editCopy() {
     m_copyedObject = AbstractEntity::getSelected();
+#ifdef DEBUG_OUTPUT
+    if (m_copyedObject)
+        dout << m_copyedObject->objectName() << "is copyed";
+    else
+        dout << "Nothing is copyed";
+#endif
 }
 
 void MainWindow::editPaste() {
@@ -276,6 +302,10 @@ void MainWindow::editPaste() {
     } else if (Mesh* mesh = qobject_cast<Mesh*>(m_copyedObject)) {
         Mesh* newMesh = new Mesh(*mesh);
         newMesh->setParent(mesh->parent());
+    } else {
+#ifdef DEBUG_OUTPUT
+        dout << "Failed to paste: Unknown object";
+#endif
     }
 }
 
@@ -284,6 +314,9 @@ void MainWindow::editRemove() {
     QVariant item = m_sceneTreeWidget->currentItem()->data(0, Qt::UserRole);
     if (item.value<QObject*>() == m_host->camera()) {
         QMessageBox::warning(this, "Warning", "Camera can not be deleted.");
+#ifdef DEBUG_OUTPUT
+        dout << "Camera can not be deleted";
+#endif
         return;
     }
     itemDeselected(item);
@@ -369,19 +402,25 @@ void MainWindow::helpCheckForUpdates() {
     QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
     connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyOfUpdates(QNetworkReply*)));
     networkManager->get(QNetworkRequest(QUrl(url)));
+#ifdef DEBUG_OUTPUT
+    dout << "GET request sent to " << url;
+#endif
 }
 
 void MainWindow::replyOfUpdates(QNetworkReply * reply) {
     QString strReply = (QString) reply->readAll();
     QJsonObject jsonObject = QJsonDocument::fromJson(strReply.toUtf8()).object();
-
     QString latestVersion = jsonObject["tag_name"].toString();
+
+#ifdef DEBUG_OUTPUT
+    dout << "Reply: latest version is" << latestVersion;
+#endif
+
     if (latestVersion != APP_VERSION && latestVersion != "") {
         QString info = "A new version has been released, do you want to upgrade?\n\n";
         info += "Current version: " + QString(APP_VERSION) + "\n";
         info += "Latest version: " + latestVersion;
-        if (QMessageBox::question(this, "New Update Available", info, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+        if (QMessageBox::question(this, "New Update Available", info, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
             QDesktopServices::openUrl(QUrl(jsonObject["html_url"].toString()));
-        }
     }
 }

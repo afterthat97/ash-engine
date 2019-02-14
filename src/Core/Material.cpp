@@ -1,6 +1,7 @@
 #include <Material.h>
 
 Material::Material(QObject* parent): QObject(0) {
+    setObjectName("Untitled material");
     m_color = QVector3D(1.0f, 1.0f, 1.0f);
     m_ambient = 0.2f;
     m_diffuse = 1.0f;
@@ -12,6 +13,7 @@ Material::Material(QObject* parent): QObject(0) {
 Material::Material(QVector3D color,
                    float ambient, float diffuse, float specular,
                    QObject * parent): QObject(0) {
+    setObjectName("Untitled material");
     m_color = color;
     m_ambient = ambient;
     m_diffuse = diffuse;
@@ -33,8 +35,8 @@ Material::Material(const Material & material): QObject(0) {
 }
 
 Material::~Material() {
-#ifdef _DEBUG
-    qDebug() << "Material" << this->objectName() << "is destroyed";
+#ifdef DEBUG_OUTPUT
+    dout << "Material" << objectName() << "is destroyed";
 #endif
 }
 

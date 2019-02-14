@@ -15,8 +15,8 @@ public:
     void saveToFile(Model* model, QString filePath);
     void saveToFile(Mesh* mesh, QString filePath);
 
-    bool hasLog();
-    QString log();
+    bool hasErrorLog();
+    QString errorLog();
 
 private:
     QString m_log;

@@ -196,9 +196,6 @@ void OpenGLScene::commitLightInfo() {
 
 void OpenGLScene::childEvent(QChildEvent * e) {
     if (e->removed()) {
-#ifdef _DEBUG
-        qDebug() << "OpenGLScene" << m_host->objectName() << "received child event (Type: Removed)";
-#endif
         for (int i = 0; i < m_gridlineMeshes.size(); i++)
             if (m_gridlineMeshes[i] == e->child())
                 m_gridlineMeshes.removeAt(i);

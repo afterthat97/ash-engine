@@ -37,7 +37,7 @@ public:
 public slots:
     void setMeshType(MeshType meshType);
     void setGeometry(const QVector<Vertex>& vertices, const QVector<uint32_t>& indices);
-    void setMaterial(Material *newMaterial);
+    bool setMaterial(Material *newMaterial);
 
 signals:
     void meshTypeChanged(MeshType meshType);

@@ -58,6 +58,8 @@ protected:
     float m_attenuationQuadratic, m_attenuationLinear, m_attenuationConstant;
     Mesh* m_marker;
 
+    void initMarker();
+
 private slots:
     void setDirectionFromRotation(QVector3D rotation);
 };

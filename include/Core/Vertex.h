@@ -10,6 +10,7 @@ public:
            QVector3D _bitangent = QVector3D(1, 0, 0),
            QVector2D _texCoords = QVector2D(0, 0));
     Vertex(const Vertex &other);
+
     Vertex& operator=(const Vertex &other);
     bool operator==(const Vertex &other) const;
 
@@ -20,5 +21,6 @@ public:
     QVector2D texCoords;
 };
 
+Vertex operator*(QMatrix4x4 mat, const Vertex& vertex);
 QDataStream &operator<<(QDataStream &out, const Vertex& vertex);
 QDataStream &operator>>(QDataStream &in, Vertex& vertex);

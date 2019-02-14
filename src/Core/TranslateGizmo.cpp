@@ -28,19 +28,19 @@ void TranslateGizmo::translate(QVector3D delta) {
 }
 
 void TranslateGizmo::rotate(QQuaternion) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to rotate a TRANSLATION ONLY gizmo is not allowed.";
 #endif
 }
 
 void TranslateGizmo::rotate(QVector3D) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to rotate a TRANSLATION ONLY gizmo is not allowed.";
 #endif
 }
 
 void TranslateGizmo::scale(QVector3D) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to scale a TRANSLATION ONLY gizmo is not allowed.";
 #endif
 }
@@ -122,19 +122,19 @@ void TranslateGizmo::setPosition(QVector3D position) {
 }
 
 void TranslateGizmo::setRotation(QQuaternion) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to rotate a TRANSLATION ONLY gizmo is not allowed.";
 #endif
 }
 
 void TranslateGizmo::setRotation(QVector3D) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to rotate a TRANSLATION ONLY gizmo is not allowed.";
 #endif
 }
 
 void TranslateGizmo::setScaling(QVector3D) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to scale a TRANSLATION ONLY gizmo is not allowed.";
 #endif
 }

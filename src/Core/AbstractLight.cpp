@@ -19,8 +19,8 @@ AbstractLight::AbstractLight(const AbstractLight & light): QObject(0) {
 }
 
 AbstractLight::~AbstractLight() {
-#ifdef _DEBUG
-    qDebug() << "Light" << this->objectName() << "is destroyed";
+#ifdef DEBUG_OUTPUT
+    dout << "Light" << objectName() << "is destroyed";
 #endif
 }
 

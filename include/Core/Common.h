@@ -19,6 +19,7 @@
 #include <QFileInfo>
 #include <QFont>
 #include <QMimeData>
+#include <QMetaType>
 #include <QTime>
 #include <QTimer>
 #include <QImage>

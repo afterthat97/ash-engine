@@ -7,13 +7,7 @@ PointLight::PointLight(QObject * parent): AbstractLight() {
     m_attenuationLinear = 0.014f;
     m_attenuationConstant = 1.0f;
 
-    ModelLoader loader;
-    m_marker = loader.loadMeshFromFile(":/resources/shapes/PointLight.obj");
-    m_marker->setPosition(this->position());
-    m_marker->setParent(this); 
-    
-    connect(m_marker, SIGNAL(positionChanged(QVector3D)), this, SLOT(setPosition(QVector3D)));
-
+    initMarker();
     setParent(parent);
 }
 
@@ -23,6 +17,8 @@ PointLight::PointLight(QVector3D color, QVector3D position, QObject * parent): A
     m_attenuationQuadratic = 0.0007f;
     m_attenuationLinear = 0.014f;
     m_attenuationConstant = 1.0f;
+
+    initMarker();
     setParent(parent);
 }
 
@@ -32,11 +28,13 @@ PointLight::PointLight(const PointLight & light): AbstractLight(light) {
     m_attenuationQuadratic = light.m_attenuationQuadratic;
     m_attenuationLinear = light.m_attenuationLinear;
     m_attenuationConstant = light.m_attenuationConstant;
+
+    initMarker();
 }
 
 PointLight::~PointLight() {
-#ifdef _DEBUG
-    qDebug() << "Point Light" << this->objectName() << "is destroyed";
+#ifdef DEBUG_OUTPUT
+    dout << "Point Light" << objectName() << "is destroyed";
 #endif
 }
 
@@ -139,4 +137,14 @@ void PointLight::setAttenuationConstant(float value) {
         attenuationConstantChanged(m_attenuationConstant);
         attenuationArgumentsChanged(this->attenuationArguments());
     }
+}
+
+void PointLight::initMarker() {
+    ModelLoader loader;
+
+    m_marker = loader.loadMeshFromFile(":/resources/shapes/PointLight.obj");
+    m_marker->setPosition(this->position());
+    m_marker->setParent(this);
+
+    connect(m_marker, SIGNAL(positionChanged(QVector3D)), this, SLOT(setPosition(QVector3D)));
 }

@@ -11,7 +11,6 @@ struct aiMaterial;
 class ModelLoader {
 public:
     ModelLoader();
-    ~ModelLoader();
 
     Model* loadModelFromFile(QString filePath);
     Mesh* loadMeshFromFile(QString filePath);
@@ -22,13 +21,15 @@ public:
     static Model* loadPlaneModel();
     static Model* loadSphereModel();
 
-    bool hasLog();
-    QString log();
+    bool hasErrorLog();
+    QString errorLog();
 
 private:
-    QString m_dir, m_log;
+    QDir m_dir;
+    QString m_log;
+    TextureLoader textureLoader;
+
     const aiScene* m_aiScenePtr;
-    TextureLoader* textureLoader;
 
     Model* loadModel(const aiNode* aiNodePtr);
     Mesh* loadMesh(const aiMesh* aiMeshPtr);

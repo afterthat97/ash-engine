@@ -128,9 +128,6 @@ void OpenGLMesh::setPickingID(uint id) {
 
 void OpenGLMesh::childEvent(QChildEvent * e) {
     if (e->removed()) {
-#ifdef _DEBUG
-        qDebug() << "OpenGLMesh" << m_host->objectName() << "received child event (Type: Removed)";
-#endif
         if (e->child() == m_openGLMaterial)
             m_openGLMaterial = 0;
     }

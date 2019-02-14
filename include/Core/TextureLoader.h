@@ -4,12 +4,12 @@
 
 class TextureLoader {
 public:
-    TextureLoader();
+    TextureLoader() {}
 
-    QSharedPointer<Texture> loadFromFile(Texture::TextureType textureType, QString filePath, bool no_cache = false);
+    QSharedPointer<Texture> loadFromFile(Texture::TextureType textureType, QString filePath);
 
-    bool hasLog();
-    QString log();
+    bool hasErrorLog();
+    QString errorLog();
 
 private:
     QString m_log;

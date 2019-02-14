@@ -2,7 +2,9 @@
 
 Gridline::Gridline(QObject* parent): QObject(0) {
     m_marker = new Mesh(Mesh::Line, this);
+    m_marker->setObjectName("Gridline");
     m_marker->setMaterial(new Material);
+
     reset();
     setParent(parent);
 }
@@ -20,13 +22,14 @@ Gridline::Gridline(const Gridline & gridline): QObject(0) {
     m_yStride = gridline.m_yStride;
     m_zStride = gridline.m_zStride;
     m_color = gridline.m_color;
+
     update();
 }
 
 Gridline::~Gridline() {
     delete m_marker;
-#ifdef _DEBUG
-    qDebug() << "Gridline" << this->objectName() << "is destroyed";
+#ifdef DEBUG_OUTPUT
+    dout << "Gridline" << objectName() << "is destroyed";
 #endif
 }
 

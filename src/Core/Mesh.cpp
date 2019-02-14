@@ -1,20 +1,16 @@
 #include <Mesh.h>
 
 Mesh::Mesh(QObject * parent): AbstractEntity(0) {
+    setObjectName("Untitled mesh");
     m_meshType = Triangle;
-    m_visible = true;
-    m_highlighted = false;
-    m_selected = false;
     m_material = 0;
     resetTransformation();
     setParent(parent);
 }
 
 Mesh::Mesh(MeshType _meshType, QObject * parent): AbstractEntity(0) {
+    setObjectName("Untitled mesh");
     m_meshType = _meshType;
-    m_visible = true;
-    m_highlighted = false;
-    m_selected = false;
     m_material = 0;
     resetTransformation();
     setParent(parent);
@@ -28,8 +24,8 @@ Mesh::Mesh(const Mesh & mesh): AbstractEntity(mesh) {
 }
 
 Mesh::~Mesh() {
-#ifdef _DEBUG
-    qDebug() << "Mesh" << this->objectName() << "is destroyed";
+#ifdef DEBUG_OUTPUT
+    dout << "Mesh" << objectName() << "is destroyed";
 #endif
 }
 
@@ -52,10 +48,6 @@ void Mesh::dumpObjectTree(int l) {
     if (m_material)
         m_material->dumpObjectTree(l + 1);
 }
-
-// TODO
-
-#include <Model.h>
 
 QVector3D Mesh::centerOfMass() const {
     QVector3D centerOfMass;
@@ -128,41 +120,45 @@ Material * Mesh::material() const{
 }
 
 Mesh * Mesh::merge(const Mesh * mesh1, const Mesh * mesh2) {
-    if (mesh1 == 0 && mesh2 == 0) return 0;
-    if (mesh1 == 0) {
-        mesh1 = mesh2;
-        mesh2 = 0;
+    if (mesh1 == 0 && mesh2 == 0)
+        return 0;
+    else if (mesh1 == 0 || mesh2 == 0) {
+        if (mesh1 == 0) mesh1 = mesh2;
+        Mesh* mergedMesh = new Mesh(mesh1->meshType());
+        mergedMesh->setObjectName(mesh1->objectName());
+        mergedMesh->setMaterial(new Material(*mesh1->material()));
+        for (int i = 0; i < mesh1->m_vertices.size(); i++)
+            mergedMesh->m_vertices.push_back(mesh1->globalModelMatrix() * mesh1->m_vertices[i]);
+        mergedMesh->m_indices = mesh1->m_indices;
+        return mergedMesh;
     }
 
-    Mesh* merged = new Mesh;
-    merged->setMaterial(new Material);
-    merged->m_indices = mesh1->m_indices;
-
-    QMatrix4x4 modelMat1 = mesh1->globalModelMatrix();
-    for (int i = 0; i < mesh1->m_vertices.size(); i++) {
-        Vertex v = mesh1->m_vertices[i];
-        v.position = modelMat1 * v.position;
-        v.tangent = modelMat1 * v.tangent;
-        v.bitangent = modelMat1 * v.bitangent;
-        v.normal = QMatrix4x4(modelMat1.normalMatrix()) * v.normal;
-        merged->m_vertices.push_back(v);
+    if (mesh1->meshType() != mesh2->meshType()) {
+#ifdef DEBUG_OUTPUT
+        dout << "Failed to merge" << mesh1->objectName() << "and" << mesh2->objectName() << ": Mesh type not match";
+#endif
+        return 0;
     }
 
-    if (mesh2) {
-        for (int i = 0; i < mesh2->m_indices.size(); i++)
-            merged->m_indices.push_back(mesh2->m_indices[i] + mesh1->m_vertices.size());
-        QMatrix4x4 modelMat2 = mesh2->globalModelMatrix();
-        for (int i = 0; i < mesh2->m_vertices.size(); i++) {
-            Vertex v = mesh2->m_vertices[i];
-            v.position = modelMat2 * v.position;
-            v.tangent = modelMat2 * v.tangent;
-            v.bitangent = modelMat2 * v.bitangent;
-            v.normal = QMatrix4x4(modelMat2.normalMatrix()) * v.normal;
-            merged->m_vertices.push_back(v);
-        }
-    }
+#ifdef DEBUG_OUTPUT
+    dout << "Merging" << mesh1->objectName() << "and" << mesh2->objectName();
+#endif
 
-    return merged;
+    Mesh* mergedMesh = new Mesh(mesh1->meshType());
+    mergedMesh->setObjectName(mesh1->objectName() + mesh2->objectName());
+    mergedMesh->setMaterial(new Material);
+
+    for (int i = 0; i < mesh1->m_vertices.size(); i++)
+        mergedMesh->m_vertices.push_back(mesh1->globalModelMatrix() * mesh1->m_vertices[i]);
+
+    for (int i = 0; i < mesh2->m_vertices.size(); i++)
+        mergedMesh->m_vertices.push_back(mesh2->globalModelMatrix() * mesh2->m_vertices[i]);
+
+    mergedMesh->m_indices = mesh1->m_indices;
+    for (int i = 0; i < mesh2->m_indices.size(); i++)
+        mergedMesh->m_indices.push_back(mesh2->m_indices[i] + mesh1->m_vertices.size());
+
+    return mergedMesh;
 }
 
 void Mesh::setMeshType(MeshType meshType) {
@@ -180,37 +176,34 @@ void Mesh::setGeometry(const QVector<Vertex>& vertices, const QVector<uint32_t>&
     }
 }
 
-void Mesh::setMaterial(Material * material) {
-    if (material == 0 || m_material == material) return;
-    if (m_material) {
-#ifdef _DEBUG
-        qDebug() << "Material" << m_material->objectName() << "will be replaced by" << material->objectName();
-#endif
-        delete m_material;
-    }
-    m_material = material;
-    m_material->setParent(this);
-    materialChanged(m_material);
-#ifdef _DEBUG
-    qDebug() << "Material" << material->objectName() << "is assigned to mesh" << this->objectName();
-#endif
-}
+bool Mesh::setMaterial(Material * material) {
+    if (m_material == material) return false;
 
-// Protected
+    if (m_material) {
+        Material* tmp = m_material;
+        m_material = 0;
+        delete tmp;
+    }
+
+    if (material) {
+        m_material = material;
+        m_material->setParent(this);
+#ifdef DEBUG_OUTPUT
+        dout << "Material" << material->objectName() << "is assigned to mesh" << objectName();
+#endif
+    }
+
+    materialChanged(m_material);
+    return true;
+}
 
 void Mesh::childEvent(QChildEvent * e) {
     if (e->added()) {
-#ifdef _DEBUG
-        qDebug() << "Mesh" << this->objectName() << "received child event (Type: Added)";
-#endif
-        setMaterial(qobject_cast<Material*>(e->child()));
+        if (Material* material = qobject_cast<Material*>(e->child()))
+            setMaterial(material);
     } else if (e->removed()) {
-#ifdef _DEBUG
-        qDebug() << "Mesh" << this->objectName() << "received child event (Type: Removed)";
-#endif
         if (e->child() == m_material)
-            m_material = 0;
-        materialChanged(m_material);
+            setMaterial(0);
     }
 }
 

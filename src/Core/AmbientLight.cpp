@@ -12,8 +12,8 @@ AmbientLight::AmbientLight(QVector3D color, QObject * parent) : AbstractLight(co
 AmbientLight::AmbientLight(const AmbientLight & light) : AbstractLight(light) {}
 
 AmbientLight::~AmbientLight() {
-#ifdef _DEBUG
-    qDebug() << "Ambient Light" << this->objectName() << "is destroyed";
+#ifdef DEBUG_OUTPUT
+    dout << "Ambient Light" << objectName() << "is destroyed";
 #endif
 }
 

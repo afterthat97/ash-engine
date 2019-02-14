@@ -8,10 +8,11 @@ class OpenGLWindow: public QOpenGLWindow, protected QOpenGLFunctions_3_3_Core {
     Q_OBJECT
 
 public:
-    OpenGLWindow(OpenGLRenderer* renderer);
+    OpenGLWindow();
     OpenGLWindow(OpenGLScene* openGLScene, OpenGLRenderer* renderer);
 
     void setScene(OpenGLScene* openGLScene);
+    void setRenderer(OpenGLRenderer* renderer);
     void setCaptureUserInput(bool captureUserInput);
 
 protected:

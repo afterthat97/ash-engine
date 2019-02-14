@@ -139,7 +139,7 @@ void AbstractEntity::setSelected(bool selected) {
     } else if (m_selectedObject == this)
         m_selectedObject = 0;
 
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << this->objectName() << "is" << (selected ? "selected" : "deselected");
 #endif
 
@@ -149,7 +149,7 @@ void AbstractEntity::setSelected(bool selected) {
 
 void AbstractEntity::setPosition(QVector3D position) {
     if (isnan(position)) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << "Failed to set position: NaN detected";
 #endif
         return;
@@ -167,7 +167,7 @@ void AbstractEntity::setRotation(QQuaternion rotation) {
 
 void AbstractEntity::setRotation(QVector3D rotation) {
     if (isnan(rotation)) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << "Failed to set rotation: NaN detected";
 #endif
         return;
@@ -181,7 +181,7 @@ void AbstractEntity::setRotation(QVector3D rotation) {
 
 void AbstractEntity::setScaling(QVector3D scaling) {
     if (isnan(scaling)) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << "Failed to set scaling: NaN detected";
 #endif
         return;

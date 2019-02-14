@@ -23,7 +23,7 @@ void AbstractGizmo::bindTo(AbstractEntity * host) {
     if (host) {
         m_host = host;
         connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << this->objectName() << "is bound to" << host->objectName();
 #endif
     }
@@ -33,7 +33,7 @@ void AbstractGizmo::unbind() {
     if (m_host) {
         disconnect(m_host, 0, this, 0);
         m_host = 0;
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << this->objectName() << "is unbound";
 #endif
     }

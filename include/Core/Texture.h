@@ -11,6 +11,7 @@ public:
         Specular = 1,
         Bump = 2
     };
+
     Texture(TextureType textureType = Diffuse);
     Texture(const Texture& texture);
     ~Texture();

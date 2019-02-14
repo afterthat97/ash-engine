@@ -33,6 +33,15 @@ bool Vertex::operator==(const Vertex & other) const {
         && texCoords == other.texCoords;
 }
 
+Vertex operator*(QMatrix4x4 mat, const Vertex & vertex) {
+    Vertex t = vertex;
+    t.position = mat * t.position;
+    t.tangent = mat * t.tangent;
+    t.bitangent = mat * t.bitangent;
+    t.normal = QMatrix4x4(mat.normalMatrix()) * t.normal;
+    return t;
+}
+
 QDataStream &operator<<(QDataStream &out, const Vertex& vertex) {
     out << vertex.position;
     out << vertex.normal;

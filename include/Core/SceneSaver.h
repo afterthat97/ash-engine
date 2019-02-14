@@ -8,8 +8,8 @@ public:
 
     bool saveToFile(QString filePath);
 
-    bool hasLog();
-    QString log();
+    bool hasErrorLog();
+    QString errorLog();
 
 private:
     void getAllTextures(Model* model);

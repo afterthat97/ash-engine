@@ -1,6 +1,7 @@
 #include <Model.h>
 
 Model::Model(QObject * parent): AbstractEntity(0) {
+    setObjectName("Untitled model");
     m_visible = true;
     resetTransformation();
     setParent(parent);
@@ -14,32 +15,38 @@ Model::Model(const Model & model): AbstractEntity(model) {
 }
 
 Model::~Model() {
-#ifdef _DEBUG
-    qDebug() << "Model" << this->objectName() << "is destroyed";
+#ifdef DEBUG_OUTPUT
+    dout << "Model" << objectName() << "is destroyed";
 #endif
 }
 
 bool Model::addChildMesh(Mesh * mesh) {
     if (!mesh || m_childMeshes.contains(mesh))
         return false;
+
     m_childMeshes.push_back(mesh);
     mesh->setParent(this);
     childMeshAdded(mesh);
-#ifdef _DEBUG
-    qDebug() << "Mesh" << mesh->objectName() << "is added to model" << this->objectName() << "as child";
+
+#ifdef DEBUG_OUTPUT
+    dout << "Mesh" << mesh->objectName() << "is added to model" << objectName() << "as child";
 #endif
+    
     return true;
 }
 
 bool Model::addChildModel(Model * model) {
     if (!model || m_childModels.contains(model))
         return false;
+
     m_childModels.push_back(model);
     model->setParent(this);
     childModelAdded(model);
-#ifdef _DEBUG
-    qDebug() << "Model" << model->objectName() << "is added to model" << this->objectName() << "as child";
+
+#ifdef DEBUG_OUTPUT
+    dout << "Model" << model->objectName() << "is added to model" << objectName() << "as child";
 #endif
+    
     return true;
 }
 
@@ -48,8 +55,8 @@ bool Model::removeChildMesh(QObject * mesh, bool recursive) {
         if (m_childMeshes[i] == mesh) {
             m_childMeshes.erase(m_childMeshes.begin() + i);
             childMeshRemoved(mesh);
-#ifdef _DEBUG
-            qDebug() << "Child mesh" << mesh->objectName() << "is removed from model" << this->objectName();
+#ifdef DEBUG_OUTPUT
+            dout << "Child mesh" << mesh->objectName() << "is removed from model" << objectName();
 #endif
             return true;
         }
@@ -65,8 +72,8 @@ bool Model::removeChildModel(QObject * model, bool recursive) {
         if (m_childModels[i] == model) {
             m_childModels.erase(m_childModels.begin() + i);
             childModelRemoved(model);
-#ifdef _DEBUG
-            qDebug() << "Child model" << model->objectName() << "is removed from model" << this->objectName();
+#ifdef DEBUG_OUTPUT
+            dout << "Child model" << model->objectName() << "is removed from model" << objectName();
 #endif
             return true;
         }
@@ -154,21 +161,13 @@ void Model::resetChildrenTransformation() {
     }
 }
 
-// Protected
-
 void Model::childEvent(QChildEvent * e) {
     if (e->added()) {
-#ifdef _DEBUG
-        qDebug() << "Model" << this->objectName() << "received child event (Type: Added)";
-#endif
         if (Model* model = qobject_cast<Model*>(e->child()))
             addChildModel(model);
         else if (Mesh* mesh = qobject_cast<Mesh*>(e->child()))
             addChildMesh(mesh);
     } else if (e->removed()) {
-#ifdef _DEBUG
-        qDebug() << "Model" << this->objectName() << "received child event (Type: Removed)";
-#endif
         if (removeChildModel(e->child(), false)) return;
         if (removeChildMesh(e->child(), false)) return;
     }

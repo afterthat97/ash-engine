@@ -9,10 +9,10 @@ Scene * SceneLoader::loadFromFile(QString filePath) {
     file.open(QIODevice::ReadOnly);
 
     if (!file.isOpen()) {
-#ifdef _DEBUG
-        qDebug() << "Failed to open file:" << file.errorString();
+#ifdef DEBUG_OUTPUT
+        dout << "Failed to open file:" << file.errorString();
 #endif
-        m_log += "Failed to open file: " + file.errorString();
+        m_log += file.errorString() + "\n";
         return 0;
     }
 
@@ -21,20 +21,20 @@ Scene * SceneLoader::loadFromFile(QString filePath) {
     quint32 magicNumber;
     in >> magicNumber;
     if (magicNumber != 0xA0B0C0D0) {
-#ifdef _DEBUG
-        qDebug() << "Failed to load file" << file.errorString() << ":" << "invalid file format";
+#ifdef DEBUG_OUTPUT
+        dout << "Failed to load file: Invalid File Format";
 #endif
-        m_log += "Invalid File Format";
+        m_log += "Invalid File Format.\n";
         return 0;
     }
 
     quint32 versionNumber;
     in >> versionNumber;
     if (versionNumber > 100) {
-#ifdef _DEBUG
-        qDebug() << "Failed to load file" << file.errorString() << ":" << "version not supported";
+#ifdef DEBUG_OUTPUT
+        dout << "Failed to load file: Version not supported";
 #endif
-        m_log += "Version not supported";
+        m_log += "Version not supported.\n";
         return 0;
     }
 
@@ -48,10 +48,10 @@ Scene * SceneLoader::loadFromFile(QString filePath) {
     int cameraNum;
     in >> cameraNum;
     if (cameraNum != 1) {
-#ifdef _DEBUG
-        qDebug() << "Failed to load file" << file.errorString() << ":" << "unknown error";
+#ifdef DEBUG_OUTPUT
+        dout << "Failed to load file: Unknown error";
 #endif
-        m_log += "Unknown error";
+        m_log += "Unknown error.\n";
         return 0;
     }
 
@@ -115,11 +115,11 @@ Scene * SceneLoader::loadFromFile(QString filePath) {
     return scene;
 }
 
-bool SceneLoader::hasLog() {
+bool SceneLoader::hasErrorLog() {
     return m_log != "";
 }
 
-QString SceneLoader::log() {
+QString SceneLoader::errorLog() {
     QString tmp = m_log;
     m_log = "";
     return tmp;

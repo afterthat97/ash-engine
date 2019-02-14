@@ -13,11 +13,11 @@ OpenGLRenderer::OpenGLRenderer(const OpenGLRenderer &) {
     m_pickingPassFBO = 0;
 }
 
-bool OpenGLRenderer::hasLog() {
+bool OpenGLRenderer::hasErrorLog() {
     return m_log != "";
 }
 
-QString OpenGLRenderer::log() {
+QString OpenGLRenderer::errorLog() {
     QString tmp = m_log;
     m_log = "";
     return tmp;
@@ -119,14 +119,14 @@ QOpenGLShaderProgram * OpenGLRenderer::loadShaderFromFile(
     QFile glslUBOFile(":/resources/shaders/ubo.glsl");
     if (!glslDefineFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         m_log += "Failed to load glsl definitions.";
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << "Failed to load glsl definitions";
 #endif
         return 0;
     }
     if (!glslUBOFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         m_log += "Failed to load glsl UBOs.";
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << "Failed to load glsl UBOs";
 #endif
         return 0;
@@ -137,21 +137,21 @@ QOpenGLShaderProgram * OpenGLRenderer::loadShaderFromFile(
     QFile geometryShaderFile(geometryShaderFilePath);
     if (!vertexShaderFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         m_log += "Failed to open file: " + vertexShaderFilePath;
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << "Failed to open file: " + vertexShaderFilePath;
 #endif
         return 0;
     }
     if (!fragmentShaderFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         m_log += "Failed to open file: " + fragmentShaderFilePath;
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << "Failed to open file: " + fragmentShaderFilePath;
 #endif
         return 0;
     }
     if (geometryShaderFilePath != "" && !geometryShaderFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         m_log += "Failed to open file: " + geometryShaderFilePath;
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << "Failed to open file: " + geometryShaderFilePath;
 #endif
         return 0;
@@ -176,28 +176,28 @@ QOpenGLShaderProgram * OpenGLRenderer::loadShaderFromFile(
     QOpenGLShaderProgram* shader = new QOpenGLShaderProgram(this);
     if (!shader->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderCode)) {
         m_log += "Failed to compile vertex shader: " + shader->log();
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << "Failed to compile vertex shader: " + shader->log();
 #endif
         return 0;
     }
     if (!shader->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderCode)) {
         m_log += "Failed to compile fragment shader:" + shader->log();
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << "Failed to compile fragment shader:" + shader->log();
 #endif
         return 0;
     }
     if (geometryShaderFilePath != "" && !shader->addShaderFromSourceCode(QOpenGLShader::Geometry, geometryShaderCode)) {
         m_log += "Failed to compile geometry shader:" + shader->log();
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << "Failed to compile geometry shader:" + shader->log();
 #endif
         return 0;
     }
     if (!shader->link()) {
         m_log += "Failed to link shaders:" + shader->log();
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
         dout << "Failed to link shaders:" + shader->log();
 #endif
         return 0;

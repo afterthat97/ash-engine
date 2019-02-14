@@ -39,7 +39,6 @@ public:
     TransformGizmo* transformGizmo() const;
     Camera* camera() const;
     const QVector<Gridline*>& gridlines() const;
-    QVector<AbstractLight*> lights() const;
     const QVector<AmbientLight*>& ambientLights() const;
     const QVector<DirectionalLight*>& directionalLights() const;
     const QVector<PointLight*>& pointLights() const;
@@ -47,6 +46,7 @@ public:
     const QVector<Model*>& models() const;
 
 signals:
+    void cameraChanged(Camera* camera);
     void gridlineAdded(Gridline* gridline);
     void gridlineRemoved(QObject* object);
     void lightAdded(AbstractLight* light);

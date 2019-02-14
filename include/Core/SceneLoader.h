@@ -8,8 +8,8 @@ public:
 
     Scene* loadFromFile(QString filePath);
 
-    bool hasLog();
-    QString log();
+    bool hasErrorLog();
+    QString errorLog();
 
 private:
     Camera* loadCamera(QDataStream& in);

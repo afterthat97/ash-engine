@@ -2,7 +2,6 @@
 #include <ModelLoader.h>
 
 SpotLight::SpotLight(QObject * parent): AbstractLight() {
-    m_color = QVector3D(1.0f, 1.0f, 1.0f);
     m_position = QVector3D(0.0f, 0.0f, 0.0f);
     m_direction = QVector3D(0.0f, -1.0f, 0.0f);
     m_innerCutOff = 30.0f;
@@ -12,15 +11,7 @@ SpotLight::SpotLight(QObject * parent): AbstractLight() {
     m_attenuationLinear = 0.014f;
     m_attenuationConstant = 1.0f;
 
-    ModelLoader loader;
-    m_marker = loader.loadMeshFromFile(":/resources/shapes/SpotLight.obj");
-    m_marker->setPosition(this->position());
-    m_marker->setRotation(QQuaternion::rotationTo(QVector3D(0, -1, 0), this->direction()));
-    m_marker->setParent(this); 
-    
-    connect(m_marker, SIGNAL(positionChanged(QVector3D)), this, SLOT(setPosition(QVector3D)));
-    connect(m_marker, SIGNAL(rotationChanged(QVector3D)), this, SLOT(setDirectionFromRotation(QVector3D)));
-
+    initMarker();
     setParent(parent);
 }
 
@@ -34,6 +25,8 @@ SpotLight::SpotLight(QVector3D color, QVector3D position, QVector3D direction, Q
     m_attenuationQuadratic = 0.0007f;
     m_attenuationLinear = 0.014f;
     m_attenuationConstant = 1.0f;
+
+    initMarker();
     setParent(parent);
 }
 
@@ -46,12 +39,14 @@ SpotLight::SpotLight(const SpotLight & light): AbstractLight(light) {
     m_attenuationQuadratic = light.m_attenuationQuadratic;
     m_attenuationLinear = light.m_attenuationLinear;
     m_attenuationConstant = light.m_attenuationConstant;
+
+    initMarker();
 }
 
 SpotLight::~SpotLight() {
     delete m_marker;
-#ifdef _DEBUG
-    qDebug() << "Spot Light" << this->objectName() << "is destroyed";
+#ifdef DEBUG_OUTPUT
+    dout << "Spot Light" << objectName() << "is destroyed";
 #endif
 }
 
@@ -199,4 +194,15 @@ void SpotLight::setAttenuationConstant(float value) {
 
 void SpotLight::setDirectionFromRotation(QVector3D rotation) {
     setDirection(QQuaternion::fromEulerAngles(rotation) * QVector3D(0, -1, 0));
+}
+
+void SpotLight::initMarker() {
+    ModelLoader loader;
+    m_marker = loader.loadMeshFromFile(":/resources/shapes/SpotLight.obj");
+    m_marker->setPosition(this->position());
+    m_marker->setRotation(QQuaternion::rotationTo(QVector3D(0, -1, 0), this->direction()));
+    m_marker->setParent(this);
+
+    connect(m_marker, SIGNAL(positionChanged(QVector3D)), this, SLOT(setPosition(QVector3D)));
+    connect(m_marker, SIGNAL(rotationChanged(QVector3D)), this, SLOT(setDirectionFromRotation(QVector3D)));
 }

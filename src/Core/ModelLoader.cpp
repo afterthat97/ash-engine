@@ -8,23 +8,14 @@
 
 ModelLoader::ModelLoader() {
     m_aiScenePtr = 0;
-    textureLoader = new TextureLoader;
-}
-
-ModelLoader::~ModelLoader() {
-    delete textureLoader;
 }
 
 Model * ModelLoader::loadModelFromFile(QString filePath) {
-#ifdef _DEBUG
-    dout << "Loading" << filePath;
+    if (filePath.length() == 0) {
+        m_log += "File path is empty.";
+#ifdef DEBUG_OUTPUT
+        dout << "Failed to load model: File path is empty";
 #endif
-
-    if (filePath == "") {
-#ifdef _DEBUG
-        dout << "Failed to load from file: Invalid file path";
-#endif
-        m_log += "Invalid file path.";
         return 0;
     }
 
@@ -37,28 +28,38 @@ Model * ModelLoader::loadModelFromFile(QString filePath) {
         aiProcess_OptimizeGraph |
         aiProcess_GenUVCoords;
 
+#ifdef DEBUG_OUTPUT
+    dout << "Loading" << filePath;
+#endif
+
     if (filePath[0] == ':') { // qrc
         QFile file(filePath);
-        file.open(QIODevice::ReadOnly);
+        if (!file.open(QIODevice::ReadOnly)) {
+#ifdef DEBUG_OUTPUT
+            dout << "FATAL ERROR: failed to open internal file" << filePath;
+#endif
+            exit(-1);
+        }
+  
         QByteArray bytes = file.readAll();
         m_aiScenePtr = importer.ReadFileFromMemory(bytes.constData(), bytes.length(), flags);
     } else {
-        filePath.replace('\\', '/');
-        for (int i = 0; i < filePath.length(); i++)
-            if (filePath[i] == '/')
-                m_dir = filePath.mid(0, i);
+        m_dir = QFileInfo(filePath).absoluteDir();
         m_aiScenePtr = importer.ReadFile(filePath.toStdString(), flags);
     }
 
     if (!m_aiScenePtr || !m_aiScenePtr->mRootNode || m_aiScenePtr->mFlags == AI_SCENE_FLAGS_INCOMPLETE) {
-#ifdef _DEBUG
-        qDebug() << "ModelLoader::loadFromFile:" << importer.GetErrorString();
-#endif
         m_log += importer.GetErrorString();
+#ifdef DEBUG_OUTPUT
+        dout << "Failed to load model:" << importer.GetErrorString();
+#endif
         return 0;
     }
 
-    return loadModel(m_aiScenePtr->mRootNode);
+    Model* model = loadModel(m_aiScenePtr->mRootNode);
+    model->setObjectName(QFileInfo(filePath).baseName());
+
+    return model;
 }
 
 Mesh * ModelLoader::loadMeshFromFile(QString filePath) {
@@ -98,12 +99,12 @@ Model * ModelLoader::loadSphereModel() {
     return model;
 }
 
-bool ModelLoader::hasLog() {
-    return m_log.length() != 0 || textureLoader->hasLog();
+bool ModelLoader::hasErrorLog() {
+    return m_log.length() != 0 || textureLoader.hasErrorLog();
 }
 
-QString ModelLoader::log() {
-    QString tmp = m_log + textureLoader->log();
+QString ModelLoader::errorLog() {
+    QString tmp = m_log + textureLoader.errorLog();
     m_log = "";
     return tmp;
 }
@@ -188,16 +189,16 @@ Material * ModelLoader::loadMaterial(const aiMaterial * aiMaterialPtr) {
     if (AI_SUCCESS == aiMaterialPtr->Get(AI_MATKEY_SHININESS, value) && !qFuzzyIsNull(value))
         material->setShininess(value);
     if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiStr)) {
-        QString filePath = m_dir + '/' + QString(aiStr.C_Str()).replace('\\', '/');
-        material->setDiffuseTexture(textureLoader->loadFromFile(Texture::Diffuse, filePath));
+        QString filePath = m_dir.absolutePath() + '/' + QString(aiStr.C_Str()).replace('\\', '/');
+        material->setDiffuseTexture(textureLoader.loadFromFile(Texture::Diffuse, filePath));
     }
     if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_SPECULAR, 0, &aiStr)) {
-        QString filePath = m_dir + '/' + QString(aiStr.C_Str()).replace('\\', '/');
-        material->setSpecularTexture(textureLoader->loadFromFile(Texture::Specular, filePath));
+        QString filePath = m_dir.absolutePath() + '/' + QString(aiStr.C_Str()).replace('\\', '/');
+        material->setSpecularTexture(textureLoader.loadFromFile(Texture::Specular, filePath));
     }
     if (AI_SUCCESS == aiMaterialPtr->GetTexture(aiTextureType_HEIGHT, 0, &aiStr)) {
-        QString filePath = m_dir + '/' + QString(aiStr.C_Str()).replace('\\', '/');
-        material->setBumpTexture(textureLoader->loadFromFile(Texture::Bump, filePath));
+        QString filePath = m_dir.absolutePath() + '/' + QString(aiStr.C_Str()).replace('\\', '/');
+        material->setBumpTexture(textureLoader.loadFromFile(Texture::Bump, filePath));
     }
     return material;
 }

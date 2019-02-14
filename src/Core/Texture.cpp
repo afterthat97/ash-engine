@@ -7,14 +7,14 @@ Texture::Texture(TextureType textureType) : QObject(0) {
 
 Texture::Texture(const Texture & texture) {
     setObjectName(texture.objectName());
-    m_enabled = texture.m_enabled;
+    m_enabled = true;
     m_textureType = texture.m_textureType;
     m_image = texture.m_image;
 }
 
 Texture::~Texture() {
-#ifdef _DEBUG
-    qDebug() << "Texture" << this->objectName() << "is destroyed";
+#ifdef DEBUG_OUTPUT
+    dout << "Texture" << objectName() << "is destroyed";
 #endif
 }
 

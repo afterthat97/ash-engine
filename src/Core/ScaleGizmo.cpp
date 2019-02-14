@@ -23,19 +23,19 @@ ScaleGizmo::ScaleGizmo(QObject* parent): AbstractGizmo(0) {
 ScaleGizmo::~ScaleGizmo() {}
 
 void ScaleGizmo::translate(QVector3D) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to translate a SCALING ONLY gizmo is not allowed.";
 #endif
 }
 
 void ScaleGizmo::rotate(QQuaternion) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to rotate a SCALING ONLY gizmo is not allowed.";
 #endif
 }
 
 void ScaleGizmo::rotate(QVector3D) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to rotate a SCALING ONLY gizmo is not allowed.";
 #endif
 }
@@ -123,19 +123,19 @@ void ScaleGizmo::drag(QPoint from, QPoint to, int scnWidth, int scnHeight, QMatr
 }
 
 void ScaleGizmo::setPosition(QVector3D) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to translate a SCALING ONLY gizmo is not allowed.";
 #endif
 }
 
 void ScaleGizmo::setRotation(QQuaternion) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to rotate a SCALING ONLY gizmo is not allowed.";
 #endif
 }
 
 void ScaleGizmo::setRotation(QVector3D) {
-#ifdef _DEBUG
+#ifdef DEBUG_OUTPUT
     dout << "Trying to rotate a SCALING ONLY gizmo is not allowed.";
 #endif
 }

@@ -45,4 +45,6 @@ protected:
     bool m_enableAttenuation;
     float m_attenuationQuadratic, m_attenuationLinear, m_attenuationConstant;
     Mesh* m_marker;
+
+    void initMarker();
 };

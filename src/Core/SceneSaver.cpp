@@ -13,10 +13,10 @@ bool SceneSaver::saveToFile(QString filePath) {
     file.open(QIODevice::WriteOnly);
 
     if (!file.isOpen()) {
-#ifdef _DEBUG
-        qDebug() << "Failed to open file:" << file.errorString();
+#ifdef DEBUG_OUTPUT
+        dout << "Failed to write to file:" << file.errorString();
 #endif
-        m_log += "Failed to open file: " + file.errorString();
+        m_log += file.errorString();
         return false;
     }
 
@@ -67,11 +67,11 @@ bool SceneSaver::saveToFile(QString filePath) {
     return true;
 }
 
-bool SceneSaver::hasLog() {
+bool SceneSaver::hasErrorLog() {
     return m_log != "";
 }
 
-QString SceneSaver::log() {
+QString SceneSaver::errorLog() {
     QString tmp = m_log;
     m_log = "";
     return tmp;

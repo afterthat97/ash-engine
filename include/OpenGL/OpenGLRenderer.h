@@ -9,8 +9,8 @@ public:
     OpenGLRenderer(QObject* parent = 0);
     OpenGLRenderer(const OpenGLRenderer& renderer);
 
-    bool hasLog();
-    QString log();
+    bool hasErrorLog();
+    QString errorLog();
 
     bool reloadShaders();
     void reloadFrameBuffers();
