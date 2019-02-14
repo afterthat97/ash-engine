@@ -101,7 +101,7 @@ void MainWindow::configMenu() {
     QAction *actionGizmoTypeTranslate = menuGizmo->addAction("Translate", this, SLOT(gizmoTypeTranslate()), QKeySequence(Qt::CTRL + Qt::Key_F1));
     QAction *actionGizmoTypeRotate = menuGizmo->addAction("Rotate", this, SLOT(gizmoTypeRotate()), QKeySequence(Qt::CTRL + Qt::Key_F2));
     QAction *actionGizmoTypeScale = menuGizmo->addAction("Scale", this, SLOT(gizmoTypeScale()), QKeySequence(Qt::CTRL + Qt::Key_F3));
-    
+
     actionGizmoAlwaysOnTop->setCheckable(true);
     actionGizmoTypeTranslate->setCheckable(true);
     actionGizmoTypeRotate->setCheckable(true);
@@ -222,10 +222,10 @@ void MainWindow::fileOpenScene() {
 void MainWindow::fileImportModel() {
     QString filePath = QFileDialog::getOpenFileName(this, "Load Model", "", "All Files (*)");
     if (filePath == 0) return;
-    
+
     ModelLoader loader;
     Model* model = loader.loadModelFromFile(filePath);
-    
+
     if (loader.hasErrorLog()) {
         QString log = loader.errorLog();
         QMessageBox::critical(0, "Error when loading", log);
@@ -253,6 +253,7 @@ void MainWindow::fileExportModel() {
     filter += "Extensible 3D (*.x3d);;";
     filter += "3MF File Format (*.3mf);;";
     QString filePath = QFileDialog::getSaveFileName(this, "Export Model", "", filter);
+    if (filePath == 0) return;
 
     ModelExporter exporter;
     if (Model* model = qobject_cast<Model*>(AbstractEntity::getSelected()))
@@ -281,6 +282,8 @@ void MainWindow::fileSaveScene() {
 void MainWindow::fileSaveAsScene() {
     if (!m_host) return;
     QString filePath = QFileDialog::getSaveFileName(this, "Save Project", "", "Ash Engine Project (*.aeproj)");
+    if (filePath == 0) return;
+
     SceneSaver saver(m_host);
     saver.saveToFile(filePath);
     m_sceneFilePath = filePath;

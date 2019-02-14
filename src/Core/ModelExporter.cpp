@@ -161,21 +161,29 @@ aiMesh * ModelExporter::exportMesh(Mesh * mesh) {
     aiMeshPtr->mTextureCoords[0] = new aiVector3D[aiMeshPtr->mNumVertices];
 
     for (uint32_t i = 0; i < aiMeshPtr->mNumVertices; i++) {
-        aiMeshPtr->mVertices[i] = toAiVector3D(mesh->vertices()[i].position);
-        aiMeshPtr->mNormals[i] = toAiVector3D(mesh->vertices()[i].normal);
-        aiMeshPtr->mTextureCoords[0][i] = toAiVector3D(QVector3D(mesh->vertices()[i].texCoords));
+        Vertex vertex = mesh->globalModelMatrix() * mesh->vertices()[i];
+        aiMeshPtr->mVertices[i] = toAiVector3D(vertex.position);
+        aiMeshPtr->mNormals[i] = toAiVector3D(vertex.normal);
+        aiMeshPtr->mTextureCoords[0][i] = toAiVector3D(QVector3D(vertex.texCoords));
     }
 
-    aiMeshPtr->mNumFaces = (uint32_t) mesh->indices().size() / 3;
+    int indicesEachFace = 0;
+    if (mesh->meshType() == Mesh::Triangle)
+        indicesEachFace = 3;
+    else if (mesh->meshType() == Mesh::Line)
+        indicesEachFace = 2;
+    else
+        indicesEachFace = 1;
+
+    aiMeshPtr->mNumFaces = (uint32_t) mesh->indices().size() / indicesEachFace;
     aiMeshPtr->mFaces = new aiFace[aiMeshPtr->mNumFaces];
 
     for (uint32_t i = 0; i < aiMeshPtr->mNumFaces; i++) {
         aiFace& face = aiMeshPtr->mFaces[i];
-        face.mNumIndices = 3;
-        face.mIndices = new uint32_t[3];
-        face.mIndices[0] = mesh->indices()[i * 3 + 0];
-        face.mIndices[1] = mesh->indices()[i * 3 + 1];
-        face.mIndices[2] = mesh->indices()[i * 3 + 2];
+        face.mNumIndices = indicesEachFace;
+        face.mIndices = new uint32_t[indicesEachFace];
+        for (int j = 0; j < indicesEachFace; j++)
+            face.mIndices[j] = mesh->indices()[i * indicesEachFace + j];
     }
 
     aiMeshPtr->mMaterialIndex = m_tmp_aiMaterials.size();

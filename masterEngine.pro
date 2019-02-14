@@ -5,7 +5,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = masterEngine
 TEMPLATE = app
 VERSION = 1.0.0
-PREVIEW = -rc3
+PREVIEW = -rc4
 DESTDIR = build/bin
 
 CONFIG += warn_on
@@ -76,7 +76,6 @@ HEADERS += \
     include/Core/TranslateGizmo.h \
     include/Core/Vertex.h \
     include/OpenGL/FPSCounter.h \
-    include/OpenGL/OpenGLConfig.h \
     include/OpenGL/OpenGLMaterial.h \
     include/OpenGL/OpenGLMesh.h \
     include/OpenGL/OpenGLRenderer.h \
@@ -127,7 +126,6 @@ SOURCES += \
     src/Core/TranslateGizmo.cpp \
     src/Core/Vertex.cpp \
     src/OpenGL/FPSCounter.cpp \
-    src/OpenGL/OpenGLConfig.cpp \
     src/OpenGL/OpenGLMaterial.cpp \
     src/OpenGL/OpenGLMesh.cpp \
     src/OpenGL/OpenGLRenderer.cpp \
