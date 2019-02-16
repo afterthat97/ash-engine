@@ -13,7 +13,7 @@ Scene::Scene(): QObject(0), m_gizmo(0), m_camera(0) {
 
 // Add & remove members
 
-Scene::Scene(const Scene & scene) {
+Scene::Scene(const Scene & scene): QObject(0) {
     setObjectName(scene.objectName());
 
     m_gizmo = new TransformGizmo(this);

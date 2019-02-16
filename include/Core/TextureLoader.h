@@ -13,5 +13,5 @@ public:
 
 private:
     QString m_log;
-    static QHash<QString, QWeakPointer<Texture>> cache;
+    static QHash<QString, QWeakPointer<Texture> > cache;
 };

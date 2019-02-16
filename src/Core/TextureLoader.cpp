@@ -17,7 +17,7 @@ QSharedPointer<Texture> TextureLoader::loadFromFile(Texture::TextureType texture
 #ifdef DEBUG_OUTPUT
             dout << "Failed to load texture:" << reader.errorString();
 #endif
-            return 0;
+            return QSharedPointer<Texture>();
         }
         
         cache[filePath] = texture;

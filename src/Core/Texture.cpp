@@ -5,7 +5,7 @@ Texture::Texture(TextureType textureType) : QObject(0) {
     m_textureType = textureType;
 }
 
-Texture::Texture(const Texture & texture) {
+Texture::Texture(const Texture & texture): QObject(0) {
     setObjectName(texture.objectName());
     m_enabled = true;
     m_textureType = texture.m_textureType;

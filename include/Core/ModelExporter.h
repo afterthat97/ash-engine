@@ -25,7 +25,7 @@ private:
     aiScene* m_aiScenePtr;
     QVector<aiMesh*> m_tmp_aiMeshes;
     QVector<aiMaterial*> m_tmp_aiMaterials;
-    QVector<QSharedPointer<Texture>> m_tmp_textures;
+    QVector<QSharedPointer<Texture> > m_tmp_textures;
 
     void getAllTextures(Model* model);
     aiNode* exportModel(Model* model);

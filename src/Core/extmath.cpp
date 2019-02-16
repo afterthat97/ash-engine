@@ -1,7 +1,7 @@
 #include <extmath.h>
 
 bool isEqual(float a, float b) {
-    return fabs(a - b) < eps;
+    return qAbs(a - b) < eps;
 }
 
 bool isEqual(QVector3D a, QVector3D b) {
@@ -9,7 +9,7 @@ bool isEqual(QVector3D a, QVector3D b) {
 }
 
 bool isnan(QVector3D a) {
-    return isnan(a[0]) || isnan(a[1]) || isnan(a[2]);
+    return qIsNaN(a[0]) || qIsNaN(a[1]) || qIsNaN(a[2]);
 }
 
 Line operator*(const QMatrix4x4 &m, const Line &l) {

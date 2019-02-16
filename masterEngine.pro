@@ -33,6 +33,10 @@ win32 {
     RC_ICONS = resources/icons/AppIcon.ico
 }
 
+linux {
+    LIBS += -L$$PWD/lib/linux/ -lassimp
+}
+
 CONFIG(debug) {
     DEFINES += DEBUG_OUTPUT
     MOC_DIR = build/tmp/debug

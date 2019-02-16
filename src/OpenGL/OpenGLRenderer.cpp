@@ -7,7 +7,7 @@ OpenGLRenderer::OpenGLRenderer(QObject* parent): QObject(0) {
     setParent(parent);
 }
 
-OpenGLRenderer::OpenGLRenderer(const OpenGLRenderer &) {
+OpenGLRenderer::OpenGLRenderer(const OpenGLRenderer &): QObject(0) {
     m_log = "";
     m_basicShader = m_phongShader = 0;
     m_pickingPassFBO = 0;

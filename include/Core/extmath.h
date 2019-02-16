@@ -1,7 +1,6 @@
 #pragma once
 
-#define _USE_MATH_DEFINES
-#include <cmath>
+#include <QtMath>
 #include <QPoint>
 #include <QVector2D>
 #include <QVector3D>
