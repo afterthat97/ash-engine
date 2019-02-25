@@ -5,13 +5,13 @@
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
     <key>CFBundleDisplayName</key>
-    <string>masterEngine</string>
+    <string>Ash Engine</string>
     <key>CFBundleName</key>
-    <string>masterEngine</string>
+    <string>Ash Engine</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleVersion</key>
-    <string>1.0.0-rc4</string>
+    <string>1.0.0</string>
     <key>CFBundleShortVersionString</key>
     <string>1.0</string>
     <key>CFBundleGetInfoString</key>
@@ -19,11 +19,11 @@
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleExecutable</key>
-    <string>masterEngine</string>
+    <string>AshEngine</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon.icns</string>
     <key>CFBundleIdentifier</key>
-    <string>Alfred.masterEngine</string>
+    <string>Alfred.AshEngine</string>
     <key>NSHumanReadableCopyright</key>
     <string>Copyright © 2017 master Liu. All rights reserved.</string>
 </dict>

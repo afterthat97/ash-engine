@@ -1,8 +1,6 @@
-# masterEngine
+# Ash Engine
 
-masterEngine 是一个跨平台的 3D 引擎，基于 Qt、OpenGL 和 Assimp，仅用于学习用途。
-
-> masterEngine 即将更名为 Ash Engine（灰烬引擎）。
+Ash Engine 是一个跨平台的 3D 引擎，基于 Qt、OpenGL 和 Assimp，仅用于学习用途。
 
 ## 截图
 

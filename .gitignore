@@ -19,22 +19,22 @@ x64
 
 # Qt generated files #
 ######################
-masterEngine.pro.user
+*.pro.user
 GeneratedFiles
 .qmake.stash
 
 # VS project files #
 ####################
-masterEngine.sln
-masterEngine.vcxproj
-masterEngine.vcxproj.filters
-masterEngine.vcxproj.user
-masterEngine_resource.rc
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.rc
 .vs
 
 # Xcode project files #
 #######################
-masterEngine.xcodeproj
+*.xcodeproj
 Info.plist
 
 # Makefile #

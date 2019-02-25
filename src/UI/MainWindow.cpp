@@ -440,7 +440,7 @@ void MainWindow::gizmoTypeScale() {
 }
 
 void MainWindow::helpCheckForUpdates() {
-    QString url = "https://api.github.com/repos/afterthat97/masterEngine/releases/latest";
+    QString url = "https://api.github.com/repos/afterthat97/AshEngine/releases/latest";
     QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
     connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyOfUpdates(QNetworkReply*)));
     networkManager->get(QNetworkRequest(QUrl(url)));
@@ -450,15 +450,15 @@ void MainWindow::helpCheckForUpdates() {
 }
 
 void MainWindow::helpSourceCode() {
-    QDesktopServices::openUrl(QUrl("https://github.com/afterthat97/masterEngine"));
+    QDesktopServices::openUrl(QUrl("https://github.com/afterthat97/AshEngine"));
 }
 
 void MainWindow::helpBugReport() {
-    QDesktopServices::openUrl(QUrl("https://github.com/afterthat97/masterEngine/issues/new?template=bug_report.md"));
+    QDesktopServices::openUrl(QUrl("https://github.com/afterthat97/AshEngine/issues/new?template=bug_report.md"));
 }
 
 void MainWindow::helpFeatureRequest() {
-    QDesktopServices::openUrl(QUrl("https://github.com/afterthat97/masterEngine/issues/new?template=feature_request.md"));
+    QDesktopServices::openUrl(QUrl("https://github.com/afterthat97/AshEngine/issues/new?template=feature_request.md"));
 }
 
 void MainWindow::helpSystemInfo() {
@@ -471,7 +471,7 @@ void MainWindow::helpSystemInfo() {
 
 void MainWindow::helpAbout() {
     QString info = "Current version: " + QString(APP_VERSION) + "\n\n";
-    info += "masterEngine is a cross-platform 3D engine for learning purpose, based on Qt, OpenGL and Assimp.\n\n";
+    info += "Ash Engine is a cross-platform 3D engine for learning purpose, based on Qt, OpenGL and Assimp.\n\n";
     info += "Author: Alfred Liu\n";
     info += "Email:  afterthat97@foxmail.com";
     QMessageBox::about(this, "About", info);

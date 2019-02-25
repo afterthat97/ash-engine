@@ -1,4 +1,5 @@
-product_name=masterEngine
+product_name="AshEngine"
+display_name="Ash Engine"
 release_dir=release
 version_full=$1
 version_main=`echo $version_full | cut -d'-' -f-1 | cut -d'v' -f2-`
@@ -13,18 +14,18 @@ mkdir ${release_dir}/packages/${product_name}/data
 mkdir ${release_dir}/packages/${product_name}/data/scripts
 
 cp ${release_dir}/${product_name}.exe ${release_dir}/packages/${product_name}/data
-cp lib/win/*.dll ${release_dir}/packages/masterEngine/data
+cp lib/win/*.dll ${release_dir}/packages/AshEngine/data
 windeployqt.exe ${release_dir}/packages/${product_name}/data/${product_name}.exe
 
 cat > ${release_dir}/config/config.xml << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
-    <Name>${product_name}</Name>
+    <Name>${display_name}</Name>
     <Version>${version_full}</Version>
-    <Title>${product_name} Installer</Title>
+    <Title>${display_name} Installer</Title>
     <Publisher>Alfred Liu</Publisher>
-    <StartMenuDir>${product_name}</StartMenuDir>
-    <TargetDir>@ApplicationsDirX64@\\${product_name}</TargetDir>
+    <StartMenuDir>${display_name}</StartMenuDir>
+    <TargetDir>@ApplicationsDirX64@\\${display_name}</TargetDir>
 </Installer>
 EOF
 
@@ -58,12 +59,12 @@ Component.prototype.createOperations = function()
     component.createOperations();
     component.addOperation("CreateShortcut",
                            "@TargetDir@/${product_name}.exe",
-                           "@DesktopDir@/${product_name}.lnk",
+                           "@DesktopDir@/${display_name}.lnk",
                            "workingDirectory=@TargetDir@");
 
     component.addOperation("CreateShortcut",
                            "@TargetDir@/${product_name}.exe",
-                           "@StartMenuDir@/${product_name}.lnk",
+                           "@StartMenuDir@/${display_name}.lnk",
                            "workingDirectory=@TargetDir@");
 }
 
@@ -74,7 +75,7 @@ Component.prototype.installerLoaded = function()
 
     targetDirectoryPage = gui.pageWidgetByObjectName("DynamicTargetWidget");
     targetDirectoryPage.windowTitle = "Choose Installation Directory";
-    targetDirectoryPage.description.setText("Please select where the ${product_name} will be installed:");
+    targetDirectoryPage.description.setText("Please select where the ${display_name} will be installed:");
     targetDirectoryPage.targetDirectory.textChanged.connect(this, this.targetDirectoryChanged);
     targetDirectoryPage.targetDirectory.setText(installer.value("TargetDir"));
     targetDirectoryPage.targetChooser.released.connect(this, this.targetChooserClicked);
@@ -113,7 +114,7 @@ EOF
 cat > ${release_dir}/packages/${product_name}/meta/package.xml << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <Package>
-    <DisplayName>${product_name}</DisplayName>
+    <DisplayName>${display_name}</DisplayName>
     <Description>A cross-platform 3D Engine for learning purpose.</Description>
     <Version>${version_main}</Version>
     <ReleaseDate></ReleaseDate>

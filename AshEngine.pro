@@ -2,17 +2,16 @@ QT += core gui network opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = masterEngine
+TARGET = AshEngine
 TEMPLATE = app
 VERSION = 1.0.0
-PREVIEW = -rc4
 DESTDIR = build/bin
 
 CONFIG += warn_on
 
 DEFINES += \
     QT_DEPRECATED_WARNINGS \
-    APP_VERSION=\\\"v$${VERSION}$${PREVIEW}\\\"
+    APP_VERSION=\\\"v$${VERSION}\\\"
 
 INCLUDEPATH += \
     include/Core \
@@ -152,4 +151,4 @@ SOURCES += \
     src/UI/SpotLightProperty.cpp \
     src/UI/Vector3DEdit.cpp \
     src/UI/Vector3DEditSlider.cpp \
-    src/masterEngine.cpp
+    src/AshEngine.cpp
