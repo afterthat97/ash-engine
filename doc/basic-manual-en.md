@@ -64,7 +64,7 @@ The Ash Engine supports four types of light sources, and up to eight for each ty
 
 ### Attenuation
 
-Point lights and spot lights have attenuation properties that allow for a more realistic simulation of real-world light sources. Ash Engine uses quadratic attenuation with the following formula:
+Point lights and spotlights have attenuation properties that allow for a more realistic simulation of real-world light sources. Ash Engine uses quadratic attenuation with the following formula:
 
 <img src="https://latex.codecogs.com/svg.latex?F_{att} = \frac{1.0}{K_c + K_l * d + K_q * d^2}"/>
 

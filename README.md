@@ -17,9 +17,9 @@ Ash Engine is a cross-platform 3D engine (only for learning purpose) based on Qt
 * Readable, clear code structure which is easy to expand.
 * Supports reading and saving 3D model files in 40+ formats, including FBX, DXF, Collada, Obj, X, PLY, 3DS, etc.
 * Supports reading and saving the entire project (using the file type `*.aeproj` defined by this engine)
-* Use tree structure to describe the scene, support basic transformation (translation, rotation, scaling) on​ model and mesh.
+* Uses tree structure to describe the scene, supports basic transformation (translation, rotation, scaling) on model and mesh.
 * Supports diffuse maps, specular maps, and normal maps.
-* Supports ambient light, directional light, spot light, and spotlight. You can create not more than 8 lights of each type. For each light, you can adjust its color, position, and many other properties.
+* Supports ambient light, directional light, point light, and spotlight. You can create not more than 8 lights of each type. For each light, you can adjust its color, position, and many other properties.
 
 ## User Manual
 
