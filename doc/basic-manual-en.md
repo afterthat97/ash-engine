@@ -66,7 +66,7 @@ The Ash Engine supports four types of light sources, and up to eight for each ty
 
 Point lights and spotlights have attenuation properties that allow for a more realistic simulation of real-world light sources. Ash Engine uses quadratic attenuation with the following formula:
 
-<img src="https://latex.codecogs.com/svg.latex?F_{att} = \frac{1.0}{K_c + K_l * d + K_q * d^2}"/>
+<img src="https://latex.codecogs.com/png.latex?F_{att} = \frac{1.0}{K_c + K_l * d + K_q * d^2}"/>
 
 `d` represents the distance of the object from the light source. `Kc`, `Kl`, `Kq` are constant terms, linear terms, and quadratic terms, respectively:
 
