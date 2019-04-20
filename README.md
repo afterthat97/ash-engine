@@ -24,11 +24,13 @@ Ash Engine is a cross-platform 3D engine (only for learning purpose) based on Qt
 ## User Manual
 
 [Basic User Manual (English)](doc/basic-manual-en.md)
+
 [Basic User Manual (Chinese)](doc/basic-manual-cn.md)
 
 ## Build
 
 [Build Instructions (English)](doc/build-en.md)
+
 [Build Instructions (Chinese)](doc/build-cn.md)
 
 ## Future Work
