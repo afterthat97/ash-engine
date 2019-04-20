@@ -184,7 +184,7 @@ void MainWindow::fileNewScene() {
 
     m_host = new Scene;
     m_host->addGridline(new Gridline);
-    m_host->addDirectionalLight(new DirectionalLight);
+    m_host->addDirectionalLight(new DirectionalLight(QVector3D(1, 1, 1), QVector3D(-2, -4, -3)));
     m_host->addModel(ModelLoader::loadCubeModel());
 
     m_sceneTreeWidget->setScene(m_host);

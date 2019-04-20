@@ -1,67 +1,53 @@
 # Ash Engine
 
-Ash Engine 是一个跨平台的 3D 引擎，基于 Qt、OpenGL 和 Assimp，仅用于学习用途。
+Ash Engine is a cross-platform 3D engine (only for learning purpose) based on Qt, OpenGL and Assimp.
 
-## 截图
+## Screenshot
 
 ![](screenshots/screenshot0.jpg)
 
-## 先决条件
+## Requirements
 
-* 需要 macOS 10.12+ 或 Windows x64 操作系统。
-* 需要一张支持 OpenGL 3.3 或以上版本的图形卡，并安装好最新的驱动程序。
+* Windows 7 x64 or newer, macOS 10.12 or newer, or Ubuntu 16.04
+* A graphics card that supports OpenGL 3.3+
 
-## 特点
+## Features
 
-* 友好、简洁、方便的用户界面，易于扩展。
-* 支持读取 40 多种格式的 3D 模型文件，包括 FBX, DXF, Collada, Obj, X, PLY, 3DS 等。
-* 支持读取和保存整个场景工程（使用本引擎定义的文件类型 `*.aeproj`）
-* 使用树结构来描述场景，支持对模型（Model）和网格（Mesh）进行基本变换（平移、旋转、缩放）。
-* 支持漫反射贴图、镜面反射贴图和法线贴图。
-* 支持环境光、方向光、点光、聚光。每种光源类型支持最多 8 个，可对光源的颜色、位置、衰减等进行调整。
+* Friendly, simple and convenient GUI.
+* Readable, clear code structure which is easy to expand.
+* Supports reading and saving 3D model files in 40+ formats, including FBX, DXF, Collada, Obj, X, PLY, 3DS, etc.
+* Supports reading and saving the entire project (using the file type `*.aeproj` defined by this engine)
+* Use tree structure to describe the scene, support basic transformation (translation, rotation, scaling) on​ model and mesh.
+* Supports diffuse maps, specular maps, and normal maps.
+* Supports ambient light, directional light, spot light, and spotlight. You can create not more than 8 lights of each type. For each light, you can adjust its color, position, and many other properties.
 
-## 用法
+## User Manual
 
-### 打开场景
+[Basic User Manual (English)](doc/basic-manual-en.md)
+[Basic User Manual (Chinese)](doc/basic-manual-cn.md)
 
-在菜单中选择 `File` --> `Open Scene`。
+## Build
 
-### 保存场景
+[Build Instructions (English)](doc/build-en.md)
+[Build Instructions (Chinese)](doc/build-cn.md)
 
-在菜单中选择 `File` --> `Save Scene` 或 `Save Scene As`。
+## Future Work
 
-### 导入模型
+### Rendering
 
-在菜单中选择 `File` --> `Import Model`，或者直接将模型文件拖放到窗口。
+* DirectX 12
+* Real-time shadow based on depth map
+* Real-time ray tracing using DirectX 12 DXR
+* Deferred rendering
+* SSAO
+* Displacement mapping
+* PBR
 
-### 导出模型
+### Others
 
-选中一个网格（Mesh）或模型（Model），在菜单中选择 `File` --> `Export Model`。
+* More detailed documents for both English and Chinese
+* Implement unit tests using Google Test
 
-### 移动
+Welcome to contact or join me!
 
-* 使用 `W` 和 `S` 键来前进和后退
-* 使用 `A` 和 `D` 键来左移或右移
-* 使用 `E` 和 `Q` 键来上升或下降
-* 使用 `Shift` 键来加速移动（5 倍速度）
-* 按下鼠标左键并移动鼠标来调整视角
-
-### 创建
-
-在 `Create` 菜单中可以创建网格线、光源和基本体。
-
-### 网格(Mesh)操作
-
-在 `Mesh` 菜单中，支持给选中的网格赋予新材质、反转法线等。
-
-### 三维小控件(Gizmo)
-
-三维小控件可以帮助用户沿三维轴或平面移动、旋转或缩放一组对象，本程序支持的三维小控件包括：
-
-* 三维移动小控件：沿轴或平面重新定位选定的对象
-* 三维旋转小控件：绕指定轴旋转选定的对象
-* 三维缩放小控件：沿指定平面或轴或沿全部三条轴统一缩放选定的对象
-
-## 文档
-
-文档将在 Wiki 中不定期更新。
+Email: afterthat97@gmail.com
