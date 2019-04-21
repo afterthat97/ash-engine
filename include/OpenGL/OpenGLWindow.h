@@ -17,7 +17,7 @@ public:
 
     void setScene(OpenGLScene* openGLScene);
     void setRenderer(OpenGLRenderer* renderer);
-    void setCaptureUserInput(bool captureUserInput);
+    void setEnableMousePicking(bool enabled);
 
 protected:
     void initializeGL() override;
@@ -37,7 +37,7 @@ private:
     QHash<int, bool> m_keyPressed;
     QPoint m_lastCursorPos;
     QTime m_lastMousePressTime;
-    bool m_captureUserInput;
+    bool m_enableMousePicking;
     OpenGLScene* m_openGLScene;
     OpenGLRenderer * m_renderer;
     FPSCounter* m_fpsCounter;

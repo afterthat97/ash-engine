@@ -2,6 +2,7 @@
 
 OpenGLTexture::OpenGLTexture(Texture * texture) {
     m_host = texture;
+    m_openGLTexture = 0;
 
     if (m_host->property("OpenGLTexturePointer").isValid()) {
         if (log_level >= LOG_LEVEL_ERROR)
@@ -10,10 +11,6 @@ OpenGLTexture::OpenGLTexture(Texture * texture) {
     }
     m_host->setProperty("OpenGLTexturePointer", QVariant::fromValue(this));
 
-    m_openGLTexture = new QOpenGLTexture(texture->image().mirrored());
-    m_openGLTexture->setMinificationFilter(QOpenGLTexture::Nearest);
-    m_openGLTexture->setMagnificationFilter(QOpenGLTexture::Linear);
-    m_openGLTexture->setWrapMode(QOpenGLTexture::Repeat);
     connect(m_host, SIGNAL(imageChanged(QImage)), this, SLOT(imageChanged(QImage)));
     connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
 }
@@ -23,7 +20,15 @@ OpenGLTexture::~OpenGLTexture() {
     m_host->setProperty("OpenGLTexturePointer", QVariant());
 }
 
+void OpenGLTexture::create() {
+    m_openGLTexture = new QOpenGLTexture(m_host->image().mirrored());
+    m_openGLTexture->setMinificationFilter(QOpenGLTexture::Nearest);
+    m_openGLTexture->setMagnificationFilter(QOpenGLTexture::Linear);
+    m_openGLTexture->setWrapMode(QOpenGLTexture::Repeat);
+}
+
 bool OpenGLTexture::bind() {
+    if (!m_openGLTexture) create();
     if (!m_host->enabled()) return false;
     QOpenGLFunctions * glFuncs = QOpenGLContext::currentContext()->functions();
     if (m_host->textureType() == Texture::Diffuse) { // Diffuse map
@@ -54,11 +59,13 @@ void OpenGLTexture::release() {
 }
 
 void OpenGLTexture::imageChanged(const QImage& image) {
-    delete m_openGLTexture;
-    m_openGLTexture = new QOpenGLTexture(image);
-    m_openGLTexture->setMinificationFilter(QOpenGLTexture::Nearest);
-    m_openGLTexture->setMagnificationFilter(QOpenGLTexture::Linear);
-    m_openGLTexture->setWrapMode(QOpenGLTexture::Repeat);
+    if (m_openGLTexture) {
+        delete m_openGLTexture;
+        m_openGLTexture = new QOpenGLTexture(image);
+        m_openGLTexture->setMinificationFilter(QOpenGLTexture::Nearest);
+        m_openGLTexture->setMagnificationFilter(QOpenGLTexture::Linear);
+        m_openGLTexture->setWrapMode(QOpenGLTexture::Repeat);
+    }
 }
 
 void OpenGLTexture::hostDestroyed(QObject *) {

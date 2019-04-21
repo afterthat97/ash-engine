@@ -21,7 +21,10 @@ OpenGLMesh::OpenGLMesh(Mesh * mesh, QObject* parent): QObject(0) {
     m_vao = 0;
     m_vbo = 0;
     m_ebo = 0;
-    m_openGLMaterial = new OpenGLMaterial(m_host->material());
+    if (m_host->material())
+        m_openGLMaterial = new OpenGLMaterial(m_host->material());
+    else
+        m_openGLMaterial = 0;
 
     connect(m_host, SIGNAL(materialChanged(Material*)), this, SLOT(materialChanged(Material*)));
     connect(m_host, SIGNAL(geometryChanged(QVector<Vertex>, QVector<uint32_t>)), this, SLOT(geometryChanged(QVector<Vertex>, QVector<uint32_t>)));

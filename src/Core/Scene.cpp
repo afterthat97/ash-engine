@@ -252,7 +252,7 @@ bool Scene::removeModel(QObject * model, bool recursive) {
 
 void Scene::dumpObjectInfo(int l) {
     qDebug().nospace() << tab(l) << "Scene: " << objectName();
-    qDebug("%s%d gridline(s), %d ambient light(s), %d directional light(s), %d point light(s), %d spot lights(s), %d model(s)",
+    qDebug("%s%d gridline(s), %d ambient light(s), %d directional light(s), %d point light(s), %d spotlights(s), %d model(s)",
            tab(l),
            m_gridlines.size(),
            m_ambientLights.size(),

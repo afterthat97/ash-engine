@@ -244,8 +244,9 @@ void SpotLight::initMarker() {
     ModelLoader loader;
     m_marker = loader.loadMeshFromFile(":/resources/shapes/SpotLight.obj");
     m_marker->setPosition(this->position());
-    m_marker->setObjectName("Spotlight Marker");
+    m_marker->material()->setColor(this->color());
     m_marker->setRotation(QQuaternion::rotationTo(QVector3D(0, -1, 0), this->direction()));
+    m_marker->setObjectName("Spotlight Marker");
     m_marker->setParent(this);
 
     log_level = tmp_log_level;

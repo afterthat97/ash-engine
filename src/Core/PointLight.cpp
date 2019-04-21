@@ -178,6 +178,7 @@ void PointLight::initMarker() {
 
     m_marker = loader.loadMeshFromFile(":/resources/shapes/PointLight.obj");
     m_marker->setPosition(this->position());
+    m_marker->material()->setColor(this->color());
     m_marker->setObjectName("Point Light Marker");
     m_marker->setParent(this);
 

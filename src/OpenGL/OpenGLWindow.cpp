@@ -3,7 +3,7 @@
 
 OpenGLWindow::OpenGLWindow() {
     m_lastCursorPos = QCursor::pos();
-    m_captureUserInput = true;
+    m_enableMousePicking = true;
     m_renderer = 0;
     m_openGLScene = 0;
     m_fpsCounter = new FPSCounter(this);
@@ -12,7 +12,7 @@ OpenGLWindow::OpenGLWindow() {
 
 OpenGLWindow::OpenGLWindow(OpenGLScene * openGLScene, OpenGLRenderer * renderer) {
     m_lastCursorPos = QCursor::pos();
-    m_captureUserInput = true;
+    m_enableMousePicking = true;
     m_renderer = renderer;
     m_openGLScene = openGLScene;
     m_fpsCounter = new FPSCounter(this);
@@ -52,8 +52,8 @@ void OpenGLWindow::setRenderer(OpenGLRenderer * renderer) {
     }
 }
 
-void OpenGLWindow::setCaptureUserInput(bool captureUserInput) {
-    m_captureUserInput = captureUserInput;
+void OpenGLWindow::setEnableMousePicking(bool enabled) {
+    m_enableMousePicking = enabled;
 }
 
 void OpenGLWindow::initializeGL() {
@@ -79,15 +79,14 @@ void OpenGLWindow::paintGL() {
     glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if (m_captureUserInput)
-        processUserInput();
+    processUserInput();
 
     if (m_renderer && m_openGLScene && m_openGLScene->host()->camera()) {
         m_openGLScene->host()->camera()->setAspectRatio(float(width()) / height());
         m_openGLScene->commitCameraInfo();
         m_openGLScene->commitLightInfo();
 
-        if (!m_keyPressed[Qt::LeftButton]) {
+        if (!m_keyPressed[Qt::LeftButton] && m_enableMousePicking) {
             uint32_t pickingID = m_renderer->pickingPass(m_openGLScene, mapFromGlobal(QCursor::pos()) * devicePixelRatioF());
             OpenGLMesh* pickedOpenGLMesh = m_openGLScene->pick(pickingID);
             if (pickedOpenGLMesh)
@@ -180,7 +179,7 @@ void OpenGLWindow::mouseReleaseEvent(QMouseEvent * event) {
 }
 
 void OpenGLWindow::wheelEvent(QWheelEvent * event) {
-    if (!m_captureUserInput || !m_openGLScene) return;
+    if (!m_openGLScene) return;
 
     if (!event->pixelDelta().isNull())
         m_openGLScene->host()->camera()->moveForward(event->pixelDelta().y());

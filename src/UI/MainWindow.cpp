@@ -1,17 +1,4 @@
 #include <MainWindow.h>
-#include <CameraProperty.h>
-#include <GridlineProperty.h>
-#include <AmbientLightProperty.h>
-#include <DirectionalLightProperty.h>
-#include <PointLightProperty.h>
-#include <SpotLightProperty.h>
-#include <ModelProperty.h>
-#include <MeshProperty.h>
-#include <MaterialProperty.h>
-#include <ModelLoader.h>
-#include <ModelExporter.h>
-#include <SceneLoader.h>
-#include <SceneSaver.h>
 
 MainWindow::MainWindow(QWidget * parent): QMainWindow(parent), m_host(0) {
     m_copyedObject.clear();
