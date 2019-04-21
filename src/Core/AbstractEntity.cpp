@@ -14,18 +14,19 @@ AbstractEntity::AbstractEntity(QObject * parent): QObject(0) {
     m_position = QVector3D(0, 0, 0);
     m_rotation = QVector3D(0, 0, 0);
     m_scaling = QVector3D(1, 1, 1);
+    setObjectName("Untitled Entity");
     setParent(parent);
 }
 
-AbstractEntity::AbstractEntity(const AbstractEntity & abstractObject3D): QObject(0) {
-    setObjectName(abstractObject3D.objectName());
+AbstractEntity::AbstractEntity(const AbstractEntity & another): QObject(0) {
     m_visible = true;
     m_highlighted = false;
     m_selected = false;
-    m_wireFrameMode = abstractObject3D.m_wireFrameMode;
-    m_position = abstractObject3D.m_position;
-    m_rotation = abstractObject3D.m_rotation;
-    m_scaling = abstractObject3D.m_scaling;
+    m_wireFrameMode = another.m_wireFrameMode;
+    m_position = another.m_position;
+    m_rotation = another.m_rotation;
+    m_scaling = another.m_scaling;
+    setObjectName(another.objectName());
 }
 
 AbstractEntity::~AbstractEntity() {
@@ -117,6 +118,8 @@ AbstractEntity * AbstractEntity::getSelected() {
 void AbstractEntity::setVisible(bool visible) {
     if (m_visible != visible) {
         m_visible = visible;
+        if (log_level > LOG_LEVEL_INFO)
+            dout << this->objectName() << "is" << (visible ? "visible" : "invisible");
         visibleChanged(m_visible);
     }
 }
@@ -131,6 +134,9 @@ void AbstractEntity::setHighlighted(bool highlighted) {
         m_highlightedObject = this;
     } else if (m_highlightedObject == this)
         m_highlightedObject = 0;
+
+    if (log_level >= LOG_LEVEL_INFO && highlighted)
+        dout << this->objectName() << "is highlighted";
 
     m_highlighted = highlighted;
     highlightedChanged(m_highlighted);
@@ -147,9 +153,8 @@ void AbstractEntity::setSelected(bool selected) {
     } else if (m_selectedObject == this)
         m_selectedObject = 0;
 
-#ifdef DEBUG_OUTPUT
-    dout << this->objectName() << "is" << (selected ? "selected" : "deselected");
-#endif
+    if (log_level >= LOG_LEVEL_INFO && selected)
+        dout << this->objectName() << "is selected";
 
     m_selected = selected;
     selectedChanged(m_selected);
@@ -158,20 +163,23 @@ void AbstractEntity::setSelected(bool selected) {
 void AbstractEntity::setWireFrameMode(bool enabled) {
     if (m_wireFrameMode != enabled) {
         m_wireFrameMode = enabled;
+        if (log_level > LOG_LEVEL_INFO)
+            dout << "Wireframe mode of " << this->objectName() << "is" << (enabled ? "enabled" : "disabled");
         wireFrameModeChanged(m_wireFrameMode);
     }
 }
 
 void AbstractEntity::setPosition(QVector3D position) {
     if (isnan(position)) {
-#ifdef DEBUG_OUTPUT
-        dout << "Failed to set position: NaN detected";
-#endif
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << "Failed to set position: NaN detected";
         return;
     }
 
     if (!isEqual(m_position, position)) {
         m_position = position;
+        if (log_level >= LOG_LEVEL_INFO)
+            dout << "The position of" << this->objectName() << "is set to" << position;
         positionChanged(m_position);
     }
 }
@@ -182,28 +190,30 @@ void AbstractEntity::setRotation(QQuaternion rotation) {
 
 void AbstractEntity::setRotation(QVector3D rotation) {
     if (isnan(rotation)) {
-#ifdef DEBUG_OUTPUT
-        dout << "Failed to set rotation: NaN detected";
-#endif
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << "Failed to set rotation: NaN detected";
         return;
     }
 
     if (!isEqual(m_rotation, rotation)) {
         m_rotation = rotation;
+        if (log_level >= LOG_LEVEL_INFO)
+            dout << "The rotation of" << this->objectName() << "is set to" << rotation;
         rotationChanged(m_rotation);
     }
 }
 
 void AbstractEntity::setScaling(QVector3D scaling) {
     if (isnan(scaling)) {
-#ifdef DEBUG_OUTPUT
-        dout << "Failed to set scaling: NaN detected";
-#endif
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << "Failed to set scaling: NaN detected";
         return;
     }
 
     if (!isEqual(m_scaling, scaling)) {
         m_scaling = scaling;
+        if (log_level >= LOG_LEVEL_INFO)
+            dout << "The scaling of" << this->objectName() << "is set to" << scaling;
         scalingChanged(m_scaling);
     }
 }

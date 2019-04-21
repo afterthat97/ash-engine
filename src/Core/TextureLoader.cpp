@@ -4,9 +4,8 @@ QHash<QString, QWeakPointer<Texture>> TextureLoader::cache;
 
 QSharedPointer<Texture> TextureLoader::loadFromFile(Texture::TextureType textureType, QString filePath) {
     if (cache[filePath].isNull()) {
-#ifdef DEBUG_OUTPUT
-        dout << "Loading" << filePath;
-#endif
+        if (log_level >= LOG_LEVEL_INFO)
+            dout << "Loading" << filePath;
         QSharedPointer<Texture> texture(new Texture(textureType));
         QImageReader reader(filePath);
         texture->setObjectName(filePath);
@@ -14,18 +13,16 @@ QSharedPointer<Texture> TextureLoader::loadFromFile(Texture::TextureType texture
 
         if (texture->image().isNull()) {
             m_log += "Failed to load texture " + filePath + ": " + reader.errorString() + '\n';
-#ifdef DEBUG_OUTPUT
-            dout << "Failed to load texture:" << reader.errorString();
-#endif
+            if (log_level >= LOG_LEVEL_ERROR)
+                dout << "Failed to load texture:" << reader.errorString();
             return QSharedPointer<Texture>();
         }
-        
+
         cache[filePath] = texture;
         return texture;
     }
-#ifdef DEBUG_OUTPUT
-    dout << filePath << "found in cache";
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << filePath << "found in cache";
     return cache[filePath];
 }
 

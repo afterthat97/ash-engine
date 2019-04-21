@@ -73,3 +73,10 @@
 
 #define dout ((qDebug().nospace() << FUNCNAME << "(" << FILENAME << ":" << LINENO << "):").space())
 #define tab(n) (QByteArray((n) * 4, ' ').data())
+
+#define NO_LOG 0
+#define LOG_LEVEL_ERROR 1
+#define LOG_LEVEL_WARNING 2
+#define LOG_LEVEL_INFO 3
+
+extern int log_level;

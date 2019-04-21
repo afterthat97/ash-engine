@@ -5,6 +5,9 @@ ScaleGizmo::ScaleGizmo(QObject* parent): AbstractGizmo(0) {
     setObjectName("Scaling Gizmo");
     m_markers.resize(3);
 
+    int tmp_log_level = log_level;
+    log_level = LOG_LEVEL_WARNING;
+
     ModelLoader loader;
     m_markers[0] = loader.loadMeshFromFile(":/resources/shapes/ScaleX.obj");
     m_markers[1] = loader.loadMeshFromFile(":/resources/shapes/ScaleY.obj");
@@ -14,8 +17,12 @@ ScaleGizmo::ScaleGizmo(QObject* parent): AbstractGizmo(0) {
     m_markers[1]->material()->setColor(QVector3D(0, 1, 0));
     m_markers[2]->material()->setColor(QVector3D(0, 0, 1));
 
-    for (int i = 0; i < m_markers.size(); i++)
+    for (int i = 0; i < m_markers.size(); i++) {
+        m_markers[i]->setObjectName("Gizmo Marker");
         m_markers[i]->setParent(this);
+    }
+
+    log_level = tmp_log_level;
 
     setParent(parent);
 }
@@ -23,21 +30,18 @@ ScaleGizmo::ScaleGizmo(QObject* parent): AbstractGizmo(0) {
 ScaleGizmo::~ScaleGizmo() {}
 
 void ScaleGizmo::translate(QVector3D) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to translate a SCALING ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Translating a SCALING ONLY gizmo is not allowed.";
 }
 
 void ScaleGizmo::rotate(QQuaternion) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to rotate a SCALING ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Rotating a SCALING ONLY gizmo is not allowed.";
 }
 
 void ScaleGizmo::rotate(QVector3D) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to rotate a SCALING ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Rotating a SCALING ONLY gizmo is not allowed.";
 }
 
 void ScaleGizmo::scale(QVector3D scaling) {
@@ -123,21 +127,18 @@ void ScaleGizmo::drag(QPoint from, QPoint to, int scnWidth, int scnHeight, QMatr
 }
 
 void ScaleGizmo::setPosition(QVector3D) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to translate a SCALING ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Setting the position of a SCALING ONLY gizmo is not allowed";
 }
 
 void ScaleGizmo::setRotation(QQuaternion) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to rotate a SCALING ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Setting the rotation of a SCALING ONLY gizmo is not allowed";
 }
 
 void ScaleGizmo::setRotation(QVector3D) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to rotate a SCALING ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Setting the rotation of a SCALING ONLY gizmo is not allowed";
 }
 
 void ScaleGizmo::setScaling(QVector3D scaling) {

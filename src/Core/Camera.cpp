@@ -1,12 +1,19 @@
 #include <Camera.h>
 
 Camera::Camera(QObject* parent): QObject(0) {
-    reset();
+    int tmp_log_level = log_level;
+    log_level = LOG_LEVEL_WARNING;
+
     setObjectName("Camera");
+    reset();
+
+    log_level = tmp_log_level;
+
     setParent(parent);
 }
 
 Camera::Camera(QVector3D position, QVector3D direction, QObject* parent): QObject(0) {
+    setObjectName("Camera");
     setMovingSpeed(0.1f);
     setFieldOfView(45.0f);
     setNearPlane(0.1f);
@@ -25,12 +32,12 @@ Camera::Camera(const Camera & camera): QObject(0) {
     m_position = camera.m_position;
     m_direction = camera.m_direction;
     m_up = camera.m_up;
+    setObjectName(camera.objectName());
 }
 
 Camera::~Camera() {
-#ifdef DEBUG_OUTPUT
-    dout << "Camera" << objectName() << "is destroyed";
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Camera" << this->objectName() << "is destroyed";
 }
 
 void Camera::moveForward(float shift) {
@@ -127,6 +134,8 @@ void Camera::reset() {
     setFarPlane(100000.0f);
     setPosition(QVector3D(40, 40, 40));
     setDirection(QVector3D(-1, -1, -1));
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << this->objectName() << "is reset";
 }
 
 void Camera::setMovingSpeed(float movingSpeed) {

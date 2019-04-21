@@ -26,10 +26,7 @@ struct PointLight { // struct size: 48
     //                           // base align  // aligned offset
     vec4 color;                  // 16          // 0
     vec4 pos;                    // 16          // 16
-    float enableAttenuation;     // 4           // 32
-    float attenuationQuadratic;  // 4           // 36
-    float attenuationLinear;     // 4           // 40
-    float attenuationConstant;   // 4           // 44
+    vec4 attenuation;            // 16          // 32
 };
 
 struct SpotLight { // struct size: 80
@@ -37,12 +34,6 @@ struct SpotLight { // struct size: 80
     vec4 color;                  // 16          // 0
     vec4 pos;                    // 16          // 16
     vec4 direction;              // 16          // 32
-    float innerCutOff;           // 4           // 48
-    float outerCutOff;           // 4           // 52
-    float enableAttenuation;     // 4           // 56
-    float attenuationQuadratic;  // 4           // 60
-    float attenuationLinear;     // 4           // 64
-    float attenuationConstant;   // 4           // 68
-    float padding1;              // 4           // 72
-    float padding2;              // 4           // 76
+    vec4 attenuation;            // 16          // 48
+    vec4 cutOff;                 // 16          // 64
 };

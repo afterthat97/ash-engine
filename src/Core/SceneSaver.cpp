@@ -13,9 +13,8 @@ bool SceneSaver::saveToFile(QString filePath) {
     file.open(QIODevice::WriteOnly);
 
     if (!file.isOpen()) {
-#ifdef DEBUG_OUTPUT
-        dout << "Failed to write to file:" << file.errorString();
-#endif
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << "Failed to write to file:" << file.errorString();
         m_log += file.errorString();
         return false;
     }

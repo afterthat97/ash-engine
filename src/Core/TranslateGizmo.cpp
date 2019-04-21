@@ -5,6 +5,9 @@ TranslateGizmo::TranslateGizmo(QObject* parent): AbstractGizmo(0) {
     setObjectName("Translation Gizmo");
     m_markers.resize(3);
 
+    int tmp_log_level = log_level;
+    log_level = LOG_LEVEL_WARNING;
+
     ModelLoader loader;
     m_markers[0] = loader.loadMeshFromFile(":/resources/shapes/TransX.obj");
     m_markers[1] = loader.loadMeshFromFile(":/resources/shapes/TransY.obj");
@@ -14,8 +17,12 @@ TranslateGizmo::TranslateGizmo(QObject* parent): AbstractGizmo(0) {
     m_markers[1]->material()->setColor(QVector3D(0, 1, 0));
     m_markers[2]->material()->setColor(QVector3D(0, 0, 1));
 
-    for (int i = 0; i < m_markers.size(); i++)
+    for (int i = 0; i < m_markers.size(); i++) {
+        m_markers[i]->setObjectName("Gizmo Marker");
         m_markers[i]->setParent(this);
+    }
+
+    log_level = tmp_log_level;
 
     setParent(parent);
 }
@@ -28,21 +35,18 @@ void TranslateGizmo::translate(QVector3D delta) {
 }
 
 void TranslateGizmo::rotate(QQuaternion) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to rotate a TRANSLATION ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Rotating a TRANSLATION ONLY gizmo is not allowed.";
 }
 
 void TranslateGizmo::rotate(QVector3D) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to rotate a TRANSLATION ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Rotating a TRANSLATION ONLY gizmo is not allowed.";
 }
 
 void TranslateGizmo::scale(QVector3D) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to scale a TRANSLATION ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Scaling a TRANSLATION ONLY gizmo is not allowed.";
 }
 
 QVector3D TranslateGizmo::position() const {
@@ -122,19 +126,16 @@ void TranslateGizmo::setPosition(QVector3D position) {
 }
 
 void TranslateGizmo::setRotation(QQuaternion) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to rotate a TRANSLATION ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Setting the rotation of a TRANSLATION ONLY gizmo is not allowed";
 }
 
 void TranslateGizmo::setRotation(QVector3D) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to rotate a TRANSLATION ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Setting the rotation of a TRANSLATION ONLY gizmo is not allowed";
 }
 
 void TranslateGizmo::setScaling(QVector3D) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to scale a TRANSLATION ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Setting the scaling of a TRANSLATION ONLY gizmo is not allowed";
 }

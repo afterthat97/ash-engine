@@ -14,7 +14,7 @@ public:
 
     void create();
     void commit();
-    void render();
+    void render(bool pickingPass = false);
     void destroy();
 
     void setSizeFixed(bool sizeFixed);

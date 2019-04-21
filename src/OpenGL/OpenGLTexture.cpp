@@ -4,7 +4,8 @@ OpenGLTexture::OpenGLTexture(Texture * texture) {
     m_host = texture;
 
     if (m_host->property("OpenGLTexturePointer").isValid()) {
-        qFatal("Multiple OpenGLTexture instances bound to a single core Texture!");
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << "FATAL: Multiple OpenGLTexture instances are bound to one texture";
         exit(-1);
     }
     m_host->setProperty("OpenGLTexturePointer", QVariant::fromValue(this));

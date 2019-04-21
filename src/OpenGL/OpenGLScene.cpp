@@ -27,10 +27,7 @@ struct ShaderPointLight { // struct size: 48
     //                           // base align  // aligned offset
     QVector4D color;             // 16          // 0
     QVector4D pos;               // 16          // 16
-    float enableAttenuation;     // 4           // 32
-    float attenuationQuadratic;  // 4           // 36
-    float attenuationLinear;     // 4           // 40
-    float attenuationConstant;   // 4           // 44
+    QVector4D attenuation;       // 16          // 32
 };
 
 struct ShaderSpotLight { // struct size: 80
@@ -38,14 +35,8 @@ struct ShaderSpotLight { // struct size: 80
     QVector4D color;             // 16          // 0
     QVector4D pos;               // 16          // 16
     QVector4D direction;         // 16          // 32
-    float innerCutOff;           // 4           // 48
-    float outerCutOff;           // 4           // 52
-    float enableAttenuation;     // 4           // 56
-    float attenuationQuadratic;  // 4           // 60
-    float attenuationLinear;     // 4           // 64
-    float attenuationConstant;   // 4           // 68
-    float padding1;              // 4           // 72
-    float padding2;              // 4           // 76
+    QVector4D attenuation;       // 16          // 48
+    QVector4D cutOff;            // 16          // 64
 };
 
 struct ShaderlightInfo { // struct size: 1424
@@ -58,7 +49,9 @@ struct ShaderlightInfo { // struct size: 1424
     ShaderDirectionalLight directionalLight[8]; // 32          // 144
     ShaderPointLight pointLight[8];             // 48          // 400
     ShaderSpotLight spotLight[8];               // 80          // 784
-} shaderlightInfo;
+};
+
+static ShaderlightInfo shaderlightInfo;
 
 OpenGLUniformBufferObject *OpenGLScene::m_cameraInfo = 0;
 OpenGLUniformBufferObject *OpenGLScene::m_lightInfo = 0;
@@ -115,10 +108,10 @@ void OpenGLScene::renderLights() {
     }
 }
 
-void OpenGLScene::renderModels() {
+void OpenGLScene::renderModels(bool pickingPass) {
     for (int i = 0; i < m_normalMeshes.size(); i++) {
         m_normalMeshes[i]->setPickingID(1000 + i);
-        m_normalMeshes[i]->render();
+        m_normalMeshes[i]->render(pickingPass);
     }
 }
 
@@ -158,10 +151,10 @@ void OpenGLScene::commitLightInfo() {
         if (m_host->pointLights()[i]->enabled()) {
             shaderlightInfo.pointLight[pointLightNum].color = m_host->pointLights()[i]->color() * m_host->pointLights()[i]->intensity();
             shaderlightInfo.pointLight[pointLightNum].pos = m_host->pointLights()[i]->position();
-            shaderlightInfo.pointLight[pointLightNum].enableAttenuation = m_host->pointLights()[i]->enableAttenuation();
-            shaderlightInfo.pointLight[pointLightNum].attenuationQuadratic = m_host->pointLights()[i]->attenuationQuadratic();
-            shaderlightInfo.pointLight[pointLightNum].attenuationLinear = m_host->pointLights()[i]->attenuationLinear();
-            shaderlightInfo.pointLight[pointLightNum].attenuationConstant = m_host->pointLights()[i]->attenuationConstant();
+            shaderlightInfo.pointLight[pointLightNum].attenuation[0] = m_host->pointLights()[i]->enableAttenuation();
+            shaderlightInfo.pointLight[pointLightNum].attenuation[1] = m_host->pointLights()[i]->attenuationQuadratic();
+            shaderlightInfo.pointLight[pointLightNum].attenuation[2] = m_host->pointLights()[i]->attenuationLinear();
+            shaderlightInfo.pointLight[pointLightNum].attenuation[3] = m_host->pointLights()[i]->attenuationConstant();
             pointLightNum++;
         }
     for (int i = 0; i < m_host->spotLights().size(); i++)
@@ -169,12 +162,12 @@ void OpenGLScene::commitLightInfo() {
             shaderlightInfo.spotLight[spotLightNum].color = m_host->spotLights()[i]->color() * m_host->spotLights()[i]->intensity();
             shaderlightInfo.spotLight[spotLightNum].pos = m_host->spotLights()[i]->position();
             shaderlightInfo.spotLight[spotLightNum].direction = m_host->spotLights()[i]->direction();
-            shaderlightInfo.spotLight[spotLightNum].innerCutOff = rad(m_host->spotLights()[i]->innerCutOff());
-            shaderlightInfo.spotLight[spotLightNum].outerCutOff = rad(m_host->spotLights()[i]->outerCutOff());
-            shaderlightInfo.spotLight[spotLightNum].enableAttenuation = m_host->spotLights()[i]->enableAttenuation();
-            shaderlightInfo.spotLight[spotLightNum].attenuationQuadratic = m_host->spotLights()[i]->attenuationQuadratic();
-            shaderlightInfo.spotLight[spotLightNum].attenuationLinear = m_host->spotLights()[i]->attenuationLinear();
-            shaderlightInfo.spotLight[spotLightNum].attenuationConstant = m_host->spotLights()[i]->attenuationConstant();
+            shaderlightInfo.spotLight[spotLightNum].attenuation[0] = m_host->spotLights()[i]->enableAttenuation();
+            shaderlightInfo.spotLight[spotLightNum].attenuation[1] = m_host->spotLights()[i]->attenuationQuadratic();
+            shaderlightInfo.spotLight[spotLightNum].attenuation[2] = m_host->spotLights()[i]->attenuationLinear();
+            shaderlightInfo.spotLight[spotLightNum].attenuation[3] = m_host->spotLights()[i]->attenuationConstant();
+            shaderlightInfo.spotLight[spotLightNum].cutOff[0] = rad(m_host->spotLights()[i]->innerCutOff());
+            shaderlightInfo.spotLight[spotLightNum].cutOff[1] = rad(m_host->spotLights()[i]->outerCutOff());
             spotLightNum++;
         }
 
@@ -227,10 +220,15 @@ void OpenGLScene::lightAdded(AbstractLight * light) {
 }
 
 void OpenGLScene::modelAdded(Model * model) {
+    connect(model, SIGNAL(childMeshAdded(Mesh*)), this, SLOT(meshAdded(Mesh*)));
     for (int i = 0; i < model->childMeshes().size(); i++)
-        m_normalMeshes.push_back(new OpenGLMesh(model->childMeshes()[i], this));
+        meshAdded(model->childMeshes()[i]);
     for (int i = 0; i < model->childModels().size(); i++)
-        this->modelAdded(model->childModels()[i]);
+        modelAdded(model->childModels()[i]);
+}
+
+void OpenGLScene::meshAdded(Mesh* mesh) {
+    m_normalMeshes.push_back(new OpenGLMesh(mesh, this));
 }
 
 void OpenGLScene::hostDestroyed(QObject *) {

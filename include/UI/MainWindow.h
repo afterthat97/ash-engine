@@ -15,7 +15,7 @@ protected:
 private:
     Scene *m_host;
     QString m_sceneFilePath;
-    AbstractEntity* m_copyedObject;
+    QVariant m_copyedObject;
 
     QSplitter * m_splitter;
     QLabel* m_fpsLabel;

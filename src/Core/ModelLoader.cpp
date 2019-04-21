@@ -12,10 +12,9 @@ ModelLoader::ModelLoader() {
 
 Model * ModelLoader::loadModelFromFile(QString filePath) {
     if (filePath.length() == 0) {
-        m_log += "File path is empty.";
-#ifdef DEBUG_OUTPUT
-        dout << "Failed to load model: File path is empty";
-#endif
+        m_log += "Filepath is empty.";
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << "Failed to load model: filepath is empty";
         return 0;
     }
 
@@ -28,19 +27,17 @@ Model * ModelLoader::loadModelFromFile(QString filePath) {
         aiProcess_OptimizeGraph |
         aiProcess_GenUVCoords;
 
-#ifdef DEBUG_OUTPUT
-    dout << "Loading" << filePath;
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Loading" << filePath;
 
     if (filePath[0] == ':') { // qrc
         QFile file(filePath);
         if (!file.open(QIODevice::ReadOnly)) {
-#ifdef DEBUG_OUTPUT
-            dout << "FATAL ERROR: failed to open internal file" << filePath;
-#endif
+            if (log_level >= LOG_LEVEL_ERROR)
+                dout << "FATAL: failed to open internal file" << filePath;
             exit(-1);
         }
-  
+
         QByteArray bytes = file.readAll();
         m_aiScenePtr = importer.ReadFileFromMemory(bytes.constData(), bytes.length(), flags);
     } else {
@@ -50,9 +47,8 @@ Model * ModelLoader::loadModelFromFile(QString filePath) {
 
     if (!m_aiScenePtr || !m_aiScenePtr->mRootNode || m_aiScenePtr->mFlags == AI_SCENE_FLAGS_INCOMPLETE) {
         m_log += importer.GetErrorString();
-#ifdef DEBUG_OUTPUT
-        dout << "Failed to load model:" << importer.GetErrorString();
-#endif
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << importer.GetErrorString();
         return 0;
     }
 

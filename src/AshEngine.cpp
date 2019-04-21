@@ -1,5 +1,6 @@
 #include <MainWindow.h>
-#include <ModelLoader.h>
+
+int log_level = LOG_LEVEL_WARNING;
 
 void initApplication() {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

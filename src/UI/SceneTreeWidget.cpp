@@ -71,10 +71,6 @@ void SceneTreeWidget::keyPressEvent(QKeyEvent * e) {
 void SceneTreeWidget::currentItemChanged(QTreeWidgetItem * current, QTreeWidgetItem * previous) {
     if (previous)
         itemDeselected(previous->data(0, Qt::UserRole));
-    if (AbstractEntity::getSelected()) {
-        AbstractEntity::getSelected()->setSelected(false);
-        m_host->transformGizmo()->unbind();
-    }
     if (current) {
         itemSelected(current->data(0, Qt::UserRole));
         static_cast<BaseItem*>(currentItem())->selectHost();

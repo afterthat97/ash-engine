@@ -46,9 +46,8 @@ void OpenGLWindow::setRenderer(OpenGLRenderer * renderer) {
         if (m_renderer->hasErrorLog()) {
             QString log = m_renderer->errorLog();
             QMessageBox::critical(0, "Failed to load shaders", log);
-#ifdef DEBUG_OUTPUT
-            dout << log;
-#endif
+            if (log_level >= LOG_LEVEL_ERROR)
+                dout << log;
         }
     }
 }
@@ -66,15 +65,13 @@ void OpenGLWindow::initializeGL() {
         if (m_renderer->hasErrorLog()) {
             QString log = m_renderer->errorLog();
             QMessageBox::critical(0, "Failed to load shaders", log);
-#ifdef DEBUG_OUTPUT
-            dout << log;
-#endif
+            if (log_level >= LOG_LEVEL_ERROR)
+                dout << log;
         }
     } else {
         QMessageBox::critical(0, "Failed to initialize OpenGL", "No renderer specified.");
-#ifdef DEBUG_OUTPUT
-        dout << "No renderer specified";
-#endif
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << "No renderer specified";
     }
 }
 
@@ -127,10 +124,9 @@ bool OpenGLWindow::event(QEvent * event) {
 
             if (loader.hasErrorLog()) {
                 QString log = loader.errorLog();
-                QMessageBox::critical(0, "Error when loading", log);
-#ifdef DEBUG_OUTPUT
-                dout << log;
-#endif
+                QMessageBox::critical(0, "Error", log);
+                if (log_level >= LOG_LEVEL_ERROR)
+                    dout << log;
             }
 
             if (model) m_openGLScene->host()->addModel(model);
@@ -201,7 +197,7 @@ void OpenGLWindow::focusOutEvent(QFocusEvent *) {
 
 void OpenGLWindow::processUserInput() {
     if (!m_openGLScene || !m_openGLScene->host()->camera()) return;
-    
+
     float shift = 1.0f;
     if (m_keyPressed[Qt::Key_Shift]) shift *= 5.0f;
     if (m_keyPressed[Qt::Key_W]) m_openGLScene->host()->camera()->moveForward(shift);

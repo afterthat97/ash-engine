@@ -3,16 +3,16 @@
 #include <AbstractLight.h>
 
 Mesh::Mesh(QObject * parent): AbstractEntity(0) {
-    setObjectName("Untitled mesh");
     m_meshType = Triangle;
     m_material = 0;
+    setObjectName("Untitled Mesh");
     setParent(parent);
 }
 
 Mesh::Mesh(MeshType _meshType, QObject * parent): AbstractEntity(0) {
-    setObjectName("Untitled mesh");
     m_meshType = _meshType;
     m_material = 0;
+    setObjectName("Untitled Mesh");
     setParent(parent);
 }
 
@@ -21,12 +21,12 @@ Mesh::Mesh(const Mesh & mesh): AbstractEntity(mesh) {
     m_vertices = mesh.m_vertices;
     m_indices = mesh.m_indices;
     m_material = new Material(*mesh.m_material);
+    setObjectName(mesh.objectName());
 }
 
 Mesh::~Mesh() {
-#ifdef DEBUG_OUTPUT
-    dout << "Mesh" << objectName() << "is destroyed";
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Mesh" << this->objectName() << "is destroyed";
 }
 
 // Dump info
@@ -154,15 +154,13 @@ Mesh * Mesh::merge(const Mesh * mesh1, const Mesh * mesh2) {
     }
 
     if (mesh1->meshType() != mesh2->meshType()) {
-#ifdef DEBUG_OUTPUT
-        dout << "Failed to merge" << mesh1->objectName() << "and" << mesh2->objectName() << ": Mesh type not match";
-#endif
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << "Failed to merge" << mesh1->objectName() << "and" << mesh2->objectName() << ": type not match";
         return 0;
     }
 
-#ifdef DEBUG_OUTPUT
-    dout << "Merging" << mesh1->objectName() << "and" << mesh2->objectName();
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Merging" << mesh1->objectName() << "and" << mesh2->objectName();
 
     Mesh* mergedMesh = new Mesh(mesh1->meshType());
     mergedMesh->setObjectName(mesh1->objectName() + mesh2->objectName());
@@ -184,6 +182,9 @@ Mesh * Mesh::merge(const Mesh * mesh1, const Mesh * mesh2) {
 void Mesh::setMeshType(MeshType meshType) {
     if (m_meshType != meshType) {
         m_meshType = meshType;
+        if (log_level >= LOG_LEVEL_INFO)
+            dout << "The type of mesh" << this->objectName() << "is set to"
+                 << (m_meshType == Triangle ? "Triangle" : (m_meshType == Line ? "Line" : "Point"));
         meshTypeChanged(m_meshType);
     }
 }
@@ -208,9 +209,8 @@ bool Mesh::setMaterial(Material * material) {
     if (material) {
         m_material = material;
         m_material->setParent(this);
-#ifdef DEBUG_OUTPUT
-        dout << "Material" << material->objectName() << "is assigned to mesh" << objectName();
-#endif
+        if (log_level >= LOG_LEVEL_INFO)
+            dout << "Material" << material->objectName() << "is assigned to mesh" << objectName();
     }
 
     materialChanged(m_material);
@@ -220,18 +220,24 @@ bool Mesh::setMaterial(Material * material) {
 void Mesh::reverseNormals() {
     for (int i = 0; i < m_vertices.size(); i++)
         m_vertices[i].normal = -m_vertices[i].normal;
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Normals of" << this->objectName() << "is reversed";
     geometryChanged(m_vertices, m_indices);
 }
 
 void Mesh::reverseTangents() {
     for (int i = 0; i < m_vertices.size(); i++)
         m_vertices[i].tangent = -m_vertices[i].tangent;
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Tangents of" << this->objectName() << "is reversed";
     geometryChanged(m_vertices, m_indices);
 }
 
 void Mesh::reverseBitangents() {
     for (int i = 0; i < m_vertices.size(); i++)
         m_vertices[i].bitangent = -m_vertices[i].bitangent;
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Bitangents of" << this->objectName() << "is reversed";
     geometryChanged(m_vertices, m_indices);
 }
 

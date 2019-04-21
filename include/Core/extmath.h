@@ -9,15 +9,16 @@
 #include <QMatrix4x4>
 #include <QQuaternion>
 
-#define eps (1e-4)
+#define eps (1e-4f)
 #define inf (1000000.0f)
 #define rad(n) ((float) cos((n) * 3.1415926 / 180.0))
 
 bool isEqual(float a, float b);
-
 bool isEqual(QVector3D a, QVector3D b);
 
+bool isnan(QVector2D a);
 bool isnan(QVector3D a);
+bool isnan(QVector4D a);
 
 struct Line {
     QVector3D st, dir;

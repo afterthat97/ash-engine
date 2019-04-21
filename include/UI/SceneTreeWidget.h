@@ -215,9 +215,12 @@ private:
 
 private slots:
     void selectedChanged(bool selected) {
-        if (!selected) return;
-        if (!isExpanded()) setExpanded(true);
-        treeWidget()->setCurrentItem(this);
+        if (selected) {
+            if (!isExpanded())
+                setExpanded(true);
+            treeWidget()->setCurrentItem(this);
+        } else
+            treeWidget()->setCurrentItem(0);
     }
     void materialChanged(Material* material) {
         if (material)
@@ -238,6 +241,8 @@ public:
         for (int i = 0; i < m_host->childModels().size(); i++)
             new ModelItem(m_host->childModels()[i], this);
         connect(m_host, SIGNAL(selectedChanged(bool)), this, SLOT(selectedChanged(bool)));
+        connect(m_host, SIGNAL(childMeshAdded(Mesh*)), this, SLOT(childMeshAdded(Mesh*)));
+        connect(m_host, SIGNAL(childModelAdded(Model*)), this, SLOT(childModelAdded(Model*)));
     }
 
     void selectHost() override {
@@ -249,8 +254,17 @@ private:
 
 private slots:
     void selectedChanged(bool selected) {
-        if (!selected) return;
-        if (!isExpanded()) setExpanded(true);
-        treeWidget()->setCurrentItem(this);
+        if (selected) {
+            if (!isExpanded())
+                setExpanded(true);
+            treeWidget()->setCurrentItem(this);
+        } else
+            treeWidget()->setCurrentItem(0);
+    }
+    void childMeshAdded(Mesh* mesh) {
+        new MeshItem(mesh, this);
+    }
+    void childModelAdded(Model* model) {
+        new ModelItem(model, this);
     }
 };

@@ -5,6 +5,9 @@ RotateGizmo::RotateGizmo(QObject* parent): AbstractGizmo(0) {
     setObjectName("Rotation Gizmo");
     m_markers.resize(3);
 
+    int tmp_log_level = log_level;
+    log_level = LOG_LEVEL_WARNING;
+
     ModelLoader loader;
     m_markers[0] = loader.loadMeshFromFile(":/resources/shapes/RotX.obj");
     m_markers[1] = loader.loadMeshFromFile(":/resources/shapes/RotY.obj");
@@ -14,8 +17,12 @@ RotateGizmo::RotateGizmo(QObject* parent): AbstractGizmo(0) {
     m_markers[1]->material()->setColor(QVector3D(0, 1, 0));
     m_markers[2]->material()->setColor(QVector3D(0, 0, 1));
 
-    for (int i = 0; i < m_markers.size(); i++)
+    for (int i = 0; i < m_markers.size(); i++) {
+        m_markers[i]->setObjectName("Gizmo Marker");
         m_markers[i]->setParent(this);
+    }
+
+    log_level = tmp_log_level;
 
     setParent(parent);
 }
@@ -23,9 +30,8 @@ RotateGizmo::RotateGizmo(QObject* parent): AbstractGizmo(0) {
 RotateGizmo::~RotateGizmo() {}
 
 void RotateGizmo::translate(QVector3D) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to translate a ROTATION ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Translating a ROTATION ONLY gizmo is not allowed";
 }
 
 void RotateGizmo::rotate(QQuaternion rotation) {
@@ -39,9 +45,8 @@ void RotateGizmo::rotate(QVector3D rotation) {
 }
 
 void RotateGizmo::scale(QVector3D) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to scale a ROTATION ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Scaling a ROTATION ONLY gizmo is not allowed";
 }
 
 QVector3D RotateGizmo::position() const {
@@ -106,28 +111,27 @@ void RotateGizmo::drag(QPoint from, QPoint to, int scnWidth, int scnHeight, QMat
         float theta = qAcos(qMin(qMax(QVector3D::dotProduct(p1, p2) / p1.length() / p2.length(), -1.0f), 1.0f));
         if (QVector3D::dotProduct(QVector3D(1, 0, 0), QVector3D::crossProduct(p1, p2)) < 0)
             theta = -theta;
-        rotate(theta * QVector3D(180.0f / 3.1415926, 0.0f, 0.0f));
+        rotate(theta * QVector3D(180.0f / 3.1415926f, 0.0f, 0.0f));
     } else if (m_axis == Y) {
         QVector3D p1 = getIntersectionOfLinePlane(l1, { QVector3D(0, 0, 0), QVector3D(0, 1, 0) });
         QVector3D p2 = getIntersectionOfLinePlane(l2, { QVector3D(0, 0, 0), QVector3D(0, 1, 0) });
         float theta = qAcos(qMin(qMax(QVector3D::dotProduct(p1, p2) / p1.length() / p2.length(), -1.0f), 1.0f));
         if (QVector3D::dotProduct(QVector3D(0, 1, 0), QVector3D::crossProduct(p1, p2)) < 0)
             theta = -theta;
-        rotate(theta * QVector3D(0.0f, 180.0f / 3.1415926, 0.0f));
+        rotate(theta * QVector3D(0.0f, 180.0f / 3.1415926f, 0.0f));
     } else if (m_axis == Z) {
         QVector3D p1 = getIntersectionOfLinePlane(l1, { QVector3D(0, 0, 0), QVector3D(0, 0, 1) });
         QVector3D p2 = getIntersectionOfLinePlane(l2, { QVector3D(0, 0, 0), QVector3D(0, 0, 1) });
         float theta = qAcos(qMin(qMax(QVector3D::dotProduct(p1, p2) / p1.length() / p2.length(), -1.0f), 1.0f));
         if (QVector3D::dotProduct(QVector3D(0, 0, 1), QVector3D::crossProduct(p1, p2)) < 0)
             theta = -theta;
-        rotate(theta * QVector3D(0.0f, 0.0f, 180.0f / 3.1415926));
+        rotate(theta * QVector3D(0.0f, 0.0f, 180.0f / 3.1415926f));
     }
 }
 
 void RotateGizmo::setPosition(QVector3D) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to translate a ROTATION ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Setting the position of a ROTATION ONLY gizmo is not allowed";
 }
 
 void RotateGizmo::setRotation(QQuaternion rotation) {
@@ -141,7 +145,6 @@ void RotateGizmo::setRotation(QVector3D rotation) {
 }
 
 void RotateGizmo::setScaling(QVector3D) {
-#ifdef DEBUG_OUTPUT
-    dout << "Trying to scale a ROTATION ONLY gizmo is not allowed.";
-#endif
+    if (log_level >= LOG_LEVEL_WARNING)
+        dout << "Setting the scaling of a ROTATION ONLY gizmo is not allowed";
 }

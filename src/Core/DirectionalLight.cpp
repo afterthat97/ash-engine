@@ -3,22 +3,24 @@
 DirectionalLight::DirectionalLight(QObject * parent) : AbstractLight() {
     m_color = QVector3D(1.0f, 1.0f, 1.0f);
     m_direction = QVector3D(-1.0f, -1.0f, -1.0f);
+    setObjectName("Untitled Directional Light");
     setParent(parent);
 }
 
 DirectionalLight::DirectionalLight(QVector3D color, QVector3D direction, QObject * parent): AbstractLight(color) {
     m_direction = direction;
+    setObjectName("Untitled Directional Light");
     setParent(parent);
 }
 
 DirectionalLight::DirectionalLight(const DirectionalLight & light): AbstractLight(light) {
     m_direction = light.m_direction;
+    setObjectName(light.objectName());
 }
 
 DirectionalLight::~DirectionalLight() {
-#ifdef DEBUG_OUTPUT
-    dout << "Directional Light" << objectName() << "is destroyed";
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Directional light" << this->objectName() << "is destroyed";
 }
 
 void DirectionalLight::dumpObjectInfo(int l) {
@@ -40,6 +42,8 @@ QVector3D DirectionalLight::direction() {
 void DirectionalLight::setDirection(QVector3D direction) {
     if (!isEqual(m_direction, direction)) {
         m_direction = direction;
+        if (log_level >= LOG_LEVEL_INFO)
+            dout << "The direction of" << this->objectName() << "is set to" << direction;
         directionChanged(m_direction);
     }
 }

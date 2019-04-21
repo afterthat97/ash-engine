@@ -39,9 +39,8 @@ Scene::Scene(const Scene & scene): QObject(0) {
 }
 
 Scene::~Scene() {
-#ifdef DEBUG_OUTPUT
-    dout << "Scene" << objectName() << "is destroyed";
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Scene" << this->objectName() << "is destroyed";
 }
 
 bool Scene::setCamera(Camera * camera) {
@@ -56,9 +55,8 @@ bool Scene::setCamera(Camera * camera) {
     if (camera) {
         m_camera = camera;
         m_camera->setParent(this);
-#ifdef DEBUG_OUTPUT
-        dout << "Camera" << camera->objectName() << "is assigned to scene" << objectName();
-#endif
+        if (log_level >= LOG_LEVEL_INFO)
+            dout << "Camera" << camera->objectName() << "is assigned to scene" << this->objectName();
     }
 
     cameraChanged(m_camera);
@@ -74,9 +72,8 @@ bool Scene::addGridline(Gridline * gridline) {
     gridline->setObjectName("Gridline" + QString::number(m_gridlineNameCounter++));
     gridlineAdded(gridline);
 
-#ifdef DEBUG_OUTPUT
-    dout << "Gridline" << gridline->objectName() << "is added to scene" << objectName();
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Gridline" << gridline->objectName() << "is added to scene" << this->objectName();
 
     return true;
 }
@@ -96,15 +93,19 @@ bool Scene::addLight(AbstractLight * l) {
 bool Scene::addAmbientLight(AmbientLight * light) {
     if (!light || m_ambientLights.contains(light))
         return false;
+    if (m_ambientLights.size() >= 8) {
+        if (log_level >= LOG_LEVEL_WARNING)
+            dout << "The amount of ambient lights has reached the upper limit of 8.";
+        return false;
+    }
 
     m_ambientLights.push_back(light);
     light->setParent(this);
     light->setObjectName("AmbientLight" + QString::number(m_ambientLightNameCounter++));
     lightAdded(light);
 
-#ifdef DEBUG_OUTPUT
-    dout << "Ambient light" << light->objectName() << "is added to scene" << objectName();
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Ambient light" << light->objectName() << "is added to scene" << this->objectName();
 
     return true;
 }
@@ -112,31 +113,39 @@ bool Scene::addAmbientLight(AmbientLight * light) {
 bool Scene::addDirectionalLight(DirectionalLight * light) {
     if (!light || m_directionalLights.contains(light))
         return false;
+    if (m_directionalLights.size() >= 8) {
+        if (log_level >= LOG_LEVEL_WARNING)
+            dout << "The amount of directional lights has reached the upper limit of 8.";
+        return false;
+    }
 
     m_directionalLights.push_back(light);
     light->setParent(this);
     light->setObjectName("DirectionalLight" + QString::number(m_directionalLightNameCounter++));
     lightAdded(light);
 
-#ifdef DEBUG_OUTPUT
-    dout << "Directional light" << light->objectName() << "is added to scene" << objectName();
-#endif
-    
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Directional light" << light->objectName() << "is added to scene" << this->objectName();
+
     return true;
 }
 
 bool Scene::addPointLight(PointLight * light) {
     if (!light || m_pointLights.contains(light))
         return false;
+    if (m_pointLights.size() >= 8) {
+        if (log_level >= LOG_LEVEL_WARNING)
+            dout << "The amount of point lights has reached the upper limit of 8.";
+        return false;
+    }
 
     m_pointLights.push_back(light);
     light->setParent(this);
     light->setObjectName("PointLight" + QString::number(m_pointLightNameCounter++));
     lightAdded(light);
 
-#ifdef DEBUG_OUTPUT
-    dout << "Point light" << light->objectName() << "is added to scene" << objectName();
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Point light" << light->objectName() << "is added to scene" << this->objectName();
 
     return true;
 }
@@ -144,15 +153,19 @@ bool Scene::addPointLight(PointLight * light) {
 bool Scene::addSpotLight(SpotLight * light) {
     if (!light || m_spotLights.contains(light))
         return false;
+    if (m_spotLights.size() >= 8) {
+        if (log_level >= LOG_LEVEL_WARNING)
+            dout << "The amount of spotlights has reached the upper limit of 8.";
+        return false;
+    }
 
     m_spotLights.push_back(light);
     light->setParent(this);
     light->setObjectName("SpotLight" + QString::number(m_spotLightNameCounter++));
     lightAdded(light);
 
-#ifdef DEBUG_OUTPUT
-    dout << "Spot light" << light->objectName() << "is added to scene" << objectName();
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Spot light" << light->objectName() << "is added to scene" << this->objectName();
 
     return true;
 }
@@ -165,9 +178,8 @@ bool Scene::addModel(Model * model) {
     model->setParent(this);
     modelAdded(model);
 
-#ifdef DEBUG_OUTPUT
-    dout << "Model" << model->objectName() << "is added to scene" << objectName();
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Model" << model->objectName() << "is added to scene" << this->objectName();
 
     return true;
 }
@@ -177,9 +189,8 @@ bool Scene::removeGridline(QObject * gridline) {
         if (m_gridlines[i] == gridline) {
             m_gridlines.erase(m_gridlines.begin() + i);
             gridlineRemoved(gridline);
-#ifdef DEBUG_OUTPUT
-            dout << "Gridline" << gridline->objectName() << "is removed from scene" << objectName();
-#endif
+            if (log_level >= LOG_LEVEL_INFO)
+                dout << "Gridline" << gridline->objectName() << "is removed from scene" << this->objectName();
             return true;
         }
     return false;
@@ -190,36 +201,32 @@ bool Scene::removeLight(QObject * light) {
         if (m_ambientLights[i] == light) {
             m_ambientLights.erase(m_ambientLights.begin() + i);
             lightRemoved(light);
-#ifdef DEBUG_OUTPUT
-            dout << "Ambient light" << light->objectName() << "is removed from scene" << objectName();
-#endif
+            if (log_level >= LOG_LEVEL_INFO)
+                dout << "Ambient light" << light->objectName() << "is removed from scene" << this->objectName();
             return true;
         }
     for (int i = 0; i < m_directionalLights.size(); i++)
         if (m_directionalLights[i] == light) {
             m_directionalLights.erase(m_directionalLights.begin() + i);
             lightRemoved(light);
-#ifdef DEBUG_OUTPUT
-            dout << "Directional light" << light->objectName() << "is removed from scene" << objectName();
-#endif
+            if (log_level >= LOG_LEVEL_INFO)
+                dout << "Directional light" << light->objectName() << "is removed from scene" << this->objectName();
             return true;
         }
     for (int i = 0; i < m_pointLights.size(); i++)
         if (m_pointLights[i] == light) {
             m_pointLights.erase(m_pointLights.begin() + i);
             lightRemoved(light);
-#ifdef DEBUG_OUTPUT
-            dout << "Point light" << light->objectName() << "is removed from scene" << objectName();
-#endif
+            if (log_level >= LOG_LEVEL_INFO)
+                dout << "Point light" << light->objectName() << "is removed from scene" << this->objectName();
             return true;
         }
     for (int i = 0; i < m_spotLights.size(); i++)
         if (m_spotLights[i] == light) {
             m_spotLights.erase(m_spotLights.begin() + i);
             lightRemoved(light);
-#ifdef DEBUG_OUTPUT
-            dout << "Spot light" << light->objectName() << "is removed from scene" << objectName();
-#endif
+            if (log_level >= LOG_LEVEL_INFO)
+                dout << "Spot light" << light->objectName() << "is removed from scene" << this->objectName();
             return true;
         }
     return false;
@@ -230,9 +237,8 @@ bool Scene::removeModel(QObject * model, bool recursive) {
         if (m_models[i] == model) {
             m_models.erase(m_models.begin() + i);
             modelRemoved(model);
-#ifdef DEBUG_OUTPUT
-            dout << "Model" << model->objectName() << "is removed from scene" << objectName();
-#endif
+            if (log_level >= LOG_LEVEL_INFO)
+                dout << "Model" << model->objectName() << "is removed from scene" << this->objectName();
             return true;
         }
     if (!recursive) return false;
@@ -321,6 +327,8 @@ void Scene::childEvent(QChildEvent * e) {
     } else if (e->removed()) {
         if (m_camera == e->child()) {
             m_camera = 0;
+            if (log_level >= LOG_LEVEL_WARNING)
+                dout << "Warning: Camera is removed from scene" << this->objectName();
             cameraChanged(0);
             return;
         }

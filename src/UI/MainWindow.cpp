@@ -14,7 +14,7 @@
 #include <SceneSaver.h>
 
 MainWindow::MainWindow(QWidget * parent): QMainWindow(parent), m_host(0) {
-    m_copyedObject = 0;
+    m_copyedObject.clear();
 
     m_fpsLabel = new QLabel(this);
     m_sceneTreeWidget = new SceneTreeWidget(this);
@@ -149,6 +149,7 @@ void MainWindow::fpsChanged(int fps) {
 
 void MainWindow::itemSelected(QVariant item) {
     delete m_propertyWidget->takeWidget();
+
     if (item.canConvert<Camera*>()) {
         m_propertyWidget->setWidget(new CameraProperty(item.value<Camera*>(), this));
     } else if (item.canConvert<Gridline*>()) {
@@ -171,6 +172,7 @@ void MainWindow::itemSelected(QVariant item) {
 }
 
 void MainWindow::itemDeselected(QVariant) {
+    delete m_propertyWidget->takeWidget();
     m_propertyWidget->setWidget(0);
 }
 
@@ -202,10 +204,9 @@ void MainWindow::fileOpenScene() {
 
     if (loader.hasErrorLog()) {
         QString log = loader.errorLog();
-        QMessageBox::critical(0, "Error when loading", log);
-#ifdef DEBUG_OUTPUT
-        dout << log;
-#endif
+        QMessageBox::critical(0, "Error", log);
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << log;
     }
 
     if (scene) {
@@ -228,10 +229,9 @@ void MainWindow::fileImportModel() {
 
     if (loader.hasErrorLog()) {
         QString log = loader.errorLog();
-        QMessageBox::critical(0, "Error when loading", log);
-#ifdef DEBUG_OUTPUT
-        dout << log;
-#endif
+        QMessageBox::critical(0, "Error", log);
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << log;
     }
 
     if (m_host && model) m_host->addModel(model);
@@ -240,7 +240,7 @@ void MainWindow::fileImportModel() {
 void MainWindow::fileExportModel() {
     if (!m_host) return;
     if (AbstractEntity::getSelected() == 0 || (!AbstractEntity::getSelected()->isMesh() && !AbstractEntity::getSelected()->isModel())) {
-        QMessageBox::critical(0, "Failed to export model", "Select a Model/Mesh to export.");
+        QMessageBox::critical(0, "Error", "Select a Model/Mesh to export.");
         return;
     }
 
@@ -263,10 +263,9 @@ void MainWindow::fileExportModel() {
 
     if (exporter.hasErrorLog()) {
         QString log = exporter.errorLog();
-        QMessageBox::critical(0, "Error when exporting", log);
-#ifdef DEBUG_OUTPUT
-        dout << log;
-#endif
+        QMessageBox::critical(0, "Error", log);
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << log;
     }
 }
 
@@ -290,10 +289,9 @@ void MainWindow::fileSaveAsScene() {
 
     if (saver.hasErrorLog()) {
         QString log = saver.errorLog();
-        QMessageBox::critical(0, "Error when saving", log);
-#ifdef DEBUG_OUTPUT
-        dout << log;
-#endif
+        QMessageBox::critical(0, "Error", log);
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << log;
     }
 }
 
@@ -303,33 +301,74 @@ void MainWindow::fileQuit() {
 }
 
 void MainWindow::editCopy() {
-    m_copyedObject = AbstractEntity::getSelected();
-#ifdef DEBUG_OUTPUT
-    if (m_copyedObject)
-        dout << m_copyedObject->objectName() << "is copyed";
+    if (m_sceneTreeWidget->hasFocus()) {
+        QVariant item = m_sceneTreeWidget->currentItem()->data(0, Qt::UserRole);
+        if (item.canConvert<Camera*>() || item.canConvert<Material*>())
+            m_copyedObject.clear(); // Copy is not allowed
+        else
+            m_copyedObject = item;
+    } else if (AbstractEntity::getSelected())
+        m_copyedObject = m_sceneTreeWidget->currentItem()->data(0, Qt::UserRole);
     else
-        dout << "Nothing is copyed";
-#endif
+        m_copyedObject.clear();
+
+    if (log_level >= LOG_LEVEL_INFO) {
+        if (m_copyedObject.isValid())
+            dout << m_copyedObject.value<QObject*>()->objectName() << "is copyed";
+        else
+            dout << "Nothing is copyed";
+    }
 }
 
 void MainWindow::editPaste() {
-    if (m_copyedObject == 0) return;
-    if (PointLight* light = qobject_cast<PointLight*>(m_copyedObject->parent())) {
+    if (!m_copyedObject.isValid()) return;
+    if (m_copyedObject.canConvert<AmbientLight*>()) {
+        if (m_host->ambientLights().size() >= 8) {
+            QMessageBox::critical(0, "Error", "The amount of ambient lights has reached the upper limit of 8.");
+            return;
+        }
+        AmbientLight* light = m_copyedObject.value<AmbientLight*>();
+        AmbientLight* newLight = new AmbientLight(*light);
+        newLight->setParent(light->parent());
+    } else if (m_copyedObject.canConvert<DirectionalLight*>()) {
+        if (m_host->directionalLights().size() >= 8) {
+            QMessageBox::critical(0, "Error", "The amount of directional lights has reached the upper limit of 8.");
+            return;
+        }
+        DirectionalLight* light = m_copyedObject.value<DirectionalLight*>();
+        DirectionalLight* newLight = new DirectionalLight(*light);
+        newLight->setParent(light->parent());
+    } else if (m_copyedObject.canConvert<PointLight*>()) {
+        if (m_host->pointLights().size() >= 8) {
+            QMessageBox::critical(0, "Error", "The amount of point lights has reached the upper limit of 8.");
+            return;
+        }
+        PointLight* light = m_copyedObject.value<PointLight*>();
         PointLight* newLight = new PointLight(*light);
         newLight->setParent(light->parent());
-    } else if (SpotLight* light = qobject_cast<SpotLight*>(m_copyedObject->parent())) {
+    } else if (m_copyedObject.canConvert<SpotLight*>()) {
+        if (m_host->spotLights().size() >= 8) {
+            QMessageBox::critical(0, "Error", "The amount of spotlights has reached the upper limit of 8.");
+            return;
+        }
+        SpotLight* light = m_copyedObject.value<SpotLight*>();
         SpotLight* newLight = new SpotLight(*light);
         newLight->setParent(light->parent());
-    } else if (Model* model = qobject_cast<Model*>(m_copyedObject)) {
+    } else if (m_copyedObject.canConvert<Gridline*>()) {
+        Gridline* gridline = m_copyedObject.value<Gridline*>();
+        Gridline* newGridline = new Gridline(*gridline);
+        newGridline->setParent(gridline->parent());
+    } else if (m_copyedObject.canConvert<Model*>()) {
+        Model* model = m_copyedObject.value<Model*>();
         Model* newModel = new Model(*model);
         newModel->setParent(model->parent());
-    } else if (Mesh* mesh = qobject_cast<Mesh*>(m_copyedObject)) {
+    } else if (m_copyedObject.canConvert<Mesh*>()) {
+        Mesh* mesh = m_copyedObject.value<Mesh*>();
         Mesh* newMesh = new Mesh(*mesh);
         newMesh->setParent(mesh->parent());
     } else {
-#ifdef DEBUG_OUTPUT
-        dout << "Failed to paste: Unknown object";
-#endif
+        if (log_level >= LOG_LEVEL_ERROR)
+            dout << "Failed to paste: Unknown type";
     }
 }
 
@@ -338,14 +377,13 @@ void MainWindow::editRemove() {
     QVariant item = m_sceneTreeWidget->currentItem()->data(0, Qt::UserRole);
     if (item.value<QObject*>() == m_host->camera()) {
         QMessageBox::warning(this, "Warning", "Camera can not be deleted.");
-#ifdef DEBUG_OUTPUT
-        dout << "Camera can not be deleted";
-#endif
+        if (log_level >= LOG_LEVEL_WARNING)
+            dout << "Warning: Camera can not be deleted";
         return;
     }
     m_sceneTreeWidget->setCurrentItem(0);
-    if (m_copyedObject == item.value<QObject*>())
-        m_copyedObject = 0;
+    if (m_copyedObject == item)
+        m_copyedObject.clear();
     delete item.value<QObject*>();
 }
 
@@ -354,19 +392,43 @@ void MainWindow::createGridline() {
 }
 
 void MainWindow::createAmbientLight() {
-   if (m_host) m_host->addLight(new AmbientLight);
+   if (m_host) {
+       if (m_host->ambientLights().size() >= 8) {
+           QMessageBox::critical(0, "Error", "The amount of ambient lights has reached the upper limit of 8.");
+           return;
+       }
+       m_host->addLight(new AmbientLight);
+   }
 }
 
 void MainWindow::createDirectionalLight() {
-    if (m_host) m_host->addLight(new DirectionalLight);
+    if (m_host) {
+        if (m_host->directionalLights().size() >= 8) {
+            QMessageBox::critical(0, "Error", "The amount of directional lights has reached the upper limit of 8.");
+            return;
+        }
+        m_host->addLight(new DirectionalLight);
+    }
 }
 
 void MainWindow::createPointLight() {
-    if (m_host) m_host->addLight(new PointLight);
+    if (m_host) {
+        if (m_host->pointLights().size() >= 8) {
+            QMessageBox::critical(0, "Error", "The amount of point lights has reached the upper limit of 8.");
+            return;
+        }
+        m_host->addLight(new PointLight);
+    }
 }
 
 void MainWindow::createSpotLight() {
-    if (m_host) m_host->addLight(new SpotLight);
+    if (m_host) {
+        if (m_host->spotLights().size() >= 8) {
+            QMessageBox::critical(0, "Error", "The amount of spotlights has reached the upper limit of 8.");
+            return;
+        }
+        m_host->addLight(new SpotLight);
+    }
 }
 
 void MainWindow::createBasicCone() {
@@ -393,7 +455,7 @@ void MainWindow::polygonAssignMaterial() {
     if (AbstractEntity::getSelected() && AbstractEntity::getSelected()->isMesh())
         static_cast<Mesh*>(AbstractEntity::getSelected())->setMaterial(new Material);
     else
-        QMessageBox::critical(0, "Failed to assign material", "Material must be assigned to a mesh.");
+        QMessageBox::critical(0, "Error", "Select a mesh to do this operation.");
 }
 
 void MainWindow::polygonReverseNormals() {
@@ -402,7 +464,7 @@ void MainWindow::polygonReverseNormals() {
     else if (AbstractEntity::getSelected() && AbstractEntity::getSelected()->isMesh())
         static_cast<Mesh*>(AbstractEntity::getSelected())->reverseNormals();
     else
-        QMessageBox::critical(0, "Failed to reverse normals", "You must select a model/mesh to do this operation.");
+        QMessageBox::critical(0, "Error", "Select a model/mesh to do this operation.");
 }
 
 void MainWindow::polygonReverseTangents() {
@@ -411,7 +473,7 @@ void MainWindow::polygonReverseTangents() {
     else if (AbstractEntity::getSelected() && AbstractEntity::getSelected()->isMesh())
         static_cast<Mesh*>(AbstractEntity::getSelected())->reverseTangents();
     else
-        QMessageBox::critical(0, "Failed to reverse tangents", "You must select a model/mesh to do this operation.");
+        QMessageBox::critical(0, "Error", "Select a model/mesh to do this operation.");
 }
 
 void MainWindow::polygonReverseBitangents() {
@@ -420,7 +482,7 @@ void MainWindow::polygonReverseBitangents() {
     else if (AbstractEntity::getSelected() && AbstractEntity::getSelected()->isMesh())
         static_cast<Mesh*>(AbstractEntity::getSelected())->reverseBitangents();
     else
-        QMessageBox::critical(0, "Failed to reverse bitangents", "You must select a model/mesh to do this operation.");
+        QMessageBox::critical(0, "Error", "Select a model/mesh to do this operation.");
 }
 
 void MainWindow::gizmoAlwaysOnTop(bool alwaysOnTop) {
@@ -444,9 +506,8 @@ void MainWindow::helpCheckForUpdates() {
     QNetworkAccessManager *networkManager = new QNetworkAccessManager(this);
     connect(networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyOfUpdates(QNetworkReply*)));
     networkManager->get(QNetworkRequest(QUrl(url)));
-#ifdef DEBUG_OUTPUT
-    dout << "GET request sent to " << url;
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "GET request is sent to " << url;
 }
 
 void MainWindow::helpSourceCode() {
@@ -482,9 +543,8 @@ void MainWindow::replyOfUpdates(QNetworkReply * reply) {
     QJsonObject jsonObject = QJsonDocument::fromJson(strReply.toUtf8()).object();
     QString latestVersion = jsonObject["tag_name"].toString();
 
-#ifdef DEBUG_OUTPUT
-    dout << "Reply: latest version is" << latestVersion;
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Reply: the latest version is" << latestVersion;
 
     if (latestVersion != APP_VERSION && latestVersion != "") {
         QString info = "A new version has been released, do you want to upgrade?\n\n";
@@ -494,3 +554,4 @@ void MainWindow::replyOfUpdates(QNetworkReply * reply) {
             QDesktopServices::openUrl(QUrl(jsonObject["html_url"].toString()));
     }
 }
+

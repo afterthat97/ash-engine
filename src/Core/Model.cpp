@@ -13,9 +13,8 @@ Model::Model(const Model & model): AbstractEntity(model) {
 }
 
 Model::~Model() {
-#ifdef DEBUG_OUTPUT
-    dout << "Model" << objectName() << "is destroyed";
-#endif
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Model" << this->objectName() << "is destroyed";
 }
 
 bool Model::addChildMesh(Mesh * mesh) {
@@ -26,10 +25,9 @@ bool Model::addChildMesh(Mesh * mesh) {
     mesh->setParent(this);
     childMeshAdded(mesh);
 
-#ifdef DEBUG_OUTPUT
-    dout << "Mesh" << mesh->objectName() << "is added to model" << objectName() << "as child";
-#endif
-    
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Mesh" << mesh->objectName() << "is added to model" << this->objectName() << "as child";
+
     return true;
 }
 
@@ -41,10 +39,9 @@ bool Model::addChildModel(Model * model) {
     model->setParent(this);
     childModelAdded(model);
 
-#ifdef DEBUG_OUTPUT
-    dout << "Model" << model->objectName() << "is added to model" << objectName() << "as child";
-#endif
-    
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Model" << model->objectName() << "is added to model" << this->objectName() << "as child";
+
     return true;
 }
 
@@ -53,9 +50,10 @@ bool Model::removeChildMesh(QObject * mesh, bool recursive) {
         if (m_childMeshes[i] == mesh) {
             m_childMeshes.erase(m_childMeshes.begin() + i);
             childMeshRemoved(mesh);
-#ifdef DEBUG_OUTPUT
-            dout << "Child mesh" << mesh->objectName() << "is removed from model" << objectName();
-#endif
+            if (log_level >= LOG_LEVEL_INFO)
+                dout << "Child mesh" << mesh->objectName() << "is removed from model" << this->objectName();
+            if (m_childMeshes.size() == 0 && m_childModels.size() == 0)
+                delete this;
             return true;
         }
     if (!recursive) return false;
@@ -70,9 +68,10 @@ bool Model::removeChildModel(QObject * model, bool recursive) {
         if (m_childModels[i] == model) {
             m_childModels.erase(m_childModels.begin() + i);
             childModelRemoved(model);
-#ifdef DEBUG_OUTPUT
-            dout << "Child model" << model->objectName() << "is removed from model" << objectName();
-#endif
+            if (log_level >= LOG_LEVEL_INFO)
+                dout << "Child model" << model->objectName() << "is removed from model" << this->objectName();
+            if (m_childMeshes.size() == 0 && m_childModels.size() == 0)
+                delete this;
             return true;
         }
     if (!recursive) return false;

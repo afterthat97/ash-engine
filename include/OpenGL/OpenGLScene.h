@@ -17,7 +17,7 @@ public:
     void renderAxis();
     void renderGridlines();
     void renderLights();
-    void renderModels();
+    void renderModels(bool pickingPass = false);
 
     void commitCameraInfo();
     void commitLightInfo();
@@ -35,5 +35,6 @@ private slots:
     void gridlineAdded(Gridline* gridline);
     void lightAdded(AbstractLight* light);
     void modelAdded(Model* model);
+    void meshAdded(Mesh* mesh);
     void hostDestroyed(QObject* host);
 };

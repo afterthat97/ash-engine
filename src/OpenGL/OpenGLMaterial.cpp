@@ -11,7 +11,9 @@ struct ShaderMaterialInfo {
     int useSpecularMap;   // 4           // 36
     int useBumpMap;       // 4           // 40
     int padding;          // 4           // 44
-} shaderMaterialInfo;
+};
+
+static ShaderMaterialInfo shaderMaterialInfo;
 
 OpenGLUniformBufferObject *OpenGLMaterial::m_materialInfo = 0;
 

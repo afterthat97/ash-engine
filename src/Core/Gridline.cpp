@@ -1,18 +1,27 @@
 #include <Gridline.h>
 
 Gridline::Gridline(QObject* parent): QObject(0) {
+    int tmp_log_level = log_level;
+    log_level = LOG_LEVEL_WARNING;
+
     m_marker = new Mesh(Mesh::Line, this);
-    m_marker->setObjectName("Gridline");
+    m_marker->setObjectName("Gridline Marker");
     m_marker->setMaterial(new Material);
 
+    setObjectName("Untitled Gridline");
     reset();
+
+    log_level = tmp_log_level;
+
     setParent(parent);
 }
 
 // Dump info
 
 Gridline::Gridline(const Gridline & gridline): QObject(0) {
-    setObjectName(gridline.objectName());
+    int tmp_log_level = log_level;
+    log_level = LOG_LEVEL_WARNING;
+
     m_marker = new Mesh(Mesh::Line, 0);
     m_marker->setMaterial(new Material);
     m_xRange = gridline.m_xRange;
@@ -24,13 +33,21 @@ Gridline::Gridline(const Gridline & gridline): QObject(0) {
     m_color = gridline.m_color;
 
     update();
+    setObjectName(gridline.objectName());
+
+    log_level = tmp_log_level;
 }
 
 Gridline::~Gridline() {
+    int tmp_log_level = log_level;
+    log_level = LOG_LEVEL_WARNING;
+
     delete m_marker;
-#ifdef DEBUG_OUTPUT
-    dout << "Gridline" << objectName() << "is destroyed";
-#endif
+
+    log_level = tmp_log_level;
+
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << "Gridline" << this->objectName() << "is destroyed";
 }
 
 void Gridline::dumpObjectInfo(int l) {
@@ -91,6 +108,8 @@ void Gridline::reset() {
     m_xStride = m_yStride = m_zStride = 1;
     m_color = QVector3D(0.4f, 0.4f, 0.4f);
     update();
+    if (log_level >= LOG_LEVEL_INFO)
+        dout << this->objectName() << "is reset";
 }
 
 void Gridline::setXArguments(QVector3D xargs) {

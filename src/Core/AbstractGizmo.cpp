@@ -5,6 +5,7 @@ AbstractGizmo::AbstractGizmo(QObject* parent): AbstractEntity(0) {
     m_axis = None;
     m_host = 0;
     setParent(parent);
+    setObjectName("Untitled Gizmo");
 }
 
 AbstractGizmo::~AbstractGizmo() {}
@@ -39,9 +40,9 @@ void AbstractGizmo::bindTo(AbstractEntity * host) {
     if (host) {
         m_host = host;
         connect(m_host, SIGNAL(destroyed(QObject*)), this, SLOT(hostDestroyed(QObject*)));
-#ifdef DEBUG_OUTPUT
-        dout << this->objectName() << "is bound to" << host->objectName();
-#endif
+
+        if (log_level >= LOG_LEVEL_INFO)
+            dout << this->objectName() << "is bound to" << host->objectName();
     }
 }
 
@@ -49,9 +50,6 @@ void AbstractGizmo::unbind() {
     if (m_host) {
         disconnect(m_host, 0, this, 0);
         m_host = 0;
-#ifdef DEBUG_OUTPUT
-        dout << this->objectName() << "is unbound";
-#endif
     }
 }
 
