@@ -1,4 +1,4 @@
-# Advanced User Manual 3: Load Model
+# Advanced User Manual 3: Model Loading
 
 ## Load built-in models
 

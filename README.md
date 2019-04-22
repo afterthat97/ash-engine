@@ -43,9 +43,9 @@ Note: **Read the basic manuals first** before you start to read any advanced man
 
 [Advanced User Manual 2: Create a window (English)](doc/advanced-user-manual2-en.md)
 
-[Advanced User Manual 3: Load Model (English)](doc/advanced-user-manual3-en.md)
+[Advanced User Manual 3: Model Loading (English)](doc/advanced-user-manual3-en.md)
 
-[Advanced User Manual 4: Multiple lights (English)](doc/advanced-user-manual4-en.md)
+[Advanced User Manual 4: Multiple Lights (English)](doc/advanced-user-manual4-en.md)
 
 [Advanced User Manual 5: Basic Transformation (English)](doc/advanced-user-manual5-en.md)
 
@@ -57,9 +57,9 @@ Note: **Read the basic manuals first** before you start to read any advanced man
 
 [Advanced User Manual 2: Create a window (Chinese)](doc/advanced-user-manual2-cn.md)
 
-[Advanced User Manual 3: Load Model (Chinese)](doc/advanced-user-manual3-cn.md)
+[Advanced User Manual 3: Model Loading (Chinese)](doc/advanced-user-manual3-cn.md)
 
-[Advanced User Manual 4: Multiple lights (Chinese)](doc/advanced-user-manual4-cn.md)
+[Advanced User Manual 4: Multiple Lights (Chinese)](doc/advanced-user-manual4-cn.md)
 
 [Advanced User Manual 5: Basic Transformation (Chinese)](doc/advanced-user-manual5-cn.md)
 

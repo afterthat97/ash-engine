@@ -25,7 +25,7 @@
 
 下面的代码展示了如何创建一个场景，并向场景中添加模型和网格：
 
-```
+```cpp
 int main(int argc, char *argv[]) {
     Scene* scene = new Scene;
 

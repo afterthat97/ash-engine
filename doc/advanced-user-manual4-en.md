@@ -1,4 +1,4 @@
-# Advanced User Manual 4: Multiple lights
+# Advanced User Manual 4: Multiple Lights
 
 In previous manuals, we only added a directional light to the scene (otherwise all models will be dark). Now we will add more lights to the scene.
 

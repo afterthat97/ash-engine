@@ -25,7 +25,7 @@ In Ash Engine, the objects in the scene and their relationships are represented 
 
 The following code shows how to create a scene and add models and meshes to the scene:
 
-```
+```cpp
 int main(int argc, char *argv[]) {
     Scene* scene = new Scene;
 
