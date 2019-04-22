@@ -75,6 +75,8 @@ Three main platforms are supported:
 * macOS 10.14 (Older versions may work too)
 * Ubuntu 16.04 LTS (Only tested on 16.04, other versions may work too)
 
+It takes about 3 minutes to build on a laptop with Intel Core i5-5257U (single thread).
+
 [Build Instructions (English)](doc/build-en.md)
 
 [Build Instructions (Chinese)](doc/build-cn.md)
