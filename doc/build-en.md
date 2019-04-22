@@ -12,7 +12,7 @@ Open this project in Qt Creator, build and run it directly.
 
 ### Using Visual Studio
 
-Install and configure the plugin `Qt VS Tools` in Visual Studio. You can refer to another tutorial: [How to Setting Qt GUI using C++ with Visual studio 2017] (https://medium.com/@paryleevatou/how-to-setting-qt-gui-using-c-with-visual-studio-2017-dbb50406f99)
+Install and configure the plugin `Qt VS Tools` in Visual Studio. You can refer to another tutorial: [How to Setting Qt GUI using C++ with Visual studio 2017](https://medium.com/@paryleevatou/how-to-setting-qt-gui-using-c-with-visual-studio-2017-dbb50406f99)
 
 After the configuration is done, select `Qt VS Tools` --> `Open Qt Project File (*.pro)` in the Visual Studio menu, navigate to `AshEngine.pro` in the pop-up file browser and open it. A corresponding Visual Studio project will be generated and opened.
 
