@@ -11,7 +11,7 @@
 
 #define eps (1e-4f)
 #define inf (1000000.0f)
-#define rad(n) ((float) cos((n) * 3.1415926 / 180.0))
+#define rad(n) ((n) * M_PI / 180.0)
 
 bool isEqual(float a, float b);
 bool isEqual(QVector3D a, QVector3D b);

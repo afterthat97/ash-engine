@@ -53,7 +53,7 @@ Select a mesh or model and select `File` --> `Export Model` from the menu to exp
 
 ### Types
 
-The Ash Engine supports four types of light sources, and up to eight for each type of light source:
+Ash Engine supports four types of light sources, and up to eight for each type of light source:
 
 | Type | Attribute |
 |------|-----------|
@@ -66,7 +66,7 @@ The Ash Engine supports four types of light sources, and up to eight for each ty
 
 Point lights and spotlights have attenuation properties that allow for a more realistic simulation of real-world light sources. Ash Engine uses quadratic attenuation with the following formula:
 
-![](./attenuation.svg)
+![](images/attenuation.svg)
 
 `d` represents the distance of the object from the light source. `Kc`, `Kl`, `Kq` are constant terms, linear terms, and quadratic terms, respectively:
 

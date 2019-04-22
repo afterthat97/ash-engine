@@ -18,6 +18,7 @@ public:
     void setScene(OpenGLScene* openGLScene);
     void setRenderer(OpenGLRenderer* renderer);
     void setEnableMousePicking(bool enabled);
+    void setCustomRenderingLoop(void (*customRenderingLoop)(Scene*));
 
 protected:
     void initializeGL() override;
@@ -41,6 +42,7 @@ private:
     OpenGLScene* m_openGLScene;
     OpenGLRenderer * m_renderer;
     FPSCounter* m_fpsCounter;
+    void (*m_customRenderingLoop)(Scene*);
 
     void processUserInput();
     void configSignals();

@@ -23,11 +23,57 @@ Ash Engine is a cross-platform 3D engine (only for learning purpose) based on Qt
 
 ## User Manual
 
+### Basic User Manuals
+
+The basic user manuals describe the structure and usage of Ash Engine.
+
 [Basic User Manual (English)](doc/basic-manual-en.md)
 
 [Basic User Manual (Chinese)](doc/basic-manual-cn.md)
 
-## Build
+### Advanced User Manuals
+
+The advanced user manuals cover the implementation of custom functions using API provided by Ash Engine. This requires the user to be familiar with C++ object-oriented programming and some Qt classes (such as `QVector3D`).
+
+Note: **Read the basic manuals first** before you start to read any advanced manual.
+
+#### For English Users
+
+[Advanced User Manual 1: Scene Structure (English)](doc/advanced-user-manual1-en.md)
+
+[Advanced User Manual 2: Create a window (English)](doc/advanced-user-manual2-en.md)
+
+[Advanced User Manual 3: Load Model (English)](doc/advanced-user-manual3-en.md)
+
+[Advanced User Manual 4: Multiple lights (English)](doc/advanced-user-manual4-en.md)
+
+[Advanced User Manual 5: Basic Transformation (English)](doc/advanced-user-manual5-en.md)
+
+[Advanced User Manual 6: Custom Rendering Loop (English)](doc/advanced-user-manual6-en.md)
+
+#### For Chinese Users
+
+[Advanced User Manual 1: Scene Structure (Chinese)](doc/advanced-user-manual1-cn.md)
+
+[Advanced User Manual 2: Create a window (Chinese)](doc/advanced-user-manual2-cn.md)
+
+[Advanced User Manual 3: Load Model (Chinese)](doc/advanced-user-manual3-cn.md)
+
+[Advanced User Manual 4: Multiple lights (Chinese)](doc/advanced-user-manual4-cn.md)
+
+[Advanced User Manual 5: Basic Transformation (Chinese)](doc/advanced-user-manual5-cn.md)
+
+[Advanced User Manual 6: Custom Rendering Loop (Chinese)](doc/advanced-user-manual6-cn.md)
+
+## Build from source
+
+**Note**: This project was built under Qt 5.9.7. No matter which platform or IDE you use, you must install Qt first.
+
+Three main platforms are supported:
+
+* Windows 7 x64 or newer
+* macOS 10.14 (Older versions may work too)
+* Ubuntu 16.04 LTS (Only tested on 16.04, other versions may work too)
 
 [Build Instructions (English)](doc/build-en.md)
 
@@ -52,4 +98,4 @@ Ash Engine is a cross-platform 3D engine (only for learning purpose) based on Qt
 
 Welcome to contact or join me!
 
-Email: afterthat97@gmail.com
+Email: [afterthat97@gmail.com](afterthat97@gmail.com)

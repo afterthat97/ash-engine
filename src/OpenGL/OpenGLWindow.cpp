@@ -7,6 +7,7 @@ OpenGLWindow::OpenGLWindow() {
     m_renderer = 0;
     m_openGLScene = 0;
     m_fpsCounter = new FPSCounter(this);
+    m_customRenderingLoop = 0;
     configSignals();
 }
 
@@ -16,6 +17,7 @@ OpenGLWindow::OpenGLWindow(OpenGLScene * openGLScene, OpenGLRenderer * renderer)
     m_renderer = renderer;
     m_openGLScene = openGLScene;
     m_fpsCounter = new FPSCounter(this);
+    m_customRenderingLoop = 0;
     configSignals();
 }
 
@@ -56,6 +58,10 @@ void OpenGLWindow::setEnableMousePicking(bool enabled) {
     m_enableMousePicking = enabled;
 }
 
+void OpenGLWindow::setCustomRenderingLoop(void (*customRenderingLoop)(Scene*)) {
+    m_customRenderingLoop = customRenderingLoop;
+}
+
 void OpenGLWindow::initializeGL() {
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
@@ -82,6 +88,9 @@ void OpenGLWindow::paintGL() {
     processUserInput();
 
     if (m_renderer && m_openGLScene && m_openGLScene->host()->camera()) {
+        if (m_customRenderingLoop)
+            m_customRenderingLoop(m_openGLScene->host());
+
         m_openGLScene->host()->camera()->setAspectRatio(float(width()) / height());
         m_openGLScene->commitCameraInfo();
         m_openGLScene->commitLightInfo();

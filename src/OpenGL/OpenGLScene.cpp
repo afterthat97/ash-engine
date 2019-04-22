@@ -166,8 +166,8 @@ void OpenGLScene::commitLightInfo() {
             shaderlightInfo.spotLight[spotLightNum].attenuation[1] = m_host->spotLights()[i]->attenuationQuadratic();
             shaderlightInfo.spotLight[spotLightNum].attenuation[2] = m_host->spotLights()[i]->attenuationLinear();
             shaderlightInfo.spotLight[spotLightNum].attenuation[3] = m_host->spotLights()[i]->attenuationConstant();
-            shaderlightInfo.spotLight[spotLightNum].cutOff[0] = rad(m_host->spotLights()[i]->innerCutOff());
-            shaderlightInfo.spotLight[spotLightNum].cutOff[1] = rad(m_host->spotLights()[i]->outerCutOff());
+            shaderlightInfo.spotLight[spotLightNum].cutOff[0] = (float) cos(rad(m_host->spotLights()[i]->innerCutOff()));
+            shaderlightInfo.spotLight[spotLightNum].cutOff[1] = (float) cos(rad(m_host->spotLights()[i]->outerCutOff()));
             spotLightNum++;
         }
 

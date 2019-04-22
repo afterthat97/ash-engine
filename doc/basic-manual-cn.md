@@ -66,7 +66,7 @@ Ash Engine 支持四种光源，每种光源最多创建 8 个：
 
 点光和聚光拥有衰减属性，从而能更真实地模拟现实中的光源。Ash Engine 使用二次衰减，公式如下：
 
-![](./attenuation.svg)
+![](images/attenuation.svg)
 
 `d` 代表了物体距光源的距离。`Kc`, `Kl`, `Kq` 分别是常数项、一次项和二次项，它们的作用是：
 

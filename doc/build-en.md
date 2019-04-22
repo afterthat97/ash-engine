@@ -1,13 +1,5 @@
 # Building Instructions
 
-**Note**: This project was built under Qt 5.9.7. No matter which platform or IDE you use, you must install Qt first.
-
-Three main platforms are supported:
-
-* Windows 7 x64 or newer
-* macOS 10.14 (Older versions may work too)
-* Ubuntu 16.04 LTS (Only tested on 16.04, other versions may work too)
-
 ## Build on Windows
 
 There are two options for building on Windows. The easiest way is to open the project directly in Qt Creator. Advanced users can also choose to compile with Visual Studio, which I recommend. More than 90% of the code in this project is written in Visual Studio 2017.
