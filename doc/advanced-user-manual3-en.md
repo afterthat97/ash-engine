@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
 Replace the `main` function in `src/AshEngine.cpp` with the above code, recompile and execute, you can get the following results:
 
-![](images/advanced-user-manual3-1.png)
+![](images/advanced-user-manual3-1.jpg)
 
 ## Load model from files
 
@@ -102,4 +102,4 @@ int main(int argc, char *argv[]) {
 
 Replace the `main` function in `src/AshEngine.cpp` with the above code, replace `/path-to-your-model/model.obj` with the filepath of your own model, recompile and execute, and you can get results similar to the following:
 
-![](images/advanced-user-manual3-2.png)
+![](images/advanced-user-manual3-2.jpg)

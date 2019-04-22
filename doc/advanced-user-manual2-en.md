@@ -45,4 +45,4 @@ int main(int argc, char *argv[]) {
 
 Replace the `main` function in `src/AshEngine.cpp` with the above code, recompile and execute, you can get the following results:
 
-![](images/advanced-user-manual2.png)
+![](images/advanced-user-manual2.jpg)

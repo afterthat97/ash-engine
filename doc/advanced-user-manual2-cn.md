@@ -45,4 +45,4 @@ int main(int argc, char *argv[]) {
 
 将 `src/AshEngine.cpp` 中的 `main` 函数的内容替换为以上代码，重新编译执行，你可以得到以下结果：
 
-![](images/advanced-user-manual2.png)
+![](images/advanced-user-manual2.jpg)

@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
 将 `src/AshEngine.cpp` 中的 `main` 函数的内容替换为以上代码，重新编译执行，你可以得到以下的结果：
 
-![](images/advanced-user-manual3-1.png)
+![](images/advanced-user-manual3-1.jpg)
 
 ## 从文件加载模型
 
@@ -102,4 +102,4 @@ int main(int argc, char *argv[]) {
 
 将 `src/AshEngine.cpp` 中的 `main` 函数的内容替换为以上代码，将 `/path-to-your-model/model.obj` 替换为你自己的模型文件地址，重新编译执行，你可以得到类似以下的结果：
 
-![](images/advanced-user-manual3-2.png)
+![](images/advanced-user-manual3-2.jpg)
