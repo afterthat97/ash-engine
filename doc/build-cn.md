@@ -16,6 +16,12 @@
 
 配置完成后，在 Visual Studio 的菜单中选择 `Qt VS Tools` --> `Open Qt Project File (*.pro)`，在弹出的文件浏览器中定位到 `AshEngine.pro` 并打开，插件就会生成一个对应的 Visual Studio 项目并打开它。
 
+在菜单中选择 `项目` -> `属性` -> `生成事件` -> `生成后事件`，在 `命令行` 一项中填入以下内容（作用是在编译完成后，将主程序依赖的动态库拷贝到统一路径下，否则运行时会报错 “找不到 xxx.dll”）：
+
+```
+xcopy /Y "$(ProjectDir)lib\win\assimp-vc140-mt.dll" "$(OutDir)"
+```
+
 ## 在 macOS 上编译
 
 在 macOS 上编译也有多种选择，最简单的方法还是直接在 Qt Creator 中打开编译。高级用户还可以在命令行中使用 `qmake` 生成 Makefile 或者 Xcode 项目，接着使用 GNU make 或者 Xcode 编译本项目。

@@ -16,6 +16,12 @@ Install and configure the plugin `Qt VS Tools` in Visual Studio. You can refer t
 
 After the configuration is done, select `Qt VS Tools` --> `Open Qt Project File (*.pro)` in the Visual Studio menu, navigate to `AshEngine.pro` in the pop-up file browser and open it. A corresponding Visual Studio project will be generated and opened.
 
+On the `Project` menu, click `Properties` and select the `Build Events` tab. In the **Post-build event command line** box, specify the syntax of the build event (otherwise you may encounter "xxx.dll not found"):
+
+```
+xcopy /Y "$(ProjectDir)lib\win\assimp-vc140-mt.dll" "$(OutDir)"
+```
+
 ## Build on macOS
 
 There are also many options for building on macOS. The easiest way is to open the project directly in Qt Creator. Advanced users can also use `qmake` to generate a Makefile or Xcode project, and then use GNU `make` or Xcode to build the project.
