@@ -104,4 +104,4 @@ It takes about 3 minutes to build on a laptop with Intel Core i5-5257U (single t
 
 Welcome to contact or join me!
 
-Email: [afterthat97@gmail.com](afterthat97@gmail.com)
+Email: afterthat97@foxmail.com
