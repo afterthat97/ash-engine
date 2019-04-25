@@ -10,6 +10,8 @@ Ash Engine is a cross-platform 3D engine (only for learning purpose) based on Qt
 
 ![](screenshots/screenshot3.jpg)
 
+![](doc/images/advanced-user-manual6.gif)
+
 ## Requirements
 
 * Windows 7 x64 or newer, macOS 10.12 or newer, or Ubuntu 16.04
