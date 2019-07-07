@@ -6,7 +6,7 @@ Ash Engine has a high-level wrapper around Qt and OpenGL, and users without any 
 
 To create a window, you need to create three classes related to OpenGL rendering:
 
-* `OpenGLWindow`: the window used for rendering (like ** drawing board**)
+* `OpenGLWindow`: the window used for rendering (like **drawing board**)
 * `OpenGLRenderer`: the renderer of OpenGL (like **brush**)
 * `OpenGLScene`: the scene for rendering
 
