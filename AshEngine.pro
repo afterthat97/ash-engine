@@ -33,7 +33,7 @@ win32 {
 }
 
 linux {
-    LIBS += -L$$PWD/lib/linux/ -lassimp
+    LIBS += -lassimp
 }
 
 CONFIG(debug) {
