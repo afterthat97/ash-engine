@@ -1,5 +1,6 @@
 #include <extmath.h>
 #include <Common.h>
+#include <math.h>
 
 bool isEqual(float a, float b) {
     return qAbs(a - b) < eps;
